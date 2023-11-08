@@ -1,4 +1,4 @@
-										import org.openqa.selenium.By;
+import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
@@ -6,7 +6,7 @@ import org.openqa.selenium.chrome.ChromeDriver;
 public class SignInTest {
     public static void main(String[] args) {
         // Setting up Chrome driver path
-        System.setProperty("webdriver.chrome.driver", "path/to/chromedriver");
+        System.setProperty("webdriver.chrome.driver", "C://Users//Public//chromedriver.exe");
 
         // Creating a new instance of the Chrome driver
         WebDriver driver = new ChromeDriver();
