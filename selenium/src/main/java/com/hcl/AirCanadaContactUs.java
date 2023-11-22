@@ -7,6 +7,7 @@ import org.openqa.selenium.support.ui.Select;
 public class AirCanadaContactUs {
 
     public static void main(String[] args) {
+
         // Setting system properties of ChromeDriver
         System.setProperty("webdriver.chrome.driver", "path/to/chromedriver");
 
@@ -29,7 +30,7 @@ public class AirCanadaContactUs {
         issueDropdown.selectByVisibleText("Check-in");
 
         // Clicking on the "Next" button
-        WebElement nextButton1 = driver.findElement(By.xpath("//button[@class='button' and text()='Next']"));
+        WebElement nextButton1 = driver.findElement(By.xpath("//button[@type='submit' and text()='Next']"));
         nextButton1.click();
 
         // Entering email address in the Email Address field
@@ -81,7 +82,7 @@ public class AirCanadaContactUs {
         primaryPhoneNoField.sendKeys("8801070616");
 
         // Clicking on the "Next" button
-        WebElement nextButton2 = driver.findElement(By.xpath("//button[@class='button' and text()='Next']"));
+        WebElement nextButton2 = driver.findElement(By.xpath("//button[@type='submit' and text()='Next']"));
         nextButton2.click();
 
         // Selecting "Air Canada" in the Airline dropdown
@@ -121,11 +122,11 @@ public class AirCanadaContactUs {
         ticketNumberField.sendKeys("0142173322307");
 
         // Clicking on the "Next" button
-        WebElement nextButton3 = driver.findElement(By.xpath("//button[@class='button' and text()='Next']"));
+        WebElement nextButton3 = driver.findElement(By.xpath("//button[@type='submit' and text()='Next']"));
         nextButton3.click();
 
         // Verifying that "Do not add any payment information in the comment field" is displayed below the message field
-        WebElement paymentInformationMessage = driver.findElement(By.xpath("//div[@class='message__text' and text()='Do not add any payment information in the comment field']"));
+        WebElement paymentInformationMessage = driver.findElement(By.xpath("//div[@class='comment__text' and text()='Do not add any payment information in the comment field']"));
         String expectedPaymentInformationMessage = "Do not add any payment information in the comment field";
         String actualPaymentInformationMessage = paymentInformationMessage.getText();
         assert expectedPaymentInformationMessage.equals(actualPaymentInformationMessage);
@@ -135,11 +136,11 @@ public class AirCanadaContactUs {
         subjectField.sendKeys("Air Canada Booking");
 
         // Clicking on the "Submit" button
-        WebElement submitButton = driver.findElement(By.xpath("//button[@class='button' and text()='Submit']"));
+        WebElement submitButton = driver.findElement(By.xpath("//button[@type='submit' and text()='Submit']"));
         submitButton.click();
 
         // Verifying the confirmation message
-        WebElement confirmationMessage = driver.findElement(By.xpath("//div[@class='message__text' and text()='Thank you for sharing your travel experience. This is an automated response to let you know that we received your comments.\nA file number has been assigned and will be emailed to you shortly. Your feedback is very important and it may take some time to research and investigate your concerns.\nWe will get back to you as soon as possible. Thank you for your patience.']"));
+        WebElement confirmationMessage = driver.findElement(By.xpath("//div[@class='confirmation__text' and text()='Thank you for sharing your travel experience. This is an automated response to let you know that we received your comments.\nA file number has been assigned and will be emailed to you shortly. Your feedback is very important and it may take some time to research and investigate your concerns.\nWe will get back to you as soon as possible. Thank you for your patience.']"));
         String expectedConfirmationMessage = "Thank you for sharing your travel experience. This is an automated response to let you know that we received your comments.\nA file number has been assigned and will be emailed to you shortly. Your feedback is very important and it may take some time to research and investigate your concerns.\nWe will get back to you as soon as possible. Thank you for your patience.";
         String actualConfirmationMessage = confirmationMessage.getText();
         assert expectedConfirmationMessage.equals(actualConfirmationMessage);
@@ -147,5 +148,4 @@ public class AirCanadaContactUs {
         // Closing the browser
         driver.quit();
     }
-
 }
