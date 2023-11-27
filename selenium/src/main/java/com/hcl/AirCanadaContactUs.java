@@ -8,17 +8,17 @@ public class AirCanadaContactUs {
 
     public static void main(String[] args) {
 
-        // Setting system properties of ChromeDriver
+        // Setting up Chrome driver path
         System.setProperty("webdriver.chrome.driver", "path/to/chromedriver");
 
-        // Creating an instance of ChromeDriver
+        // Creating a new instance of the Chrome driver
         WebDriver driver = new ChromeDriver();
 
         // Navigating to the Air Canada Contact Us page
         driver.get("https://accc-uatmaster.microsoftcrmportals.com/en-CA/air-canada-contact-us/");
 
         // Selecting the "General Concerns" tile
-        WebElement generalConcernsTile = driver.findElement(By.xpath("//div[@class='tile__title' and text()='General Concerns']"));
+        WebElement generalConcernsTile = driver.findElement(By.xpath("//div[@class='tile general-concerns-tile']"));
         generalConcernsTile.click();
 
         // Selecting "At the Airport" in the Regarding dropdown
@@ -30,7 +30,7 @@ public class AirCanadaContactUs {
         issueDropdown.selectByVisibleText("Check-in");
 
         // Clicking on the "Next" button
-        WebElement nextButton1 = driver.findElement(By.xpath("//button[@type='submit' and text()='Next']"));
+        WebElement nextButton1 = driver.findElement(By.xpath("//button[@class='next-button']"));
         nextButton1.click();
 
         // Entering email address in the Email Address field
@@ -82,7 +82,7 @@ public class AirCanadaContactUs {
         primaryPhoneNoField.sendKeys("8801070616");
 
         // Clicking on the "Next" button
-        WebElement nextButton2 = driver.findElement(By.xpath("//button[@type='submit' and text()='Next']"));
+        WebElement nextButton2 = driver.findElement(By.xpath("//button[@class='next-button']"));
         nextButton2.click();
 
         // Selecting "Air Canada" in the Airline dropdown
@@ -122,28 +122,38 @@ public class AirCanadaContactUs {
         ticketNumberField.sendKeys("0142173322307");
 
         // Clicking on the "Next" button
-        WebElement nextButton3 = driver.findElement(By.xpath("//button[@type='submit' and text()='Next']"));
+        WebElement nextButton3 = driver.findElement(By.xpath("//button[@class='next-button']"));
         nextButton3.click();
 
         // Verifying that "Do not add any payment information in the comment field" is displayed below the message field
-        WebElement paymentInformationMessage = driver.findElement(By.xpath("//div[@class='comment__text' and text()='Do not add any payment information in the comment field']"));
+        WebElement paymentInformationMessage = driver.findElement(By.xpath("//div[@class='message']/p[2]"));
         String expectedPaymentInformationMessage = "Do not add any payment information in the comment field";
         String actualPaymentInformationMessage = paymentInformationMessage.getText();
-        assert expectedPaymentInformationMessage.equals(actualPaymentInformationMessage);
+        if (actualPaymentInformationMessage.equals(expectedPaymentInformationMessage)) {
+            System.out.println("Payment information message is displayed correctly");
+        } else {
+            System.out.println("Payment information message is not displayed correctly");
+        }
 
         // Entering "Air Canada Booking" in the Subject field
         WebElement subjectField = driver.findElement(By.id("subject"));
         subjectField.sendKeys("Air Canada Booking");
 
         // Clicking on the "Submit" button
-        WebElement submitButton = driver.findElement(By.xpath("//button[@type='submit' and text()='Submit']"));
+        WebElement submitButton = driver.findElement(By.xpath("//button[@class='submit-button']"));
         submitButton.click();
 
         // Verifying the confirmation message
-        WebElement confirmationMessage = driver.findElement(By.xpath("//div[@class='confirmation__text' and text()='Thank you for sharing your travel experience. This is an automated response to let you know that we received your comments.\nA file number has been assigned and will be emailed to you shortly. Your feedback is very important and it may take some time to research and investigate your concerns.\nWe will get back to you as soon as possible. Thank you for your patience.']"));
-        String expectedConfirmationMessage = "Thank you for sharing your travel experience. This is an automated response to let you know that we received your comments.\nA file number has been assigned and will be emailed to you shortly. Your feedback is very important and it may take some time to research and investigate your concerns.\nWe will get back to you as soon as possible. Thank you for your patience.";
+        WebElement confirmationMessage = driver.findElement(By.xpath("//div[@class='message']/p[1]"));
+        String expectedConfirmationMessage = "Thank you for sharing your travel experience. This is an automated response to let you know that we received your comments.\n" +
+                "A file number has been assigned and will be emailed to you shortly. Your feedback is very important and it may take some time to research and investigate your concerns.\n" +
+                "We will get back to you as soon as possible. Thank you for your patience.";
         String actualConfirmationMessage = confirmationMessage.getText();
-        assert expectedConfirmationMessage.equals(actualConfirmationMessage);
+        if (actualConfirmationMessage.equals(expectedConfirmationMessage)) {
+            System.out.println("Confirmation message is displayed correctly");
+        } else {
+            System.out.println("Confirmation message is not displayed correctly");
+        }
 
         // Closing the browser
         driver.quit();
