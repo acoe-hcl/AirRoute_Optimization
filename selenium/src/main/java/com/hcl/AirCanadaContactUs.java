@@ -16,15 +16,15 @@ public class AirCanadaContactUs {
         // Navigate to the Air Canada Contact Us page
         driver.get("https://accc-uatmaster.microsoftcrmportals.com/en-CA/air-canada-contact-us/");
 
-        // Select the tile "General Concerns"
-        WebElement generalConcernsTile = driver.findElement(By.xpath("//div[@class='tile']//h3[contains(text(),'General Concerns')]"));
+        // Select the "General Concerns" tile
+        WebElement generalConcernsTile = driver.findElement(By.xpath("//div[@class='tile general-concerns-tile']"));
         generalConcernsTile.click();
 
-        // Select the option "At the Airport" in the Regarding dropdown
+        // Select "At the Airport" in the Regarding dropdown
         Select regardingDropdown = new Select(driver.findElement(By.id("regarding")));
         regardingDropdown.selectByVisibleText("At the Airport");
 
-        // Select the option "Check-in" in the Issue dropdown field
+        // Select "Check-in" in the Issue dropdown field
         Select issueDropdown = new Select(driver.findElement(By.id("issue")));
         issueDropdown.selectByVisibleText("Check-in");
 
@@ -40,7 +40,7 @@ public class AirCanadaContactUs {
         WebElement confirmEmailAddressField = driver.findElement(By.id("confirmemailaddress"));
         confirmEmailAddressField.sendKeys("bharathkumar-n@hcl.com");
 
-        // Select the option "Mr." in the Title dropdown
+        // Select "Mr." in the Title dropdown
         Select titleDropdown = new Select(driver.findElement(By.id("title")));
         titleDropdown.selectByVisibleText("Mr.");
 
@@ -64,7 +64,7 @@ public class AirCanadaContactUs {
         WebElement provinceStateField = driver.findElement(By.id("provincestate"));
         provinceStateField.sendKeys("ON");
 
-        // Select the option "ON Ontario" in the Province/State dropdown
+        // Select "ON Ontario" in the Province/State dropdown
         Select provinceStateDropdown = new Select(driver.findElement(By.id("provincestatedropdown")));
         provinceStateDropdown.selectByVisibleText("ON Ontario");
 
@@ -72,7 +72,7 @@ public class AirCanadaContactUs {
         WebElement postalZipcodeField = driver.findElement(By.id("postalcodezipcode"));
         postalZipcodeField.sendKeys("M9C 4Y1");
 
-        // Select the option "Canada" in the Country/Region dropdown
+        // Select "Canada" in the Country/Region dropdown
         Select countryRegionDropdown = new Select(driver.findElement(By.id("countryregion")));
         countryRegionDropdown.selectByVisibleText("Canada");
 
@@ -84,7 +84,7 @@ public class AirCanadaContactUs {
         WebElement nextButton2 = driver.findElement(By.xpath("//button[contains(text(),'Next')]"));
         nextButton2.click();
 
-        // Select the option "Air Canada" in the Airline dropdown
+        // Select "Air Canada" in the Airline dropdown
         Select airlineDropdown = new Select(driver.findElement(By.id("airline")));
         airlineDropdown.selectByVisibleText("Air Canada");
 
@@ -100,7 +100,7 @@ public class AirCanadaContactUs {
         WebElement departureAirportField = driver.findElement(By.id("departureairport"));
         departureAirportField.sendKeys("YVR");
 
-        // Select the option "YVR Vancouver Canada (Vancouver Intl)" in the Departure Airport dropdown
+        // Select "YVR Vancouver Canada (Vancouver Intl)" in the Departure Airport dropdown
         Select departureAirportDropdown = new Select(driver.findElement(By.id("departureairportdropdown")));
         departureAirportDropdown.selectByVisibleText("YVR Vancouver Canada (Vancouver Intl)");
 
@@ -108,7 +108,7 @@ public class AirCanadaContactUs {
         WebElement arrivalAirportField = driver.findElement(By.id("arrivalairport"));
         arrivalAirportField.sendKeys("YYZ");
 
-        // Select the option "YYZ Toronto Canada (Lester B. Pearson Intl)" in the Arrival Airport dropdown
+        // Select "YYZ Toronto Canada (Lester B. Pearson Intl)" in the Arrival Airport dropdown
         Select arrivalAirportDropdown = new Select(driver.findElement(By.id("arrivalairportdropdown")));
         arrivalAirportDropdown.selectByVisibleText("YYZ Toronto Canada (Lester B. Pearson Intl)");
 
@@ -125,7 +125,7 @@ public class AirCanadaContactUs {
         nextButton3.click();
 
         // Verify that "Do not add any payment information in the comment field" is displayed below the message field
-        WebElement paymentInformationMessage = driver.findElement(By.xpath("//div[@class='field-group payment-information']//p[contains(text(),'Do not add any payment information in the comment field')]"));
+        WebElement paymentInformationMessage = driver.findElement(By.xpath("//div[contains(text(),'Do not add any payment information in the comment field')]"));
         String expectedPaymentInformationMessage = "Do not add any payment information in the comment field";
         String actualPaymentInformationMessage = paymentInformationMessage.getText();
         if (actualPaymentInformationMessage.equals(expectedPaymentInformationMessage)) {
@@ -143,10 +143,8 @@ public class AirCanadaContactUs {
         submitButton.click();
 
         // Verify the confirmation message
-        WebElement confirmationMessage = driver.findElement(By.xpath("//div[@class='alert alert-success']"));
-        String expectedConfirmationMessage = "Thank you for sharing your travel experience. This is an automated response to let you know that we received your comments.\n" +
-                "A file number has been assigned and will be emailed to you shortly. Your feedback is very important and it may take some time to research and investigate your concerns.\n" +
-                "We will get back to you as soon as possible. Thank you for your patience.";
+        WebElement confirmationMessage = driver.findElement(By.xpath("//div[contains(text(),'Thank you for sharing your travel experience. This is an automated response to let you know that we received your comments.')]"));
+        String expectedConfirmationMessage = "Thank you for sharing your travel experience. This is an automated response to let you know that we received your comments.\nA file number has been assigned and will be emailed to you shortly. Your feedback is very important and it may take some time to research and investigate your concerns.\nWe will get back to you as soon as possible. Thank you for your patience.";
         String actualConfirmationMessage = confirmationMessage.getText();
         if (actualConfirmationMessage.equals(expectedConfirmationMessage)) {
             System.out.println("Confirmation message is displayed correctly");
