@@ -1,196 +1,71 @@
+Here is the Selenium Java code for the given scenario:
+
+```java
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.support.ui.Select;
 
 public class AirCanadaTest {
-
     public static void main(String[] args) {
-        // Set Chrome Driver Path
-        System.setProperty("webdriver.chrome.driver", "/path/to/chromedriver");
-
-        // Create a new instance of ChromeDriver
         WebDriver driver = new ChromeDriver();
-
-        // Navigate to the Air Canada Contact Us page
+        driver.manage().window().maximize();
+        
         driver.get("https://accc-uatmaster.microsoftcrmportals.com/en-CA/air-canada-contact-us/");
 
-        // Select the tile "General Concerns"
-        WebElement generalConcernsTile = driver.findElement(By.xpath("//div[@id='collapseGeneralConcerns']//button"));
-        generalConcernsTile.click();
+        driver.findElement(By.xpath("//Tile for General Concerns")).click();
+        new Select(driver.findElement(By.id("Regarding dropdown"))).selectByVisibleText("At the Airport");
+        new Select(driver.findElement(By.id("Issue dropdown"))).selectByVisibleText("Check-in");
+        driver.findElement(By.id("Next button")).click();
+        
+        // Assert that we are on the PASSENGER INFORMATION page
+        assert driver.getTitle().equals("PASSENGER INFORMATION");
 
-        // Select the option "At the Airport" in the Regarding dropdown
-        WebElement regardingDropdown = driver.findElement(By.xpath("//select[@id='regarding']"));
-        regardingDropdown.click();
-        WebElement regardingOption = driver.findElement(By.xpath("//option[text()='At the Airport']"));
-        regardingOption.click();
+        driver.findElement(By.id("Email Address field")).sendKeys("bharathkumar-n@hcl.com");
+        driver.findElement(By.id("Confirm Email Address field")).sendKeys("bharathkumar-n@hcl.com");
+        new Select(driver.findElement(By.id("Title dropdown"))).selectByVisibleText("Mr.");
+        driver.findElement(By.id("First Name field")).sendKeys("Bharath");
+        driver.findElement(By.id("Last Name field")).sendKeys("Ice");
+        driver.findElement(By.id("Permanent Mailing Address field")).sendKeys("Harvest");
+        driver.findElement(By.id("City field")).sendKeys("Ontario");
+        driver.findElement(By.id("Province/State Field")).sendKeys("ON");
+        new Select(driver.findElement(By.id("Province/State dropdown"))).selectByVisibleText("ON Ontario");
+        driver.findElement(By.id("Postal/Zipcode Field")).sendKeys("M9C 4Y1");
+        new Select(driver.findElement(By.id("Country/Region dropdown"))).selectByVisibleText("Canada");
+        driver.findElement(By.id("Primary Phone No Field")).sendKeys("8801070616");
+        driver.findElement(By.id("Next button")).click();
 
-        // Select the option "Check-in" in the Issue dropdown field
-        WebElement issueDropdown = driver.findElement(By.xpath("//select[@id='issue']"));
-        issueDropdown.click();
-        WebElement issueOption = driver.findElement(By.xpath("//option[text()='Check-in']"));
-        issueOption.click();
+        // Assert that we are on the AIRLINE INFORMATION section
+        assert driver.findElement(By.id("Airline dropdown")).isDisplayed();
 
-        // Click on the "Next" button
-        WebElement nextButton = driver.findElement(By.xpath("//button[@type='submit']"));
-        nextButton.click();
+        new Select(driver.findElement(By.id("Airline dropdown"))).selectByVisibleText("Air Canada");
+        driver.findElement(By.id("Flight Number field")).sendKeys("122");
+        driver.findElement(By.id("Flight Date field")).sendKeys("2023-08-17");
+        driver.findElement(By.id("Departure Airport Field")).sendKeys("YVR");
+        new Select(driver.findElement(By.id("Departure Airport dropdown"))).selectByVisibleText("YVR Vancouver Canada (Vancouver Intl)");
+        driver.findElement(By.id("Arrival Airport Field")).sendKeys("YYZ");
+        new Select(driver.findElement(By.id("Arrival Airport dropdown"))).selectByVisibleText("YYZ Toronto Canada (Lester B. Pearson Intl)");
+        driver.findElement(By.id("Booking Reference field")).sendKeys("3ED8RH");
+        driver.findElement(By.id("Ticket Number field")).sendKeys("0142173322307");
+        driver.findElement(By.id("Next button")).click();
 
-        // Verify that we are on the PASSENGER INFORMATION page
-        WebElement passengerInformationHeader = driver.findElement(By.xpath("//h2[text()='PASSENGER INFORMATION']"));
-        if (passengerInformationHeader.isDisplayed()) {
-            System.out.println("We are on the PASSENGER INFORMATION page");
-        } else {
-            System.out.println("We are not on the PASSENGER INFORMATION page");
-        }
+        // Assert that we are on the PAYMENT INFORMATION section
+        assert driver.findElement(By.id("Payment Section")).isDisplayed();
 
-        // Enter email address
-        WebElement emailAddressField = driver.findElement(By.xpath("//input[@id='emailaddress']"));
-        emailAddressField.sendKeys("bharathkumar-n@hcl.com");
+        WebElement message = driver.findElement(By.xpath("//Message below the field"));
+        assert message.getText().equals("Do not add any payment information in the comment field");
 
-        // Confirm email address
-        WebElement confirmEmailAddressField = driver.findElement(By.xpath("//input[@id='confirmemailaddress']"));
-        confirmEmailAddressField.sendKeys("bharathkumar-n@hcl.com");
+        driver.findElement(By.id("Subject field")).sendKeys("Air Canada Booking");
+        driver.findElement(By.id("Submit button")).click();
 
-        // Select the option "Mr." in the Title dropdown
-        WebElement titleDropdown = driver.findElement(By.xpath("//select[@id='title']"));
-        titleDropdown.click();
-        WebElement titleOption = driver.findElement(By.xpath("//option[text()='Mr.']"));
-        titleOption.click();
+        // Assert the confirmation message
+        WebElement confirmationMessage = driver.findElement(By.xpath("//Confirmation message"));
+        assert confirmationMessage.getText().equals("Thank you for sharing your travel experience. This is an automated response to let you know that we received your comments. A file number has been assigned and will be emailed to you shortly. Your feedback is very important and it may take some time to research and investigate your concerns. We will get back to you as soon as possible. Thank you for your patience.");
 
-        // Enter first name
-        WebElement firstNameField = driver.findElement(By.xpath("//input[@id='firstname']"));
-        firstNameField.sendKeys("Bharath");
-
-        // Enter last name
-        WebElement lastNameField = driver.findElement(By.xpath("//input[@id='lastname']"));
-        lastNameField.sendKeys("Ice");
-
-        // Enter permanent mailing address
-        WebElement permanentMailingAddressField = driver.findElement(By.xpath("//input[@id='permanentmailingaddress']"));
-        permanentMailingAddressField.sendKeys("Harvest");
-
-        // Enter city
-        WebElement cityField = driver.findElement(By.xpath("//input[@id='city']"));
-        cityField.sendKeys("Ontario");
-
-        // Enter province/state
-        WebElement provinceStateField = driver.findElement(By.xpath("//input[@id='provincestate']"));
-        provinceStateField.sendKeys("ON");
-
-        // Select the option "ON Ontario" in the Province/State dropdown
-        WebElement provinceStateDropdown = driver.findElement(By.xpath("//select[@id='provincestatedropdown']"));
-        provinceStateDropdown.click();
-        WebElement provinceStateOption = driver.findElement(By.xpath("//option[text()='ON Ontario']"));
-        provinceStateOption.click();
-
-        // Enter postal/zipcode
-        WebElement postalZipcodeField = driver.findElement(By.xpath("//input[@id='postalzipcode']"));
-        postalZipcodeField.sendKeys("M9C 4Y1");
-
-        // Select the option "Canada" in the Country/Region dropdown
-        WebElement countryRegionDropdown = driver.findElement(By.xpath("//select[@id='countryregion']"));
-        countryRegionDropdown.click();
-        WebElement countryRegionOption = driver.findElement(By.xpath("//option[text()='Canada']"));
-        countryRegionOption.click();
-
-        // Enter primary phone number
-        WebElement primaryPhoneNoField = driver.findElement(By.xpath("//input[@id='primaryphoneno']"));
-        primaryPhoneNoField.sendKeys("8801070616");
-
-        // Click on the "Next" button
-        nextButton.click();
-
-        // Verify that we are on the AIRLINE INFORMATION section
-        WebElement airlineInformationHeader = driver.findElement(By.xpath("//h2[text()='AIRLINE INFORMATION']"));
-        if (airlineInformationHeader.isDisplayed()) {
-            System.out.println("We are on the AIRLINE INFORMATION section");
-        } else {
-            System.out.println("We are not on the AIRLINE INFORMATION section");
-        }
-
-        // Select the option "Air Canada" in the Airline dropdown
-        WebElement airlineDropdown = driver.findElement(By.xpath("//select[@id='airline']"));
-        airlineDropdown.click();
-        WebElement airlineOption = driver.findElement(By.xpath("//option[text()='Air Canada']"));
-        airlineOption.click();
-
-        // Enter flight number
-        WebElement flightNumberField = driver.findElement(By.xpath("//input[@id='flightnumber']"));
-        flightNumberField.sendKeys("122");
-
-        // Enter flight date
-        WebElement flightDateField = driver.findElement(By.xpath("//input[@id='flightdate']"));
-        flightDateField.sendKeys("2023-08-17");
-
-        // Enter departure airport
-        WebElement departureAirportField = driver.findElement(By.xpath("//input[@id='departureairport']"));
-        departureAirportField.sendKeys("YVR");
-
-        // Select the option "YVR Vancouver Canada (Vancouver Intl)" in the Departure Airport dropdown
-        WebElement departureAirportDropdown = driver.findElement(By.xpath("//select[@id='departureairportdropdown']"));
-        departureAirportDropdown.click();
-        WebElement departureAirportOption = driver.findElement(By.xpath("//option[text()='YVR Vancouver Canada (Vancouver Intl)']"));
-        departureAirportOption.click();
-
-        // Enter arrival airport
-        WebElement arrivalAirportField = driver.findElement(By.xpath("//input[@id='arrivalairport']"));
-        arrivalAirportField.sendKeys("YYZ");
-
-        // Select the option "YYZ Toronto Canada (Lester B. Pearson Intl)" in the Arrival Airport dropdown
-        WebElement arrivalAirportDropdown = driver.findElement(By.xpath("//select[@id='arrivalairportdropdown']"));
-        arrivalAirportDropdown.click();
-        WebElement arrivalAirportOption = driver.findElement(By.xpath("//option[text()='YYZ Toronto Canada (Lester B. Pearson Intl)']"));
-        arrivalAirportOption.click();
-
-        // Enter booking reference
-        WebElement bookingReferenceField = driver.findElement(By.xpath("//input[@id='bookingreference']"));
-        bookingReferenceField.sendKeys("3ED8RH");
-
-        // Enter ticket number
-        WebElement ticketNumberField = driver.findElement(By.xpath("//input[@id='ticketnumber']"));
-        ticketNumberField.sendKeys("0142173322307");
-
-        // Click on the "Next" button
-        nextButton.click();
-
-        // Verify that we are on the PAYMENT INFORMATION section
-        WebElement paymentInformationHeader = driver.findElement(By.xpath("//h2[text()='PAYMENT INFORMATION']"));
-        if (paymentInformationHeader.isDisplayed()) {
-            System.out.println("We are on the PAYMENT INFORMATION section");
-        } else {
-            System.out.println("We are not on the PAYMENT INFORMATION section");
-        }
-
-        // Verify that "Do not add any payment information in the comment field" is displayed below the message field
-        WebElement messageField = driver.findElement(By.xpath("//textarea[@id='message']"));
-        String expectedPaymentInformationText = "Do not add any payment information in the comment field";
-        String actualPaymentInformationText = messageField.getAttribute("value");
-        if (expectedPaymentInformationText.equals(actualPaymentInformationText)) {
-            System.out.println("The payment information text is correct");
-        } else {
-            System.out.println("The payment information text is incorrect");
-        }
-
-        // Enter subject
-        WebElement subjectField = driver.findElement(By.xpath("//input[@id='subject']"));
-        subjectField.sendKeys("Air Canada Booking");
-
-        // Click on the "Submit" button
-        WebElement submitButton = driver.findElement(By.xpath("//button[@type='submit']"));
-        submitButton.click();
-
-        // Verify the confirmation message
-        WebElement confirmationMessage = driver.findElement(By.xpath("//div[@id='confirmation']"));
-        String expectedConfirmationMessageText = "Thank you for sharing your travel experience. This is an automated response to let you know that we received your comments. A file number has been assigned and will be emailed to you shortly. Your feedback is very important and it may take some time to research and investigate your concerns. We will get back to you as soon as possible. Thank you for your patience.";
-        String actualConfirmationMessageText = confirmationMessage.getText();
-        if (expectedConfirmationMessageText.equals(actualConfirmationMessageText)) {
-            System.out.println("The confirmation message is correct");
-        } else {
-            System.out.println("The confirmation message is incorrect");
-        }
-
-        // Close the browser
         driver.quit();
     }
-
 }
+```
+
+Please replace all the IDs and XPaths used in the code with the actual IDs and XPaths from your webpage. The IDs and XPaths provided in the code are just placeholders and will not work on the actual webpage.
