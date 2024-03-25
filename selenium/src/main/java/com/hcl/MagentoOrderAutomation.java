@@ -1,157 +1,124 @@
-Sure, here is the Selenium Java automation test script file for the given scenario:
+Sure, here is the generated Selenium Java automation test script for the given scenario:
 
-```java
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.interactions.Actions;
 
 public class MagentoOrderAutomation {
-    public static void main(String[] args) {
-        // Set the browser driver path
-        System.setProperty("webdriver.chrome.driver", "path/to/chromedriver");
-
-        // Create an instance of ChromeDriver
-        WebDriver driver = new ChromeDriver();
-
-        // Create variables for browser name and page name
-        String browserName;
-        String pageName;
-
-        // Step 1: Given I have set the browser name as "Home Page"
-        browserName = "Home Page";
-
-        // Step 2: Given I have set the page name as "Home Page"
-        pageName = "Home Page";
-
-        // Step 3: When I launch the application "https://magento.softwaretestingboard.com/"
-        driver.get("https://magento.softwaretestingboard.com/");
-
-        // Step 4: And I click on the "Sign In" link
-        driver.findElement(By.linkText("Sign In")).click();
-
-        // Step 5: Then I should set the browser name as "Customer Login"
-        browserName = "Customer Login";
-
-        // Step 6: And I should set the page name as "Customer Login"
-        pageName = "Customer Login";
-
-        // Step 7: When I enter "autotest567@gmail.com" in the "Email" field
-        driver.findElement(By.id("email")).sendKeys("autotest567@gmail.com");
-
-        // Step 8: And I enter "Tester@123" in the "Password" field as secure text
-        driver.findElement(By.id("pass")).sendKeys("Tester@123");
-
-        // Step 9: And I click on the "Sign In" button
-        driver.findElement(By.id("send2")).click();
-
-        // Step 10: Then I should set the browser name as "Home Page"
-        browserName = "Home Page";
-
-        // Step 11: And I should set the page name as "Home Page"
-        pageName = "Home Page";
-
-        // Step 12: When I mouse hover on the "Gear" menu
-        // Code to perform the mouse hover action
-
-        // Step 13: And I click on the "Bags" link
-        driver.findElement(By.linkText("Bags")).click();
-
-        // Step 14: Then I should set the browser name as "Bags - Gear"
-        browserName = "Bags - Gear";
-
-        // Step 15: And I should set the page name as "Bags - Gear"
-        pageName = "Bags - Gear";
-
-        // Step 16: When I click on the "Overnight Duffle" image
-        driver.findElement(By.linkText("Overnight Duffle")).click();
-
-        // Step 17: Then I should set the browser name as "Overnight Duffle"
-        browserName = "Overnight Duffle";
-
-        // Step 18: And I should set the page name as "Overnight Duffle"
-        pageName = "Overnight Duffle";
-
-        // Step 19: When I click on the "Add to Cart" button
-        driver.findElement(By.id("product-addtocart-button")).click();
-
-        // Step 20: And I click on the "My Cart" link
-        driver.findElement(By.linkText("My Cart")).click();
-
-        // Step 21: And I click on the "Proceed to Checkout" button
-        driver.findElement(By.linkText("Proceed to Checkout")).click();
-
-        // Step 22: Then I should set the browser name as "Checkout"
-        browserName = "Checkout";
-
-        // Step 23: And I should set the page name as "Checkout"
-        pageName = "Checkout";
-
-        // Step 24: And I verify that the "Order Summary" is having "Overnight Duffle" product
-        String orderSummary = driver.findElement(By.cssSelector(".order-summary")).getText();
-        if (orderSummary.contains("Overnight Duffle")) {
-            System.out.println("Order Summary is having the correct product.");
-        } else {
-            System.out.println("Order Summary is not having the correct product.");
-        }
-
-        // Step 25: When I click on the "New Address" button
-        driver.findElement(By.id("shipping-new-address-trigger")).click();
-
-        // Step 26: And I enter "4 South Street" in the "Street" field
-        driver.findElement(By.id("shipping:street1")).sendKeys("4 South Street");
-
-        // Step 27: And I enter "Texas" in the "City" field
-        driver.findElement(By.id("shipping:city")).sendKeys("Texas");
-
-        // Step 28: And I select "Texas" from the "State/Province" dropdown
-        // Code to select the option from the dropdown
-
-        // Step 29: And I enter "77567" in the "Zip/Postal Code" field
-        driver.findElement(By.id("shipping:postcode")).sendKeys("77567");
-
-        // Step 30: And I enter "3456788765" in the "Phone Number" field
-        driver.findElement(By.id("shipping:telephone")).sendKeys("3456788765");
-
-        // Step 31: And I click on the "Ship Here" button
-        driver.findElement(By.id("s_method_flatrate_flatrate")).click();
-
-        // Step 32: And I select the "Fixed" radio button
-        // Code to select the radio button
-
-        // Step 33: And I click on the "Next" button
-        driver.findElement(By.cssSelector(".button[title='Next']")).click();
-
-        // Step 34: And I select the "My billing and shipping address are the same" checkbox
-        // Code to select the checkbox
-
-        // Step 35: And I click on the "Place Order" button
-        driver.findElement(By.cssSelector(".button[title='Place Order']")).click();
-
-        // Step 36: Then I should set the browser name as "Success Page"
-        browserName = "Success Page";
-
-        // Step 37: And I should set the page name as "Success Page"
-        pageName = "Success Page";
-
-        // Step 38: And I verify the message "Thank you for your purchase!"
-        String successMessage = driver.findElement(By.cssSelector(".success-msg"))
-                .getText();
-        if (successMessage.contains("Thank you for your purchase!")) {
-            System.out.println("Success message displayed correctly.");
-        } else {
-            System.out.println("Success message not displayed correctly.");
-        }
-
-        // Step 39: When I click on the "Change" button
-        driver.findElement(By.linkText("Change")).click();
-
-        // Step 40: And I click on the "Signout" link
-        driver.findElement(By.linkText("Signout")).click();
-
-        // Close the browser
-        driver.quit();
-    }
+  public static void main(String[] args) throws InterruptedException {
+    
+    // Set the browser driver path
+    System.setProperty("webdriver.chrome.driver", "path/to/chromedriver");
+    
+    // Create a new instance of ChromeDriver
+    WebDriver driver = new ChromeDriver();
+    
+    // Launch the application
+    driver.get("https://magento.softwaretestingboard.com/");
+    
+    // Click on the "Sign In" link
+    WebElement signInLink = driver.findElement(By.linkText("Sign In"));
+    signInLink.click();
+    
+    // Enter email and password
+    WebElement emailField = driver.findElement(By.id("email"));
+    emailField.sendKeys("autotest567@gmail.com");
+    
+    WebElement passwordField = driver.findElement(By.id("pass"));
+    passwordField.sendKeys("Tester@123");
+    
+    // Click on the "Sign In" button
+    WebElement signInButton = driver.findElement(By.id("send2"));
+    signInButton.click();
+    
+    // Mouse hover on the "Gear" menu
+    WebElement gearMenu = driver.findElement(By.xpath("//a[@class='level0' and contains(text(), 'Gear')]"));
+    Actions actions = new Actions(driver);
+    actions.moveToElement(gearMenu).perform();
+    
+    // Click on the "Bags" link
+    WebElement bagsLink = driver.findElement(By.xpath("//a[@class='level1' and contains(text(), 'Bags')]"));
+    bagsLink.click();
+    
+    // Click on the "Overnight Duffle" image
+    WebElement overnightDuffleImage = driver.findElement(By.xpath("//a[contains(@href,'magetest[.]php') and contains(@title,'Overnight Duffle')]"));
+    overnightDuffleImage.click();
+    
+    // Click on the "Add to Cart" button
+    WebElement addToCartButton = driver.findElement(By.id("product-addtocart-button"));
+    addToCartButton.click();
+    
+    // Click on the "My Cart" link
+    WebElement myCartLink = driver.findElement(By.xpath("//a[@class='showcart' and contains(text(), 'My Cart')]"));
+    myCartLink.click();
+    
+    // Click on the "Proceed to Checkout" button
+    WebElement proceedToCheckoutButton = driver.findElement(By.id("top-cart-btn-checkout"));
+    proceedToCheckoutButton.click();
+    
+    // Verify order summary contains "Overnight Duffle" product
+    WebElement orderSummary = driver.findElement(By.xpath("//td[@class='product-cart-info']//a[contains(text(), 'Overnight Duffle')]"));
+    String productName = orderSummary.getText();
+    assert(productName.equals("Overnight Duffle"));
+    
+    // Click on the "New Address" button
+    WebElement newAddressButton = driver.findElement(By.id("billing-address-select"));
+    newAddressButton.click();
+    
+    // Enter address details
+    WebElement streetField = driver.findElement(By.id("billing:street1"));
+    streetField.sendKeys("4 South Street");
+    
+    WebElement cityField = driver.findElement(By.id("billing:city"));
+    cityField.sendKeys("Texas");
+    
+    WebElement stateDropdown = driver.findElement(By.id("billing:region_id"));
+    stateDropdown.sendKeys("Texas");
+    
+    WebElement zipCodeField = driver.findElement(By.id("billing:postcode"));
+    zipCodeField.sendKeys("77567");
+    
+    WebElement phoneNumberField = driver.findElement(By.id("billing:telephone"));
+    phoneNumberField.sendKeys("3456788765");
+    
+    // Click on the "Ship Here" button
+    WebElement shipHereButton = driver.findElement(By.id("billing-buttons-container"));
+    shipHereButton.click();
+    
+    // Select the "Fixed" radio button
+    WebElement fixedRadioButton = driver.findElement(By.id("s_method_flatrate_flatrate"));
+    fixedRadioButton.click();
+    
+    // Click on the "Next" button
+    WebElement nextButton = driver.findElement(By.xpath("//span[contains(text(), 'Next')]/parent::button"));
+    nextButton.click();
+    
+    // Select the "My billing and shipping address are the same" checkbox
+    WebElement billingShippingCheckbox = driver.findElement(By.id("billing:use_for_shipping_yes"));
+    billingShippingCheckbox.click();
+    
+    // Click on the "Place Order" button
+    WebElement placeOrderButton = driver.findElement(By.id("review-buttons-container"));
+    placeOrderButton.click();
+    
+    // Verify success page message
+    WebElement successPageMessage = driver.findElement(By.xpath("//h1[contains(text(), 'Thank you for your purchase!')]"));
+    String successMessage = successPageMessage.getText();
+    assert(successMessage.equals("Thank you for your purchase!"));
+    
+    // Click on the "Change" button
+    WebElement changeButton = driver.findElement(By.xpath("//button[contains(text(), 'Change')]"));
+    changeButton.click();
+    
+    // Click on the "Signout" link
+    WebElement signoutLink = driver.findElement(By.xpath("//a[contains(text(), 'Signout')]"));
+    signoutLink.click();
+    
+    // Close the browser
+    driver.quit();
+  }
 }
-```
 
-Please note that you need to replace `"path/to/chromedriver"` with the actual path to the ChromeDriver executable on your machine. Additionally, you may need to import the required Selenium libraries and set up the WebDriver environment according to your project setup.
+Please note that you need to download and configure the ChromeDriver executable file according to your system configuration and update the file path in the code.
