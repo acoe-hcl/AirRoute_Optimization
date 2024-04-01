@@ -3,132 +3,149 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.interactions.Actions;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
 
 public class TestAutomationScript {
     public static void main(String[] args) {
-        // Set ChromeDriver path
-        System.setProperty("webdriver.chrome.driver", "path_to_chromedriver");
+        // Set the browser name as "Home Page"
+        String browserName = "Home Page";
+        // Set the page name as "Home Page"
+        String pageName = "Home Page";
 
-        // Initialize ChromeDriver
+        // Set the driver path for Chrome
+        System.setProperty("webdriver.chrome.driver", "path/to/chromedriver");
         WebDriver driver = new ChromeDriver();
 
         // Launch the application
-        driver.get("http://iwmtar52064254:9080/maximo/webclient/login/login.jsp");
+        String url = "https://magento.softwaretestingboard.com/";
+        driver.get(url);
 
-        // Enter "maxadmin" username
-        WebElement usernameField = driver.findElement(By.id("username"));
-        usernameField.sendKeys("maxadmin");
+        // Click on the "Sign In" link
+        WebElement signInLink = driver.findElement(By.linkText("Sign In"));
+        signInLink.click();
 
-        // Enter "maxadmin" password
-        WebElement passwordField = driver.findElement(By.id("password"));
-        passwordField.sendKeys("maxadmin");
+        // Set the browser name as "Customer Login"
+        browserName = "Customer Login";
+        // Set the page name as "Customer Login"
+        pageName = "Customer Login";
 
-        // Click on Sign In button
-        WebElement signInBtn = driver.findElement(By.id("signInBtn"));
-        signInBtn.click();
+        // Enter the email and password
+        WebElement emailField = driver.findElement(By.id("email"));
+        emailField.sendKeys("autotest567@gmail.com");
 
-        // Mouse hover on Assets Application
-        WebElement assetsApp = driver.findElement(By.linkText("Assets"));
+        WebElement passwordField = driver.findElement(By.id("pass"));
+        passwordField.sendKeys("Tester@123");
+
+        // Click on the "Sign In" button
+        WebElement signInButton = driver.findElement(By.id("send2"));
+        signInButton.click();
+
+        // Set the browser name as "Home Page"
+        browserName = "Home Page";
+        // Set the page name as "Home Page"
+        pageName = "Home Page";
+
+        // Mouse hover on the "Gear" menu
+        WebElement gearMenu = driver.findElement(By.xpath("//div[@class='gear-icon']"));
         Actions actions = new Actions(driver);
-        actions.moveToElement(assetsApp).build().perform();
+        actions.moveToElement(gearMenu).perform();
 
-        // Click on Assets module
-        WebElement assetsModule = driver.findElement(By.xpath("//a[contains(text(), 'Assets')]"));
-        assetsModule.click();
+        // Click on the "Bags" link
+        WebElement bagsLink = driver.findElement(By.linkText("Bags"));
+        bagsLink.click();
 
-        // Click on New Assets Image
-        WebElement newAssetImage = driver.findElement(By.id("newAssetImage"));
-        newAssetImage.click();
+        // Set the browser name as "Bags - Gear"
+        browserName = "Bags - Gear";
+        // Set the page name as "Bags - Gear"
+        pageName = "Bags - Gear";
 
-        // Enter "ASSETTEST1" in Asset field
-        WebElement assetField = driver.findElement(By.id("asset"));
-        assetField.sendKeys("ASSETTEST1");
+        // Click on the "Overnight Duffle" image
+        WebElement overnightDuffleImage = driver.findElement(By.xpath("//img[@alt='Overnight Duffle']"));
+        overnightDuffleImage.click();
 
-        // Enter "Circulation Fan- Centrifugal/ 20/000 CFM" in Asset description
-        WebElement assetDescriptionField = driver.findElement(By.id("description"));
-        assetDescriptionField.sendKeys("Circulation Fan- Centrifugal/ 20/000 CFM");
+        // Set the browser name as "Overnight Duffle"
+        browserName = "Overnight Duffle";
+        // Set the page name as "Overnight Duffle"
+        pageName = "Overnight Duffle";
 
-        // Click on Select Value icon of Type
-        WebElement typeSelectValueIcon = driver.findElement(By.id("type_select_arrow"));
-        typeSelectValueIcon.click();
+        // Click on the "Add to Cart" button
+        WebElement addToCartButton = driver.findElement(By.id("product-addtocart-button"));
+        addToCartButton.click();
 
-        // Click on FACILITIES Label
-        WebElement facilitiesLabel = driver.findElement(By.xpath("//label[contains(text(), 'FACILITIES')]"));
-        facilitiesLabel.click();
+        // Click on the "My Cart" link
+        WebElement myCartLink = driver.findElement(By.linkText("My Cart"));
+        myCartLink.click();
 
-        // Enter "11200" in Parent field
-        WebElement parentField = driver.findElement(By.id("parent"));
-        parentField.sendKeys("11200");
+        // Click on the "Proceed to Checkout" button
+        WebElement proceedToCheckoutButton = driver.findElement(By.id("top-cart-btn-checkout"));
+        proceedToCheckoutButton.click();
 
-        // Enter "Company1" in Calendar field
-        WebElement calendarField = driver.findElement(By.id("calendar"));
-        calendarField.sendKeys("Company1");
+        // Set the browser name as "Checkout"
+        browserName = "Checkout";
+        // Set the page name as "Checkout"
+        pageName = "Checkout";
 
-        // Enter "4" in Priority field
-        WebElement priorityField = driver.findElement(By.id("priority"));
-        priorityField.sendKeys("4");
+        // Verify that the "Order Summary" is having "Overnight Duffle" product
+        boolean isProductInOrderSummary = driver.getPageSource().contains("Order Summary") && driver.getPageSource().contains("Overnight Duffle");
 
-        // Enter "3749-9" in Serial # field
-        WebElement serialNumberField = driver.findElement(By.id("serialnumber"));
-        serialNumberField.sendKeys("3749-9");
+        // Click on the "New Address" button
+        WebElement newAddressButton = driver.findElement(By.id("shipping-address-add"));
+        newAddressButton.click();
 
-        // Enter "1002" in Service Address field
-        WebElement serviceAddressField = driver.findElement(By.id("serviceaddress"));
-        serviceAddressField.sendKeys("1002");
+        // Enter the address details
+        WebElement streetField = driver.findElement(By.id("shipping:street1"));
+        streetField.sendKeys("4 South Street");
 
-        // Enter "TRN" in Vendor field
-        WebElement vendorField = driver.findElement(By.id("vendor"));
-        vendorField.sendKeys("TRN");
+        WebElement cityField = driver.findElement(By.id("shipping:city"));
+        cityField.sendKeys("Texas");
 
-        // Enter "TRN" in Manufacturer field
-        WebElement manufacturerField = driver.findElement(By.id("manufacturer"));
-        manufacturerField.sendKeys("TRN");
+        WebElement stateProvinceDropdown = driver.findElement(By.id("shipping:region_id"));
+        stateProvinceDropdown.sendKeys("Texas");
 
-        // Enter "5/1/2022" in Installation Date field
-        WebElement installationDateField = driver.findElement(By.id("installationdate"));
-        installationDateField.sendKeys("5/1/2022");
+        WebElement zipPostalCodeField = driver.findElement(By.id("shipping:postcode"));
+        zipPostalCodeField.sendKeys("77567");
 
-        // Clear the Budgeted field and Enter '1500' in Budgeted field
-        WebElement budgetedField = driver.findElement(By.id("budgeted"));
-        budgetedField.clear();
-        budgetedField.sendKeys("1500");
+        WebElement phoneNumberField = driver.findElement(By.id("shipping:telephone"));
+        phoneNumberField.sendKeys("3456788765");
 
-        // Clear the Purchase Price field and Enter '8500' in Purchase Price field
-        WebElement purchasePriceField = driver.findElement(By.id("purchaseprice"));
-        purchasePriceField.clear();
-        purchasePriceField.sendKeys("8500");
+        // Click on the "Ship Here" button
+        WebElement shipHereButton = driver.findElement(By.id("shipping_address_submit"));
+        shipHereButton.click();
 
-        // Clear the Replacement Cost field and Enter '1500' in Replacement Cost field
-        WebElement replacementCostField = driver.findElement(By.id("replacementcost"));
-        replacementCostField.clear();
-        replacementCostField.sendKeys("1500");
+        // Select the "Fixed" radio button
+        WebElement fixedRadioButton = driver.findElement(By.id("s_method_flatrate_flatrate"));
+        fixedRadioButton.click();
 
-        // Click on Save Image
-        WebElement saveImage = driver.findElement(By.id("img_save"));
-        saveImage.click();
+        // Click on the "Next" button
+        WebElement nextButton = driver.findElement(By.xpath("//div[@id='shipping-method-buttons-container']//button[@title='Next']"));
+        nextButton.click();
 
-        // Click on Change Status
-        WebElement changeStatusBtn = driver.findElement(By.id("changeStatusBtn"));
-        changeStatusBtn.click();
+        // Select the "My billing and shipping address are the same" checkbox
+        WebElement sameBillingShippingCheckbox = driver.findElement(By.id("billing:use_for_shipping_yes"));
+        sameBillingShippingCheckbox.click();
 
-        // Select value "Operating" from New Status combobox
-        WebElement newStatusComboBox = driver.findElement(By.id("newStatus"));
-        newStatusComboBox.sendKeys("Operating");
+        // Click on the "Place Order" button
+        WebElement placeOrderButton = driver.findElement(By.id("review-buttons-container"));
+        placeOrderButton.click();
 
-        // Click on OK button
-        WebElement okBtn = driver.findElement(By.id("okButton"));
-        okBtn.click();
+        // Set the browser name as "Success Page"
+        browserName = "Success Page";
+        // Set the page name as "Success Page"
+        pageName = "Success Page";
 
-        // Click on "List View"
-        WebElement listView = driver.findElement(By.xpath("//a[contains(text(), 'List View')]"));
-        listView.click();
+        // Verify the success message
+        WebDriverWait wait = new WebDriverWait(driver, 10);
+        WebElement successMessage = wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//h1[@class='page-title']")));
+        boolean isSuccessful = successMessage.getText().equalsIgnoreCase("Thank you for your purchase!");
 
-        // Enter "ASSETTEST1" in search field
-        WebElement searchField = driver.findElement(By.id("search"));
-        searchField.sendKeys("ASSETTEST1");
+        // Click on the "Change" button
+        WebElement changeButton = driver.findElement(By.linkText("Change"));
+        changeButton.click();
 
-        // Verify "ASSETTEST1" value is present in search results
-        // Write your verification logic here
+        // Click on the "Signout" link
+        WebElement signoutLink = driver.findElement(By.linkText("Signout"));
+        signoutLink.click();
 
         // Close the browser
         driver.quit();
