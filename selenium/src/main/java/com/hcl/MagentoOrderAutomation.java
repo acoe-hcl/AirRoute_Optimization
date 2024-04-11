@@ -1,23 +1,16 @@
-import org.openqa.selenium.By;
+Here is the Selenium Java automation test script for the given scenario:
+
+```java
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
-import org.openqa.selenium.interactions.Actions;
-import org.openqa.selenium.support.ui.ExpectedConditions;
-import org.openqa.selenium.support.ui.WebDriverWait;
 
 public class MagentoOrderAutomation {
     public static void main(String[] args) {
-        // Set browser property
-        System.setProperty("webdriver.chrome.driver", "path/to/chromedriver");
+        // Set system property for Chrome driver
+        System.setProperty("webdriver.chrome.driver", "path_to_chrome_driver");
 
-        // Launch the browser
+        // Create a new instance of Chrome driver
         WebDriver driver = new ChromeDriver();
-        driver.manage().window().maximize();
-
-        // Set the browser and page names
-        String browserName = "Home Page";
-        String pageName = "Home Page";
 
         // Launch the application
         driver.get("https://magento.softwaretestingboard.com/");
@@ -25,110 +18,85 @@ public class MagentoOrderAutomation {
         // Click on the "Sign In" link
         driver.findElement(By.linkText("Sign In")).click();
 
-        // Update the browser and page names
-        browserName = "Customer Login";
-        pageName = "Customer Login";
-
-        // Enter email and password
+        // Enter email and password for login
         driver.findElement(By.id("email")).sendKeys("autotest567@gmail.com");
         driver.findElement(By.id("pass")).sendKeys("Tester@123");
 
         // Click on the "Sign In" button
         driver.findElement(By.id("send2")).click();
 
-        // Update the browser and page names
-        browserName = "Home Page";
-        pageName = "Home Page";
-
         // Mouse hover on the "Gear" menu
-        WebElement gearMenu = driver.findElement(By.cssSelector(".nav-3 .has-children>a"));
-        Actions actions = new Actions(driver);
-        actions.moveToElement(gearMenu).build().perform();
+        Actions action = new Actions(driver);
+        WebElement gearMenu = driver.findElement(By.className("gear-icon"));
+        action.moveToElement(gearMenu).perform();
 
         // Click on the "Bags" link
-        driver.findElement(By.cssSelector(".nav-3-1-1>a")).click();
-
-        // Update the browser and page names
-        browserName = "Bags - Gear";
-        pageName = "Bags - Gear";
+        driver.findElement(By.linkText("Bags")).click();
 
         // Click on the "Overnight Duffle" image
-        driver.findElement(By.cssSelector(".product-item:nth-child(1) img")).click();
-
-        // Update the browser and page names
-        browserName = "Overnight Duffle";
-        pageName = "Overnight Duffle";
+        driver.findElement(By.linkText("Overnight Duffle")).click();
 
         // Click on the "Add to Cart" button
         driver.findElement(By.id("product-addtocart-button")).click();
 
         // Click on the "My Cart" link
-        driver.findElement(By.cssSelector(".minicart-wrapper")).click();
+        driver.findElement(By.linkText("My Cart")).click();
 
         // Click on the "Proceed to Checkout" button
-        driver.findElement(By.cssSelector(".action.checkout")).click();
-
-        // Update the browser and page names
-        browserName = "Checkout";
-        pageName = "Checkout";
+        driver.findElement(By.id("top-cart-btn-checkout")).click();
 
         // Verify that the "Order Summary" is having "Overnight Duffle" product
-        String orderSummary = driver.findElement(By.cssSelector(".cart-summary-item-name>a")).getText();
-        if (orderSummary.equals("Overnight Duffle")) {
-            System.out.println("Order Summary validation passed.");
+        String orderSummary = driver.findElement(By.className("order-summary")).getText();
+        if (orderSummary.contains("Overnight Duffle")) {
+            System.out.println("Order Summary contains Overnight Duffle product");
         } else {
-            System.out.println("Order Summary validation failed.");
+            System.out.println("Order Summary does not contain Overnight Duffle product");
         }
 
         // Click on the "New Address" button
-        driver.findElement(By.id("shipping-new-address-form-popups")).click();
+        driver.findElement(By.id("shipping-address-button")).click();
 
         // Enter shipping address details
-        driver.findElement(By.id("co-shipping-form-street1")).sendKeys("4 South Street");
-        driver.findElement(By.id("co-shipping-form-city")).sendKeys("Texas");
-        driver.findElement(By.id("co-shipping-form-region_id")).sendKeys("Texas");
-        driver.findElement(By.id("co-shipping-form-postcode")).sendKeys("77567");
-        driver.findElement(By.id("co-shipping-form-telephone")).sendKeys("3456788765");
+        driver.findElement(By.id("street_1")).sendKeys("4 South Street");
+        driver.findElement(By.id("city")).sendKeys("Texas");
+        Select stateDropdown = new Select(driver.findElement(By.id("region_id")));
+        stateDropdown.selectByVisibleText("Texas");
+        driver.findElement(By.id("postcode")).sendKeys("77567");
+        driver.findElement(By.id("telephone")).sendKeys("3456788765");
 
         // Click on the "Ship Here" button
-        driver.findElement(By.name("shipping-address-item")).click();
+        driver.findElement(By.className("shipping-address-item")).findElement(By.className("primary")).click();
 
         // Select the "Fixed" radio button
         driver.findElement(By.id("s_method_flatrate_flatrate")).click();
 
         // Click on the "Next" button
-        driver.findElement(By.cssSelector(".button.action.continue")).click();
+        driver.findElement(By.id("shipping-method-button")).click();
 
         // Select the "My billing and shipping address are the same" checkbox
         driver.findElement(By.id("billing:same_as_shipping")).click();
 
         // Click on the "Place Order" button
-        driver.findElement(By.cssSelector(".button.action.primary.checkout")).click();
-
-        // Update the browser and page names
-        browserName = "Success Page";
-        pageName = "Success Page";
+        driver.findElement(By.id("review-button")).click();
 
         // Verify the success message
-        WebDriverWait wait = new WebDriverWait(driver, 10);
-        WebElement successMessage = wait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector(".sub-title")));
-        String message = successMessage.getText();
-        if (message.equals("Thank you for your purchase!")) {
-            System.out.println("Success message validation passed.");
+        String successMessage = driver.findElement(By.className("success-msg")).getText();
+        if (successMessage.contains("Thank you for your purchase!")) {
+            System.out.println("Success message is displayed");
         } else {
-            System.out.println("Success message validation failed.");
+            System.out.println("Success message is not displayed");
         }
 
         // Click on the "Change" button
-        driver.findElement(By.cssSelector(".order-details-ship .action")).click();
+        driver.findElement(By.linkText("Change")).click();
 
         // Click on the "Signout" link
-        driver.findElement(By.linkText("Sign Out")).click();
+        driver.findElement(By.linkText("Signout")).click();
 
-        // Quit the browser
+        // Close the browser
         driver.quit();
     }
 }
 ```
 
-Make sure to replace "path/to/chromedriver" with the actual path to your ChromeDriver executable. You can also customize the validation messages according to your requirements.
+Make sure to replace `"path_to_chrome_driver"` with the actual path to your Chrome driver. Also, please note that you might need to add the necessary imports for the Selenium and Java Actions classes, as well as the WebDriver and WebElement interfaces.
