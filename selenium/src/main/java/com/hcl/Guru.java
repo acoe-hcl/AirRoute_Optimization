@@ -4,75 +4,152 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 
 public class Guru {
-    public static void main(String[] args) {
-        // Set the path to the chrome driver
-        System.setProperty("webdriver.chrome.driver", "path/to/chromedriver");
 
-        // Initialize the ChromeDriver instance
+    public static void main(String[] args) {
+        //Setting up Chrome driver path
+        System.setProperty("webdriver.chrome.driver", "path_to_chrome_driver");
+
+        //Create an instance of ChromeDriver
         WebDriver driver = new ChromeDriver();
 
-        // Open the Card Management Screen
-        driver.get("http://52.214.46.0/");
+        //Setting the browser name and page name as "Home Page"
+        String browserName = "Home Page";
+        String pageName = "Home Page";
 
-        // Find and enter the username
-        WebElement usernameField = driver.findElement(By.xpath("//input[@name='username']"));
-        usernameField.sendKeys("priya");
+        //Launching the application
+        driver.get("https://magento.softwaretestingboard.com/");
 
-        // Find and enter the password
-        WebElement passwordField = driver.findElement(By.xpath("//input[@name='password']"));
-        passwordField.sendKeys("Hcltech@123");
+        //Clicking on the "Sign In" link
+        WebElement signInLink = driver.findElement(By.linkText("Sign In"));
+        signInLink.click();
 
-        // Find and click on the Submit button
-        WebElement submitButton = driver.findElement(By.xpath("//button[@type='submit']"));
-        submitButton.click();
-        
-        // Verify landing on Card Management Application home page
-        String expectedHomePageTitle = "Card Management Application";
-        String actualHomePageTitle = driver.getTitle();
-        if (actualHomePageTitle.equals(expectedHomePageTitle)) {
-            System.out.println("Successfully landed on Card Management Application home page");
-        } else {
-            System.out.println("Failed to land on Card Management Application home page");
+        //Setting the browser name and page name as "Customer Login"
+        browserName = "Customer Login";
+        pageName = "Customer Login";
+
+        //Entering email in the "Email" field
+        WebElement emailField = driver.findElement(By.name("email"));
+        emailField.sendKeys("autotest567@gmail.com");
+
+        //Entering password in the "Password" field
+        WebElement passwordField = driver.findElement(By.name("password"));
+        passwordField.sendKeys("Tester@123");
+
+        //Clicking on the "Sign In" button
+        WebElement signInButton = driver.findElement(By.cssSelector("button[title='Sign In']"));
+        signInButton.click();
+
+        //Setting the browser name and page name as "Home Page"
+        browserName = "Home Page";
+        pageName = "Home Page";
+
+        //Mouse hovering on the "Gear" menu
+        WebElement gearMenu = driver.findElement(By.className("gearIcon"));
+        Actions actions = new Actions(driver);
+        actions.moveToElement(gearMenu).build().perform();
+
+        //Clicking on the "Bags" link
+        WebElement bagsLink = driver.findElement(By.linkText("Bags"));
+        bagsLink.click();
+
+        //Setting the browser name and page name as "Bags - Gear"
+        browserName = "Bags - Gear";
+        pageName = "Bags - Gear";
+
+        //Clicking on the "Overnight Duffle" image
+        WebElement overnightDuffleImage = driver.findElement(By.xpath("//img[@title='Overnight Duffle']"));
+        overnightDuffleImage.click();
+
+        //Setting the browser name and page name as "Overnight Duffle"
+        browserName = "Overnight Duffle";
+        pageName = "Overnight Duffle";
+
+        //Clicking on the "Add to Cart" button
+        WebElement addToCartButton = driver.findElement(By.xpath("//button/span[text()='Add to Cart']"));
+        addToCartButton.click();
+
+        //Clicking on the "My Cart" link
+        WebElement myCartLink = driver.findElement(By.linkText("My Cart"));
+        myCartLink.click();
+
+        //Clicking on the "Proceed to Checkout" button
+        WebElement proceedToCheckoutButton = driver.findElement(By.xpath("//button/span[text()='Proceed to Checkout']"));
+        proceedToCheckoutButton.click();
+
+        //Setting the browser name and page name as "Checkout"
+        browserName = "Checkout";
+        pageName = "Checkout";
+
+        //Verifying if the "Order Summary" contains "Overnight Duffle" product
+        WebElement orderSummary = driver.findElement(By.className("order-summary"));
+        if (orderSummary.getText().contains("Overnight Duffle")) {
+            System.out.println("Order Summary contains Overnight Duffle product");
         }
 
-        // Navigate to the ACCOUNT UPDATE page
-        WebElement accountUpdateLink = driver.findElement(By.xpath("//a[contains(text(),'ACCOUNT UPDATE')]"));
-        accountUpdateLink.click();
+        //Clicking on the "New Address" button
+        WebElement newAddressButton = driver.findElement(By.xpath("//button/span[text()='New Address']"));
+        newAddressButton.click();
 
-        // Find and enter a valid account ID
-        WebElement accountIdField = driver.findElement(By.xpath("//input[@name='accountId']"));
-        accountIdField.sendKeys("2");
+        //Entering address in the "Street" field
+        WebElement streetField = driver.findElement(By.name("street[0]"));
+        streetField.sendKeys("4 South Street");
 
-        // Find and click on the Search button
-        WebElement searchButton = driver.findElement(By.xpath("//button[@type='submit']"));
-        searchButton.click();
-        
-        // Verify account information retrieval
-        // ...
+        //Entering city in the "City" field
+        WebElement cityField = driver.findElement(By.name("city"));
+        cityField.sendKeys("Texas");
 
-        // Enter Credit Limit as "6150"
-        WebElement creditLimitField = driver.findElement(By.xpath("//input[@name='creditLimit']"));
-        creditLimitField.clear();
-        creditLimitField.sendKeys("6150");
+        //Selecting state/province from the dropdown
+        WebElement stateDropdown = driver.findElement(By.name("region_id"));
+        Select stateSelect = new Select(stateDropdown);
+        stateSelect.selectByVisibleText("Texas");
 
-        // Find and click on the Save button
-        WebElement saveButton = driver.findElement(By.xpath("//button[@type='submit']"));
-        saveButton.click();
-        
-        // Verify successful account information update
-        // ...
+        //Entering postal code in the "Zip/Postal Code" field
+        WebElement postalCodeField = driver.findElement(By.name("postcode"));
+        postalCodeField.sendKeys("77567");
 
-        // Verify success pop up message
-        WebElement successMessage = driver.findElement(By.xpath("//div[contains(text(),'Changes committed to database')]"));
-        String expectedSuccessMessage = "Changes committed to database";
-        String actualSuccessMessage = successMessage.getText();
-        if (actualSuccessMessage.equals(expectedSuccessMessage)) {
-            System.out.println("Success message displayed: " + actualSuccessMessage);
-        } else {
-            System.out.println("Failed to display success message");
+        //Entering phone number in the "Phone Number" field
+        WebElement phoneNumberField = driver.findElement(By.name("telephone"));
+        phoneNumberField.sendKeys("3456788765");
+
+        //Clicking on the "Ship Here" button
+        WebElement shipHereButton = driver.findElement(By.xpath("//button/span[text()='Ship Here']"));
+        shipHereButton.click();
+
+        //Selecting the "Fixed" radio button
+        WebElement fixedRadioButton = driver.findElement(By.xpath("//input[@value='fixed']"));
+        fixedRadioButton.click();
+
+        //Clicking on the "Next" button
+        WebElement nextButton = driver.findElement(By.xpath("//span[text()='Next']"));
+        nextButton.click();
+
+        //Selecting the "My billing and shipping address are the same" checkbox
+        WebElement billingShippingCheckbox = driver.findElement(By.xpath("//input[@name='billing-same-as-shipping']"));
+        billingShippingCheckbox.click();
+
+        //Clicking on the "Place Order" button
+        WebElement placeOrderButton = driver.findElement(By.xpath("//button/span[text()='Place Order']"));
+        placeOrderButton.click();
+
+        //Setting the browser name and page name as "Success Page"
+        browserName = "Success Page";
+        pageName = "Success Page";
+
+        //Verifying the success message
+        WebElement successMessage = driver.findElement(By.xpath("//h2[text()='Thank you for your purchase!']"));
+        if (successMessage.isDisplayed()) {
+            System.out.println("Success message displayed: Thank you for your purchase!");
         }
 
-        // Close the browser
+        //Clicking on the "Change" button
+        WebElement changeButton = driver.findElement(By.xpath("//button/span[text()='Change']"));
+        changeButton.click();
+
+        //Clicking on the "Signout" link
+        WebElement signoutLink = driver.findElement(By.linkText("Signout"));
+        signoutLink.click();
+
+        //Closing the browser
         driver.quit();
     }
 }
