@@ -20,10 +20,12 @@ public class MagentoOrderAutomation {
 
         // Launch the application
         driver.get("https://magento.softwaretestingboard.com/");
+        
 
         // Click on the "Sign In" link
         WebElement signInLink = driver.findElement(By.linkText("Sign In"));
         signInLink.click();
+
 
         // Set the browser name and page name as "Customer Login"
         browserName = "Customer Login";
