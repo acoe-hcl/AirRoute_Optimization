@@ -157,7 +157,7 @@ public class FlightDelayClaimTest {
         } else {
             System.out.println("Payment info message not displayed");
         }
-        
+        //step 30: execution completed
         // Step 31: Enter subject in the Subject field
         WebElement subjectField = driver.findElement(By.id("Subject"));
         subjectField.sendKeys("Expenses");
