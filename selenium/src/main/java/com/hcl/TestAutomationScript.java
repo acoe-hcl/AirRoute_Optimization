@@ -1,163 +1,147 @@
-
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
-import org.openqa.selenium.WebElement;
-import org.openqa.selenium.By;
-import org.junit.Assert;
 
 public class TestAutomationScript {
-
     public static void main(String[] args) {
-        // Set Chrome WebDriver path
-        System.setProperty("webdriver.chrome.driver", "path/to/chromedriver");
-
-        // Create a new instance of ChromeDriver
+        System.setProperty("webdriver.chrome.driver", "path/to/chromedriver.exe");
         WebDriver driver = new ChromeDriver();
 
-        // Open the Air Canada Contact Us page
-        driver.get("https://accc-uatmaster.microsoftcrmportals.com/en-CA/air-canada-contact-us/");
+        // Given I have set the browser name as "Home Page"
+        String browserName = "Home Page";
 
-        // Select the tile "General Concerns"
-        WebElement generalConcernsTile = driver.findElement(By.xpath("//span[text()='General Concerns']"));
-        generalConcernsTile.click();
+        // Given I have set the page name as "Home Page"
+        String pageName = "Home Page";
 
-        // Select the option "At the Airport" in the Regarding dropdown
-        WebElement regardingDropdown = driver.findElement(By.id("regarding"));
-        regardingDropdown.sendKeys("At the Airport");
+        // When I launch the application "https://magento.softwaretestingboard.com/"
+        driver.get("https://magento.softwaretestingboard.com/");
 
-        // Select the option "Check-in" in the Issue dropdown field
-        WebElement issueDropdown = driver.findElement(By.id("issue"));
-        issueDropdown.sendKeys("Check-in");
+        // And I click on the "Sign In" link
+        driver.findElement(By.linkText("Sign In")).click();
 
-        // Click on the "Next" button
-        WebElement nextButton1 = driver.findElement(By.id("next"));
-        nextButton1.click();
+        // Then I should set the browser name as "Customer Login"
+        browserName = "Customer Login";
+        
+        // And I should set the page name as "Customer Login"
+        pageName = "Customer Login";
 
-        // Verify that the PASSENGER INFORMATION page is displayed
-        WebElement passengerInfoPage = driver.findElement(By.xpath("//h2[text()='PASSENGER INFORMATION']"));
-        Assert.assertTrue(passengerInfoPage.isDisplayed());
+        // When I enter "autotest567@gmail.com" in the "Email" field
+        driver.findElement(By.id("email")).sendKeys("autotest567@gmail.com");
 
-        // Enter email address in the Email Address field
-        WebElement emailField = driver.findElement(By.id("email"));
-        emailField.sendKeys("bharathkumar-n@hcl.com");
+        // And I enter "Tester@123" in the "Password" field as secure text
+        driver.findElement(By.id("pass")).sendKeys("Tester@123");
 
-        // Enter email address in the Confirm Email Address field
-        WebElement confirmEmailField = driver.findElement(By.id("confirm_email"));
-        confirmEmailField.sendKeys("bharathkumar-n@hcl.com");
+        // And I click on the "Sign In" button
+        driver.findElement(By.id("send2")).click();
 
-        // Select the option "Mr." in the Title dropdown
-        WebElement titleDropdown = driver.findElement(By.id("title"));
-        titleDropdown.sendKeys("Mr.");
+        // Then I should set the browser name as "Home Page"
+        browserName = "Home Page";
+        
+        // And I should set the page name as "Home Page"
+        pageName = "Home Page";
+        
+        // When I mouse hover on the "Gear" menu
+        Actions actions = new Actions(driver);
+        WebElement gearMenu = driver.findElement(By.xpath("//span[text()='Gear']"));
+        actions.moveToElement(gearMenu).perform();
 
-        // Enter "Bharath" in the First Name field
-        WebElement firstNameField = driver.findElement(By.id("first_name"));
-        firstNameField.sendKeys("Bharath");
+        // And I click on the "Bags" link
+        driver.findElement(By.linkText("Bags")).click();
 
-        // Enter "Ice" in the Last Name field
-        WebElement lastNameField = driver.findElement(By.id("last_name"));
-        lastNameField.sendKeys("Ice");
+        // Then I should set the browser name as "Bags - Gear"
+        browserName = "Bags - Gear";
+        
+        // And I should set the page name as "Bags - Gear"
+        pageName = "Bags - Gear";
+        
+        // When I click on the "Overnight Duffle" image
+        driver.findElement(By.xpath("//img[contains(@alt, 'Overnight Duffle')]")).click();
 
-        // Enter "Harvest" in the Permanent Mailing Address field
-        WebElement addressField = driver.findElement(By.id("address"));
-        addressField.sendKeys("Harvest");
-
-        // Enter "Ontario" in the City field
-        WebElement cityField = driver.findElement(By.id("city"));
-        cityField.sendKeys("Ontario");
-
-        // Enter "ON" in the Province/State Field
-        WebElement provinceField = driver.findElement(By.id("province"));
-        provinceField.sendKeys("ON");
-
-        // Select the option "ON Ontario" in the Province/State dropdown
-        WebElement provinceDropdown = driver.findElement(By.id("province-dropdown"));
-        provinceDropdown.sendKeys("ON Ontario");
-
-        // Enter "M9C 4Y1" in the Postal/Zipcode Field
-        WebElement postcodeField = driver.findElement(By.id("postcode"));
-        postcodeField.sendKeys("M9C 4Y1");
-
-        // Select the option "Canada" in the Country/Region dropdown
-        WebElement countryDropdown = driver.findElement(By.id("country"));
-        countryDropdown.sendKeys("Canada");
-
-        // Enter "8801070616" in the Primary Phone No Field
-        WebElement phoneField = driver.findElement(By.id("phone"));
-        phoneField.sendKeys("8801070616");
-
-        // Click on the "Next" button
-        WebElement nextButton2 = driver.findElement(By.id("next"));
-        nextButton2.click();
-
-        // Verify that the AIRLINE INFORMATION section is displayed
-        WebElement airlineInfoSection = driver.findElement(By.xpath("//h2[text()='AIRLINE INFORMATION']"));
-        Assert.assertTrue(airlineInfoSection.isDisplayed());
-
-        // Select the option "Air Canada" in the Airline dropdown
-        WebElement airlineDropdown = driver.findElement(By.id("airline"));
-        airlineDropdown.sendKeys("Air Canada");
-
-        // Enter "122" in the Flight Number field
-        WebElement flightNumberField = driver.findElement(By.id("flight_number"));
-        flightNumberField.sendKeys("122");
-
-        // Enter "2023-08-17" in the Flight Date field
-        WebElement flightDateField = driver.findElement(By.id("flight_date"));
-        flightDateField.sendKeys("2023-08-17");
-
-        // Enter "YVR" in the Departure Airport Field
-        WebElement departureAirportField = driver.findElement(By.id("departure_airport"));
-        departureAirportField.sendKeys("YVR");
-
-        // Select the option "YVR Vancouver Canada (Vancouver Intl)" in the Departure Airport dropdown
-        WebElement departureAirportDropdown = driver.findElement(By.id("departure_airport-dropdown"));
-        departureAirportDropdown.sendKeys("YVR Vancouver Canada (Vancouver Intl)");
-
-        // Enter "YYZ" in the Arrival Airport Field
-        WebElement arrivalAirportField = driver.findElement(By.id("arrival_airport"));
-        arrivalAirportField.sendKeys("YYZ");
-
-        // Select the option "YYZ Toronto Canada (Lester B. Pearson Intl)" in the Arrival Airport dropdown
-        WebElement arrivalAirportDropdown = driver.findElement(By.id("arrival_airport-dropdown"));
-        arrivalAirportDropdown.sendKeys("YYZ Toronto Canada (Lester B. Pearson Intl)");
-
-        // Enter "3ED8RH" in the Booking Reference field
-        WebElement bookingReferenceField = driver.findElement(By.id("booking_reference"));
-        bookingReferenceField.sendKeys("3ED8RH");
-
-        // Enter "0142173322307" in the Ticket Number field
-        WebElement ticketNumberField = driver.findElement(By.id("ticket_number"));
-        ticketNumberField.sendKeys("0142173322307");
-
-        // Click on the "Next" button
-        WebElement nextButton3 = driver.findElement(By.id("next"));
-        nextButton3.click();
-
-        // Verify that the PAYMENT INFORMATION section is displayed
-        WebElement paymentInfoSection = driver.findElement(By.xpath("//h2[text()='PAYMENT INFORMATION']"));
-        Assert.assertTrue(paymentInfoSection.isDisplayed());
-
-        // Verify that "Do not add any payment information in the comment field" is displayed below the message field
-        WebElement paymentInfoMessage = driver.findElement(By.xpath("//p[text()='Do not add any payment information in the comment field']"));
-        Assert.assertTrue(paymentInfoMessage.isDisplayed());
-
-        // Enter "Air Canada Booking" in the Subject field
-        WebElement subjectField = driver.findElement(By.id("subject"));
-        subjectField.sendKeys("Air Canada Booking");
-
-        // Click on the "Submit" button
-        WebElement submitButton = driver.findElement(By.id("submit"));
-        submitButton.click();
-
-        // Verify the confirmation message
-        WebElement confirmationMessage = driver.findElement(By.xpath("//p[contains(text(),'Thank you for sharing your travel experience')]"));
-        String expectedMessage = "Thank you for sharing your travel experience. This is an automated response to let you know that we received your comments." +
-                                "A file number has been assigned and will be emailed to you shortly. Your feedback is very important and it may take some time to research and investigate your concerns." +
-                                "We will get back to you as soon as possible. Thank you for your patience.";
-        Assert.assertEquals(expectedMessage, confirmationMessage.getText());
-
-        // Close the browser
+        // Then I should set the browser name as "Overnight Duffle"
+        browserName = "Overnight Duffle";
+        
+        // And I should set the page name as "Overnight Duffle"
+        pageName = "Overnight Duffle";
+        
+        // When I click on the "Add to Cart" button
+        driver.findElement(By.id("product-addtocart-button")).click();
+        
+        // And I click on the "My Cart" link
+        driver.findElement(By.linkText("My Cart")).click();
+        
+        // And I click on the "Proceed to Checkout" button
+        driver.findElement(By.cssSelector(".primary.action.checkout")).click();
+        
+        // Then I should set the browser name as "Checkout"
+        browserName = "Checkout";
+        
+        // And I should set the page name as "Checkout"
+        pageName = "Checkout";
+        
+        // And I verify that the "Order Summary" is having "Overnight Duffle" product
+        String orderSummary = driver.findElement(By.cssSelector(".checkout-title h2")).getText();
+        if (orderSummary.contains("Overnight Duffle")) {
+            System.out.println("Order Summary contains Overnight Duffle product");
+        } else {
+            System.out.println("Order Summary does not contain Overnight Duffle product");
+        }
+        
+        // When I click on the "New Address" button
+        driver.findElement(By.linkText("New Address")).click();
+        
+        // And I enter "4 South Street" in the "Street" field
+        driver.findElement(By.id("street_1")).sendKeys("4 South Street");
+        
+        // And I enter "Texas" in the "City" field
+        driver.findElement(By.id("city")).sendKeys("Texas");
+        
+        // And I select "Texas" from the "State/Province" dropdown
+        Select stateDropdown = new Select(driver.findElement(By.id("region_id")));
+        stateDropdown.selectByVisibleText("Texas");
+        
+        // And I enter "77567" in the "Zip/Postal Code" field
+        driver.findElement(By.id("postcode")).sendKeys("77567");
+        
+        // And I enter "3456788765" in the "Phone Number" field
+        driver.findElement(By.id("telephone")).sendKeys("3456788765");
+        
+        // And I click on the "Ship Here" button
+        driver.findElement(By.id("shipping-save-address")).click();
+        
+        // And I select the "Fixed" radio button
+        driver.findElement(By.cssSelector("#s_method_flatrate_flatrate")).click();
+        
+        // And I click on the "Next" button
+        driver.findElement(By.cssSelector(".button.continue.primary")).click();
+        
+        // And I select the "My billing and shipping address are the same" checkbox
+        WebElement billingSameAsShipping = driver.findElement(By.id("billing:use_for_shipping_yes"));
+        if (!billingSameAsShipping.isSelected()) {
+            billingSameAsShipping.click();
+        }
+        
+        // And I click on the "Place Order" button
+        driver.findElement(By.cssSelector(".button.action.checkout.primary")).click();
+        
+        // Then I should set the browser name as "Success Page"
+        browserName = "Success Page";
+        
+        // And I should set the page name as "Success Page"
+        pageName = "Success Page";
+        
+        // And I verify the message "Thank you for your purchase!"
+        String successMessage = driver.findElement(By.cssSelector(".message-success")).getText();
+        if (successMessage.contains("Thank you for your purchase!")) {
+            System.out.println("Success message displayed: Thank you for your purchase!");
+        } else {
+            System.out.println("Failed to display success message");
+        }
+        
+        // When I click on the "Change" button
+        driver.findElement(By.cssSelector(".primary.action.change-link span")).click();
+        
+        // And I click on the "Signout" link
+        driver.findElement(By.linkText("Signout")).click();
+        
         driver.quit();
     }
 }
-
