@@ -1,78 +1,134 @@
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
+import org.openqa.selenium.WebElement;
+
+import java.util.concurrent.TimeUnit;
 
 public class Guru {
 
     public static void main(String[] args) {
-        // Set the path to the chromedriver executable
+        // Set the path to the ChromeDriver executable
         System.setProperty("webdriver.chrome.driver", "path/to/chromedriver");
 
-        // Create a new instance of ChromeDriver
-        WebDriver driver = new ChromeDriver();
+        // Create a new ChromeDriver instance
+        ChromeOptions options = new ChromeOptions();
+        options.addArguments("--start-maximized");
+        WebDriver driver = new ChromeDriver(options);
 
-        // Open the Card Management Screen
-        driver.get("http://52.214.46.0/");
+        // Set implicit wait time
+        driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
 
-        // Enter username and password
-        WebElement usernameInput = driver.findElement(By.id("username"));
-        WebElement passwordInput = driver.findElement(By.id("password"));
-        WebElement submitButton = driver.findElement(By.id("submit"));
+        // Launch the application
+        driver.get("https://magento.softwaretestingboard.com/");
 
-        usernameInput.sendKeys("priya");
-        passwordInput.sendKeys("Hcltech@123");
-        submitButton.click();
+        // Click on the "Sign In" link
+        WebElement signInLink = driver.findElement(By.linkText("Sign In"));
+        signInLink.click();
 
-        // Verify user lands on Card Management Application home page
-        WebElement homePageHeaderText = driver.findElement(By.xpath("//h1[contains(text(),'Card Management Application')]"));
-        if(homePageHeaderText.getText().equals("Card Management Application")) {
-            System.out.println("User landed on Card Management Application home page");
+        // Enter email and password
+        WebElement emailField = driver.findElement(By.name("login[username]"));
+        emailField.sendKeys("autotest567@gmail.com");
+
+        WebElement passwordField = driver.findElement(By.name("login[password]"));
+        passwordField.sendKeys("Tester@123");
+
+        // Click on the "Sign In" button
+        WebElement signInButton = driver.findElement(By.xpath("//button[@title='Sign In']"));
+        signInButton.click();
+
+        // Mouse hover on the "Gear" menu
+        WebElement gearMenu = driver.findElement(By.xpath("//a[@class='skip-link skip-cart']"));
+        Actions hoverAction = new Actions(driver);
+        hoverAction.moveToElement(gearMenu).perform();
+
+        // Click on the "Bags" link
+        WebElement bagsLink = driver.findElement(By.linkText("Bags"));
+        bagsLink.click();
+
+        // Click on the "Overnight Duffle" image
+        WebElement overnightDuffleImage = driver.findElement(By.xpath("//a[@title='Overnight Duffle']"));
+        overnightDuffleImage.click();
+
+        // Click on the "Add to Cart" button
+        WebElement addToCartButton = driver.findElement(By.xpath("//button[@title='Add to Cart']"));
+        addToCartButton.click();
+
+        // Click on the "My Cart" link
+        WebElement myCartLink = driver.findElement(By.id("cartLink"));
+        myCartLink.click();
+
+        // Click on the "Proceed to Checkout" button
+        WebElement proceedToCheckoutButton = driver.findElement(By.xpath("//button[@title='Proceed to Checkout']"));
+        proceedToCheckoutButton.click();
+
+        // Verify that the "Order Summary" is having "Overnight Duffle" product
+        WebElement orderSummary = driver.findElement(By.xpath("//strong[contains(text(),'Overnight Duffle')]"));
+        String productText = orderSummary.getText();
+        if (productText.equals("Overnight Duffle")) {
+            System.out.println("Order summary contains Overnight Duffle product");
         } else {
-            System.out.println("User did not land on Card Management Application home page");
+            System.out.println("Order summary does not contain Overnight Duffle product");
         }
 
-        // Navigate to ACCOUNT UPDATE page
-        WebElement accountUpdateLink = driver.findElement(By.linkText("ACCOUNT UPDATE"));
-        accountUpdateLink.click();
+        // Click on the "New Address" button
+        WebElement newAddressButton = driver.findElement(By.xpath("//button[@title='New Address']"));
+        newAddressButton.click();
 
-        // Enter valid account ID and click Search button
-        WebElement accountIDInput = driver.findElement(By.id("accountID"));
-        WebElement searchButton = driver.findElement(By.id("search"));
+        // Enter address details
+        WebElement streetField = driver.findElement(By.id("street_1"));
+        streetField.sendKeys("4 South Street");
 
-        accountIDInput.sendKeys("2");
-        searchButton.click();
+        WebElement cityField = driver.findElement(By.id("city"));
+        cityField.sendKeys("Texas");
 
-        // Verify account information is retrieved
-        WebElement accountInfo = driver.findElement(By.id("accountInfo"));
-        if(!accountInfo.getText().isEmpty()) {
-            System.out.println("Account information retrieved");
+        WebElement stateDropdown = driver.findElement(By.id("region_id"));
+        Select stateSelect = new Select(stateDropdown);
+        stateSelect.selectByVisibleText("Texas");
+
+        WebElement postalCodeField = driver.findElement(By.id("postcode"));
+        postalCodeField.sendKeys("77567");
+
+        WebElement phoneNumberField = driver.findElement(By.id("telephone"));
+        phoneNumberField.sendKeys("3456788765");
+
+        // Click on the "Ship Here" button
+        WebElement shipHereButton = driver.findElement(By.xpath("//button[@title='Ship Here']"));
+        shipHereButton.click();
+
+        // Select the "Fixed" radio button
+        WebElement fixedRadioButton = driver.findElement(By.xpath("//input[@id='s_method_flatrate_flatrate']"));
+        fixedRadioButton.click();
+
+        // Click on the "Next" button
+        WebElement nextButton = driver.findElement(By.xpath("//button[@title='Next']"));
+        nextButton.click();
+
+        // Select the "My billing and shipping address are the same" checkbox
+        WebElement sameAddressCheckbox = driver.findElement(By.id("billing:use_for_shipping_yes"));
+        sameAddressCheckbox.click();
+
+        // Click on the "Place Order" button
+        WebElement placeOrderButton = driver.findElement(By.id("review-buttons-container"));
+        placeOrderButton.click();
+
+        // Verify the success message
+        WebElement successMessage = driver.findElement(By.xpath("//h1[@class='page-title']"));
+        String messageText = successMessage.getText();
+        if (messageText.equals("Thank you for your purchase!")) {
+            System.out.println("Order placed successfully");
         } else {
-            System.out.println("Failed to retrieve account information");
+            System.out.println("Order placement failed");
         }
 
-        // Enter Credit Limit and click Save button
-        WebElement creditLimitInput = driver.findElement(By.id("creditLimit"));
-        WebElement saveButton = driver.findElement(By.id("save"));
+        // Click on the "Change" button
+        WebElement changeButton = driver.findElement(By.xpath("//a[@title='Change']"));
+        changeButton.click();
 
-        creditLimitInput.sendKeys("6150");
-        saveButton.click();
-
-        // Verify account information is updated in the database
-        WebElement successMessage = driver.findElement(By.id("successMessage"));
-        if(successMessage.getText().equals("Changes committed to database")) {
-            System.out.println("Account information updated in the database");
-        } else {
-            System.out.println("Failed to update account information in the database");
-        }
-
-        // Verify system pop up displays success message
-        // Assuming the success message is displayed in an alert box
-        if(driver.switchTo().alert().getText().equals("Changes committed to database")) {
-            System.out.println("Success message displayed in system pop up");
-        } else {
-            System.out.println("Failed to display success message in system pop up");
-        }
+        // Click on the "Signout" link
+        WebElement signoutLink = driver.findElement(By.linkText("Sign Out"));
+        signoutLink.click();
 
         // Close the browser
         driver.quit();
