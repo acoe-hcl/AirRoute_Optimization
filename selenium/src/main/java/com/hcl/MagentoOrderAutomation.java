@@ -1,4 +1,4 @@
-Sure! Here is the Selenium Java automation test script file for the given scenario:
+Certainly! Here is a sample Selenium Java automation test script that covers all the steps and test validations mentioned in the given feature file:
 
 ```java
 import org.openqa.selenium.By;
@@ -9,10 +9,10 @@ import org.openqa.selenium.interactions.Actions;
 
 public class MagentoOrderAutomation {
     public static void main(String[] args) {
-        // Set the path to chromedriver executable
+        // Set the path to the ChromeDriver executable
         System.setProperty("webdriver.chrome.driver", "path/to/chromedriver");
 
-        // Create a new instance of ChromeDriver
+        // Create a new instance of the ChromeDriver
         WebDriver driver = new ChromeDriver();
 
         // Navigate to the Magento website
@@ -22,13 +22,13 @@ public class MagentoOrderAutomation {
         WebElement signInLink = driver.findElement(By.linkText("Sign In"));
         signInLink.click();
 
-        // Set the browser name and page name
-        String browserName = "Customer Login";
-        String pageName = "Customer Login";
-        driver.executeScript("window.localStorage.setItem('browserName', '" + browserName + "');");
-        driver.executeScript("window.localStorage.setItem('pageName', '" + pageName + "');");
+        // Set the browser name as "Customer Login"
+        driver.manage().window().build().setName("Customer Login");
 
-        // Enter email and password
+        // Set the page name as "Customer Login"
+        driver.getTitle().thenAccept(title -> driver.manage().window().build().setName(title));
+
+        // Enter email and password in the respective fields
         WebElement emailField = driver.findElement(By.id("email"));
         emailField.sendKeys("testermail@gmail.com");
 
@@ -40,8 +40,8 @@ public class MagentoOrderAutomation {
         signInButton.click();
 
         // Mouse hover on the "Gear" menu
-        WebElement gearMenu = driver.findElement(By.xpath("//a[@id='nav-2']"));
         Actions actions = new Actions(driver);
+        WebElement gearMenu = driver.findElement(By.className("gear"));
         actions.moveToElement(gearMenu).perform();
 
         // Click on the "Bags" link
@@ -53,24 +53,24 @@ public class MagentoOrderAutomation {
         drivenBackpackImage.click();
 
         // Click on the "Add to Cart" button
-        WebElement addToCartButton = driver.findElement(By.xpath("//button[@title='Add to Cart']"));
+        WebElement addToCartButton = driver.findElement(By.id("product-addtocart-button"));
         addToCartButton.click();
 
         // Click on the "My Cart" link
-        WebElement myCartLink = driver.findElement(By.linkText("My Cart"));
+        WebElement myCartLink = driver.findElement(By.xpath("//a[@class='action showcart']"));
         myCartLink.click();
 
         // Verify that the "Order Summary" is having "Driven Backpack" product
-        WebElement orderSummary = driver.findElement(By.xpath("//h1[contains(text(),'Order Summary')]"));
+        WebElement orderSummary = driver.findElement(By.xpath("//tbody[@id='checkout-cart-summary-tbody']"));
         String orderSummaryText = orderSummary.getText();
         if (orderSummaryText.contains("Driven Backpack")) {
-            System.out.println("Order Summary contains Driven Backpack product");
+            System.out.println("Order Summary is having Driven Backpack product.");
         } else {
-            System.out.println("Order Summary does not contain Driven Backpack product");
+            System.out.println("Order Summary is not having Driven Backpack product.");
         }
 
         // Click on the "Proceed to Checkout" button
-        WebElement proceedToCheckoutButton = driver.findElement(By.xpath("//button[@title='Proceed to Checkout']"));
+        WebElement proceedToCheckoutButton = driver.findElement(By.id("top-cart-btn-checkout"));
         proceedToCheckoutButton.click();
 
         // Click on the "New Address" button
@@ -84,29 +84,25 @@ public class MagentoOrderAutomation {
         WebElement cityField = driver.findElement(By.id("city"));
         cityField.sendKeys("Texas");
 
-        WebElement stateField = driver.findElement(By.id("region_id"));
-        stateField.sendKeys("Texas");
+        WebElement stateDropdown = driver.findElement(By.id("region_id"));
+        stateDropdown.sendKeys("Texas");
 
         WebElement postalCodeField = driver.findElement(By.id("postcode"));
         postalCodeField.sendKeys("77567");
 
-        WebElement phoneNumberField = driver.findElement(By.id("telephone"));
-        phoneNumberField.sendKeys("3456788765");
+        WebElement phoneField = driver.findElement(By.id("telephone"));
+        phoneField.sendKeys("3456788765");
 
         // Click on the "Ship Here" button
-        WebElement shipHereButton = driver.findElement(By.xpath("//button[@title='Ship Here']"));
+        WebElement shipHereButton = driver.findElement(By.cssSelector(".field.address.shipping-method-item input[type='radio'][value='flatrate_Flatrate']"));
         shipHereButton.click();
-
-        // Select the "Fixed" radio button
-        WebElement fixedRadioButton = driver.findElement(By.id("s_method_flatrate_flatrate"));
-        fixedRadioButton.click();
 
         // Click on the "Next" button
         WebElement nextButton = driver.findElement(By.xpath("//button[@title='Next']"));
         nextButton.click();
 
         // Select the "My billing and shipping address are the same" checkbox
-        WebElement sameAddressCheckbox = driver.findElement(By.id("billing:use_for_shipping_yes"));
+        WebElement sameAddressCheckbox = driver.findElement(By.xpath("//input[@id='billing:use_for_shipping_yes']"));
         sameAddressCheckbox.click();
 
         // Click on the "Place Order" button
@@ -114,12 +110,12 @@ public class MagentoOrderAutomation {
         placeOrderButton.click();
 
         // Verify the message "Thank you for your purchase!"
-        WebElement successMessage = driver.findElement(By.xpath("//span[contains(text(),'Thank you for your purchase!')]"));
-        String successMessageText = successMessage.getText();
-        if (successMessageText.equals("Thank you for your purchase!")) {
-            System.out.println("Order placed successfully");
+        WebElement confirmationMessage = driver.findElement(By.xpath("//h1[text()='Thank you for your purchase!']"));
+        String confirmationMessageText = confirmationMessage.getText();
+        if (confirmationMessageText.equals("Thank you for your purchase!")) {
+            System.out.println("Order placed successfully.");
         } else {
-            System.out.println("Order placement failed");
+            System.out.println("Order placement failed.");
         }
 
         // Click on the "Change" button
@@ -127,7 +123,7 @@ public class MagentoOrderAutomation {
         changeButton.click();
 
         // Click on the "Signout" link
-        WebElement signoutLink = driver.findElement(By.linkText("Signout"));
+        WebElement signoutLink = driver.findElement(By.xpath("//a[text()='Sign Out']"));
         signoutLink.click();
 
         // Close the browser
@@ -136,6 +132,6 @@ public class MagentoOrderAutomation {
 }
 ```
 
-Make sure to replace "path/to/chromedriver" with the actual path to your chromedriver executable.
+Please make sure to replace "path/to/chromedriver" with the actual path to the ChromeDriver executable in your local machine.
 
-Hope this helps! Let me know if you have any questions.
+Hope this helps! Let me know if you need any further assistance.
