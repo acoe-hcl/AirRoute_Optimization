@@ -2,76 +2,158 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.interactions.Actions;
 import org.testng.Assert;
-import org.testng.annotations.AfterTest;
-import org.testng.annotations.BeforeTest;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 public class MagentoOrderTest {
-    
     private WebDriver driver;
-    
-    @BeforeTest
-    public void setup() {
-        // Set up Chrome driver
-        System.setProperty("webdriver.chrome.driver", "path/to/chromedriver.exe");
-        driver = new ChromeDriver();
-        driver.manage().window().maximize();
-    }
-    
-    @Test
-    public void placeOrderTest() {
-        driver.get("https://magento.softwaretestingboard.com/");
 
-        // Sign in
-        driver.findElement(By.linkText("Sign In")).click();
-        driver.findElement(By.name("login[username]")).sendKeys("testermail@gmail.com");
-        driver.findElement(By.name("login[password]")).sendKeys("Tester@123");
-        driver.findElement(By.id("send2")).click();
-        
-        // Navigate to product and add to cart
-        WebElement gearMenu = driver.findElement(By.xpath("//span[@class='name'][contains(text(),'Gear')]"));
+    @BeforeClass
+    public void setUp() {
+        System.setProperty("webdriver.chrome.driver", "path/to/chromedriver");
+        driver = new ChromeDriver();
+    }
+
+    @Test(priority = 1)
+    public void navigateToMagentoWebsite() {
+        driver.get("https://magento.softwaretestingboard.com/");
+    }
+
+    @Test(priority = 2)
+    public void clickSignInLink() {
+        WebElement signInLink = driver.findElement(By.linkText("Sign In"));
+        signInLink.click();
+    }
+
+    @Test(priority = 3)
+    public void verifyPageName() {
+        String expectedPageName = "Customer Login";
+        String actualPageName = driver.getTitle();
+        Assert.assertEquals(actualPageName, expectedPageName);
+    }
+
+    @Test(priority = 4)
+    public void enterCredentialsAndSignIn() {
+        WebElement emailField = driver.findElement(By.id("email"));
+        WebElement passwordField = driver.findElement(By.id("pass"));
+
+        emailField.sendKeys("testermail@gmail.com");
+        passwordField.sendKeys("Tester@123");
+
+        WebElement signInButton = driver.findElement(By.id("send2"));
+        signInButton.click();
+    }
+
+    @Test(priority = 5)
+    public void hoverOverGearMenuAndClickBagsLink() {
+        WebElement gearMenu = driver.findElement(By.xpath("//a[@id='gear']"));
         Actions action = new Actions(driver);
         action.moveToElement(gearMenu).perform();
-        driver.findElement(By.linkText("Bags")).click();
-        driver.findElement(By.linkText("Driven Backpack")).click();
-        driver.findElement(By.cssSelector(".add-to-cart-buttons button")).click();
-        driver.findElement(By.linkText("My Cart")).click();
         
-        // Verify product in order summary
-        WebElement orderSummary = driver.findElement(By.id("shopping-cart-table"));
-        Assert.assertTrue(orderSummary.getText().contains("Driven Backpack"), "Order summary does not contain Driven Backpack");
-        
-        // Proceed to checkout
-        driver.findElement(By.id("onepage-checkout")).click();
-        
-        // Fill shipping address
-        driver.findElement(By.cssSelector("#billing-buttons-container button[onclick*='shipping']")).click();
-        driver.findElement(By.id("billing:street1")).sendKeys("4 South Street");
-        driver.findElement(By.id("billing:city")).sendKeys("Texas");
-        driver.findElement(By.id("billing:region_id")).sendKeys("Texas");
-        driver.findElement(By.id("billing:postcode")).sendKeys("77567");
-        driver.findElement(By.id("billing:telephone")).sendKeys("3456788765");
-        driver.findElement(By.cssSelector("#billing-buttons-container button[onclick*='shipping']")).click();
-        
-        // Select shipping method
-        driver.findElement(By.id("s_method_flatrate_flatrate")).click();
-        driver.findElement(By.cssSelector("#shipping-buttons-container button[onclick*='payment']")).click();
-        
-        // Select billing and shipping address
-        driver.findElement(By.id("billing:use_for_shipping_yes")).click();
-        driver.findElement(By.cssSelector("#payment-buttons-container button[onclick*='submit(']")).click();
-        
-        // Verify purchase message
-        WebElement purchaseMessage = driver.findElement(By.xpath("//*[contains(text(),'Thank you for your purchase!')]"));
-        Assert.assertTrue(purchaseMessage.isDisplayed(), "Purchase message is not displayed");
-        
-        // Sign out
-        driver.findElement(By.linkText("Change")).click();
-        driver.findElement(By.linkText("Signout")).click();
+        WebElement bagsLink = driver.findElement(By.xpath("//a[@href='/bags']"));
+        action.click(bagsLink).perform();
     }
-    
-    @AfterTest
+
+    @Test(priority = 6)
+    public void clickDrivenBackpackImage() {
+        WebElement drivenBackpackImage = driver.findElement(By.xpath("//img[@alt='Driven Backpack']"));
+        drivenBackpackImage.click();
+    }
+
+    @Test(priority = 7)
+    public void clickAddToCartButton() {
+        WebElement addToCartButton = driver.findElement(By.xpath("//button[@title='Add to Cart']"));
+        addToCartButton.click();
+    }
+
+    @Test(priority = 8)
+    public void clickMyCartLink() {
+        WebElement myCartLink = driver.findElement(By.xpath("//a[@title='My Cart']"));
+        myCartLink.click();
+    }
+
+    @Test(priority = 9)
+    public void verifyOrderSummary() {
+        WebElement orderSummary = driver.findElement(By.xpath("//span[text()='Driven Backpack']"));
+        Assert.assertTrue(orderSummary.isDisplayed());
+    }
+
+    @Test(priority = 10)
+    public void clickProceedToCheckoutButton() {
+        WebElement proceedToCheckoutButton = driver.findElement(By.xpath("//button[@title='Proceed to Checkout']"));
+        proceedToCheckoutButton.click();
+    }
+
+    @Test(priority = 11)
+    public void clickNewAddressButton() {
+        WebElement newAddressButton = driver.findElement(By.xpath("//button[@title='New Address']"));
+        newAddressButton.click();
+    }
+
+    @Test(priority = 12)
+    public void enterAddressDetailsAndShipHere() {
+        WebElement streetAddressField = driver.findElement(By.id("street_1"));
+        WebElement cityField = driver.findElement(By.id("city"));
+        WebElement stateField = driver.findElement(By.id("region_id"));
+        WebElement postalCodeField = driver.findElement(By.id("zip"));
+        WebElement phoneField = driver.findElement(By.id("telephone"));
+
+        streetAddressField.sendKeys("123 Example Street");
+        cityField.sendKeys("Example City");
+        stateField.sendKeys("Example State");
+        postalCodeField.sendKeys("12345");
+        phoneField.sendKeys("1234567890");
+
+        WebElement shipHereButton = driver.findElement(By.xpath("//button[@title='Ship Here']"));
+        shipHereButton.click();
+    }
+
+    @Test(priority = 13)
+    public void selectFixedRadioButton() {
+        WebElement fixedRadioButton = driver.findElement(By.xpath("//input[@id='s_method_flatrate_flatrate']"));
+        fixedRadioButton.click();
+    }
+
+    @Test(priority = 14)
+    public void clickNextButton() {
+        WebElement nextButton = driver.findElement(By.xpath("//button[@title='Next']"));
+        nextButton.click();
+    }
+
+    @Test(priority = 15)
+    public void selectBillingShippingSameCheckbox() {
+        WebElement sameBillingShippingCheckbox = driver.findElement(By.xpath("//input[@id='billing:use_for_shipping_yes']"));
+        sameBillingShippingCheckbox.click();
+    }
+
+    @Test(priority = 16)
+    public void clickPlaceOrderButton() {
+        WebElement placeOrderButton = driver.findElement(By.xpath("//button[@title='Place Order']"));
+        placeOrderButton.click();
+    }
+
+    @Test(priority = 17)
+    public void verifyConfirmationMessage() {
+        WebElement confirmationMessage = driver.findElement(By.xpath("//span[text()='Thank you for your purchase!']"));
+        Assert.assertTrue(confirmationMessage.isDisplayed());
+    }
+
+    @Test(priority = 18)
+    public void clickChangeButton() {
+        WebElement changeButton = driver.findElement(By.xpath("//button[@title='Change']"));
+        changeButton.click();
+    }
+
+    @Test(priority = 19)
+    public void clickSignOutLink() {
+        WebElement signOutLink = driver.findElement(By.linkText("Signout"));
+        signOutLink.click();
+    }
+
+    @AfterClass
     public void tearDown() {
         driver.quit();
     }
