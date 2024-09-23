@@ -1,107 +1,78 @@
-As a professional code assistant, I can help you generate the Selenium Java TestNG code for the given scenario. Here's the code for the test combinations and assertions:
-
-```java
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.testng.Assert;
-import org.testng.annotations.AfterClass;
-import org.testng.annotations.BeforeClass;
+import org.testng.annotations.AfterTest;
+import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
 public class MagentoOrderTest {
+    
     private WebDriver driver;
-
-    @BeforeClass
-    public void setUp() {
-        // Set up the WebDriver configuration
-        System.setProperty("webdriver.chrome.driver", "path_to_chromedriver");
+    
+    @BeforeTest
+    public void setup() {
+        // Set up Chrome driver
+        System.setProperty("webdriver.chrome.driver", "path/to/chromedriver.exe");
         driver = new ChromeDriver();
+        driver.manage().window().maximize();
     }
-
-    @Test(priority = 1)
-    public void testLogin() {
+    
+    @Test
+    public void placeOrderTest() {
         driver.get("https://magento.softwaretestingboard.com/");
-        driver.findElement(By.linkText("Sign In")).click();
-        driver.findElement(By.id("email")).sendKeys("testermail@gmail.com");
-        driver.findElement(By.id("pass")).sendKeys("Tester@123");
-        driver.findElement(By.id("send2")).click();
-    }
 
-    @Test(priority = 2)
-    public void testPlaceOrder() {
-        // Mouse hover on the "Gear" menu
-        WebElement gearMenu = driver.findElement(By.className("gear-icon"));
+        // Sign in
+        driver.findElement(By.linkText("Sign In")).click();
+        driver.findElement(By.name("login[username]")).sendKeys("testermail@gmail.com");
+        driver.findElement(By.name("login[password]")).sendKeys("Tester@123");
+        driver.findElement(By.id("send2")).click();
+        
+        // Navigate to product and add to cart
+        WebElement gearMenu = driver.findElement(By.xpath("//span[@class='name'][contains(text(),'Gear')]"));
         Actions action = new Actions(driver);
         action.moveToElement(gearMenu).perform();
-
-        // Click on the "Bags" link
         driver.findElement(By.linkText("Bags")).click();
-
-        // Click on the "Driven Backpack" image
-        driver.findElement(By.xpath("//img[@alt='Driven Backpack']")).click();
-
-        // Click on the "Add to Cart" button
-        driver.findElement(By.xpath("//button[text()='Add to Cart']")).click();
-
-        // Click on the "My Cart" link
+        driver.findElement(By.linkText("Driven Backpack")).click();
+        driver.findElement(By.cssSelector(".add-to-cart-buttons button")).click();
         driver.findElement(By.linkText("My Cart")).click();
-
-        // Verify that the "Order Summary" is having "Driven Backpack" product
-        String orderSummary = driver.findElement(By.xpath("//h2[contains(text(), 'Order Summary')]")).getText();
-        Assert.assertTrue(orderSummary.contains("Driven Backpack"), "Driven Backpack product is not in the order summary");
-
-        // Click on the "Proceed to Checkout" button
-        driver.findElement(By.xpath("//span[text()='Proceed to Checkout']")).click();
-
-        // Click on the "New Address" button
-        driver.findElement(By.xpath("//button[text()='New Address']")).click();
-
-        // Enter the address details
-        driver.findElement(By.id("street_1")).sendKeys("4 South Street");
-        driver.findElement(By.id("city")).sendKeys("Texas");
-        Select stateDropdown = new Select(driver.findElement(By.id("region_id")));
-        stateDropdown.selectByVisibleText("Texas");
-        driver.findElement(By.id("zip")).sendKeys("77567");
-        driver.findElement(By.id("telephone")).sendKeys("3456788765");
-
-        // Click on the "Ship Here" button
-        driver.findElement(By.xpath("//button[text()='Ship Here']")).click();
-
-        // Select the "Fixed" radio button
+        
+        // Verify product in order summary
+        WebElement orderSummary = driver.findElement(By.id("shopping-cart-table"));
+        Assert.assertTrue(orderSummary.getText().contains("Driven Backpack"), "Order summary does not contain Driven Backpack");
+        
+        // Proceed to checkout
+        driver.findElement(By.id("onepage-checkout")).click();
+        
+        // Fill shipping address
+        driver.findElement(By.cssSelector("#billing-buttons-container button[onclick*='shipping']")).click();
+        driver.findElement(By.id("billing:street1")).sendKeys("4 South Street");
+        driver.findElement(By.id("billing:city")).sendKeys("Texas");
+        driver.findElement(By.id("billing:region_id")).sendKeys("Texas");
+        driver.findElement(By.id("billing:postcode")).sendKeys("77567");
+        driver.findElement(By.id("billing:telephone")).sendKeys("3456788765");
+        driver.findElement(By.cssSelector("#billing-buttons-container button[onclick*='shipping']")).click();
+        
+        // Select shipping method
         driver.findElement(By.id("s_method_flatrate_flatrate")).click();
-
-        // Click on the "Next" button
-        driver.findElement(By.xpath("//span[text()='Next']")).click();
-
-        // Select the "My billing and shipping address are the same" checkbox
+        driver.findElement(By.cssSelector("#shipping-buttons-container button[onclick*='payment']")).click();
+        
+        // Select billing and shipping address
         driver.findElement(By.id("billing:use_for_shipping_yes")).click();
-
-        // Click on the "Place Order" button
-        driver.findElement(By.xpath("//span[text()='Place Order']")).click();
-
-        // Verify the message "Thank you for your purchase!"
-        String confirmationMessage = driver.findElement(By.xpath("//h1[contains(text(), 'Thank you for your purchase!')]")).getText();
-        Assert.assertEquals(confirmationMessage, "Thank you for your purchase!");
-
-        // Click on the "Change" button
-        driver.findElement(By.xpath("//span[text()='Change']")).click();
-
-        // Click on the "Signout" link
-        driver.findElement(By.linkText("Sign out")).click();
+        driver.findElement(By.cssSelector("#payment-buttons-container button[onclick*='submit(']")).click();
+        
+        // Verify purchase message
+        WebElement purchaseMessage = driver.findElement(By.xpath("//*[contains(text(),'Thank you for your purchase!')]"));
+        Assert.assertTrue(purchaseMessage.isDisplayed(), "Purchase message is not displayed");
+        
+        // Sign out
+        driver.findElement(By.linkText("Change")).click();
+        driver.findElement(By.linkText("Signout")).click();
     }
-
-    @AfterClass
+    
+    @AfterTest
     public void tearDown() {
-        // Closing the browser after the test execution
         driver.quit();
     }
 }
-```
-
-Make sure to replace `path_to_chromedriver` with the actual path to your ChromeDriver executable.
-
-This code includes the required logic for navigating through the website and performing the specified actions. It also includes assertions to verify the expected results.
-
-Let me know if there's anything else I can help you with!
