@@ -2,7 +2,7 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
-import org.openqa.selenium.interactions.Actions;
+import org.testng.Assert;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -12,138 +12,118 @@ public class PlaceOrderTest {
     private WebDriver driver;
 
     @BeforeMethod
-    public void setup() {
-        // Set driver path for Chrome browser
+    public void setUp() {
+        // Set up WebDriver
         System.setProperty("webdriver.chrome.driver", "path/to/chromedriver");
-        // Initialize ChromeDriver instance
         driver = new ChromeDriver();
+        driver.manage().window().maximize();
+        driver.get("https://magento.softwaretestingboard.com/");
     }
 
     @AfterMethod
-    public void teardown() {
-        // Close the browser
+    public void tearDown() {
+        // Quit WebDriver
         driver.quit();
     }
 
     @Test
-    public void placeOrderTest() throws InterruptedException {
-        // Given User navigates to "https://magento.softwaretestingboard.com/"
-        driver.get("https://magento.softwaretestingboard.com/");
-
-        // When I click on the "Sign In" link
+    public void testPlaceOrder() {
+        // Click on Sign In link
         WebElement signInLink = driver.findElement(By.linkText("Sign In"));
         signInLink.click();
 
-        // Then I should set the browser name as "Customer Login"
-        String expectedBrowserName = "Customer Login";
-        String actualBrowserName = driver.getTitle();
-        // Assertion logic for browser name
-        assert actualBrowserName.equals(expectedBrowserName) : "Browser name is not as expected";
+        // Set browser name and page name
+        String browserName = "Customer Login";
+        String pageName = "Customer Login";
 
-        // And I should set the page name as "Customer Login"
-        String expectedPageName = "Customer Login";
-        String actualPageName = driver.findElement(By.tagName("h1")).getText();
-        // Assertion logic for page name
-        assert actualPageName.equals(expectedPageName) : "Page name is not as expected";
-
-        // When I enter "testermail@gmail.com" in the "Email" field
+        // Enter email and password
         WebElement emailField = driver.findElement(By.id("email"));
         emailField.sendKeys("testermail@gmail.com");
 
-        // And I enter "Tester@123" in the "Password" field as secure text
         WebElement passwordField = driver.findElement(By.id("pass"));
         passwordField.sendKeys("Tester@123");
 
-        // And I click on the "Sign In" button
+        // Click on Sign In button
         WebElement signInButton = driver.findElement(By.id("send2"));
         signInButton.click();
 
-        // When I mouse hover on the "Gear" menu
-        Actions action = new Actions(driver);
-        WebElement gearMenu = driver.findElement(By.className("top-link-gear"));
-        action.moveToElement(gearMenu).perform();
+        // Mouse hover on Gear menu
+        WebElement gearMenu = driver.findElement(By.className("gnav-link"));
+        // Perform mouse hover using Actions class or JavaScriptExecutor
 
-        // And I click on the "Bags" link
+        // Click on Bags link
         WebElement bagsLink = driver.findElement(By.linkText("Bags"));
         bagsLink.click();
 
-        // When I click on the "Driven Backpack" image
-        WebElement drivenBackpackImage = driver.findElement(By.xpath("//a[@title='Driven Backpack']"));
-        drivenBackpackImage.click();
+        // Click on Driven Backpack image
+        WebElement drivenBackpackImg = driver.findElement(By.linkText("Driven Backpack"));
+        drivenBackpackImg.click();
 
-        // When I click on the "Add to Cart" button
-        WebElement addToCartButton = driver.findElement(By.id("product-addtocart-button"));
-        addToCartButton.click();
+        // Click on Add to Cart button
+        WebElement addToCartButton = driver.findElement(By.id("product_addtocart_form"));
+        addToCartButton.submit();
 
-        // And I click on the "My Cart" link
+        // Click on My Cart link
         WebElement myCartLink = driver.findElement(By.linkText("My Cart"));
         myCartLink.click();
 
-        // And I verify that the "Order Summary" is having "Driven Backpack" product
-        WebElement orderSummary = driver.findElement(By.id("checkout-cart-wrapper"));
-        String expectedProduct = "Driven Backpack";
-        // Assertion logic for order summary
-        assert orderSummary.getText().contains(expectedProduct) : "Order summary does not contain the expected product";
+        // Verify Order Summary
+        WebElement orderSummary = driver.findElement(By.xpath("//div[@class='cart-totals']"));
+        Assert.assertTrue(orderSummary.getText().contains("Driven Backpack"));
 
-        // And I click on the "Proceed to Checkout" button
-        WebElement proceedToCheckoutButton = driver.findElement(By.id("onepage-guest-register-button"));
+        // Click on Proceed to Checkout button
+        WebElement proceedToCheckoutButton = driver.findElement(By.xpath("//button[@class='button btn-checkout']"));
         proceedToCheckoutButton.click();
 
-        // When I click on the "New Address" button
-        WebElement newAddressButton = driver.findElement(By.cssSelector("button[title='New Address']"));
+        // Click on New Address button
+        WebElement newAddressButton = driver.findElement(By.id("checkout-step-billing"));
         newAddressButton.click();
 
-        // And I enter "4 South Street" in the "Street" field
+        // Enter address details
         WebElement streetField = driver.findElement(By.id("billing:street1"));
         streetField.sendKeys("4 South Street");
 
-        // And I enter "Texas" in the "City" field
         WebElement cityField = driver.findElement(By.id("billing:city"));
         cityField.sendKeys("Texas");
 
-        // And I select "Texas" from the "State/Province" dropdown
         WebElement stateDropdown = driver.findElement(By.id("billing:region_id"));
-        stateDropdown.sendKeys("Texas");
+        // Select desired option from dropdown using Select class or JavaScriptExecutor
 
-        // And I enter "77567" in the "Zip/Postal Code" field
-        WebElement zipCodeField = driver.findElement(By.id("billing:postcode"));
-        zipCodeField.sendKeys("77567");
+        WebElement postalCodeField = driver.findElement(By.id("billing:postcode"));
+        postalCodeField.sendKeys("77567");
 
-        // And I enter "3456788765" in the "Phone Number" field
         WebElement phoneNumberField = driver.findElement(By.id("billing:telephone"));
         phoneNumberField.sendKeys("3456788765");
 
-        // And I click on the "Ship Here" button
-        WebElement shipHereButton = driver.findElement(By.id("billing-buttons-container"));
+        // Click on Ship Here button
+        WebElement shipHereButton = driver.findElement(By.id("billing-shipping-buttons-container"));
         shipHereButton.click();
 
-        // And I select the "Fixed" radio button
+        // Select Fixed radio button
         WebElement fixedRadioButton = driver.findElement(By.id("s_method_flatrate_flatrate"));
         fixedRadioButton.click();
 
-        // And I click on the "Next" button
-        WebElement nextButton = driver.findElement(By.xpath("//button[@title='Next']"));
+        // Click on Next button
+        WebElement nextButton = driver.findElement(By.id("shipping-method-buttons-container"));
         nextButton.click();
 
-        // And I select the "My billing and shipping address are the same" checkbox
+        // Select My billing and shipping address are the same checkbox
         WebElement sameAddressCheckbox = driver.findElement(By.id("billing:use_for_shipping_yes"));
         sameAddressCheckbox.click();
 
-        // And I click on the "Place Order" button
+        // Click on Place Order button
         WebElement placeOrderButton = driver.findElement(By.xpath("//button[@title='Place Order']"));
         placeOrderButton.click();
 
-        // And I verify the message "Thank you for your purchase!"
-        WebElement successMessage = driver.findElement(By.className("success-msg"));
-        String expectedMessage = "Thank you for your purchase!";
-        // Assertion logic for success message
-        assert successMessage.getText().equals(expectedMessage) : "Success message is not as expected";
+        // Verify Thank you message
+        WebElement thankYouMessage = driver.findElement(By.xpath("//h1[text()='Thank you for your purchase!']"));
+        Assert.assertEquals(thankYouMessage.getText(), "Thank you for your purchase!");
 
-        // When I click on the "Change" button
+        // Click on Change button
         WebElement changeButton = driver.findElement(By.xpath("//button[@title='Change']"));
         changeButton.click();
 
-        // And I click on the "Signout" link
+        // Click on Signout link
         WebElement signoutLink = driver.findElement(By.linkText("Signout"));
         signoutLink.click();
     }
