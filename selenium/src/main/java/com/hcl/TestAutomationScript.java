@@ -2,141 +2,127 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
-import org.openqa.selenium.support.ui.Select;
 
 public class TestAutomationScript {
-
+    
     public static void main(String[] args) {
-        // Set the path to chromedriver executable
-        System.setProperty("webdriver.chrome.driver", "path/to/chromedriver");
-
-        // Create a new instance of ChromeDriver
+        
+        // Open the Magento website
         WebDriver driver = new ChromeDriver();
-
-        // Launch the website
-        driver.get("https://accc-uatmaster.microsoftcrmportals.com/en-CA/air-canada-contact-us/");
-
-        // Select tile "General Concerns"
-        driver.findElement(By.xpath("//a[text()='General Concerns']")).click();
-
-        // Select the option "At the Airport" in Regarding dropdown
-        WebElement regardingDropdown = driver.findElement(By.xpath("//select[@id='regarding']/option[text()='At the Airport']"));
-        Select regardingSelect = new Select(regardingDropdown);
-        regardingSelect.selectByVisibleText("At the Airport");
-
-        // Select "Check-in" in Issue dropdown field
-        WebElement issueDropdown = driver.findElement(By.xpath("//select[@id='issue']/option[text()='Check-in']"));
-        Select issueSelect = new Select(issueDropdown);
-        issueSelect.selectByVisibleText("Check-in");
-
-        // Click on "Next" button
-        driver.findElement(By.xpath("//button[text()='Next']")).click();
-
-        // Enter email address
-        driver.findElement(By.id("input_emailaddress")).sendKeys("bharathkumar-n@hcl.com");
-
-        // Enter confirm email address
-        driver.findElement(By.id("input_emailaddressconfirm")).sendKeys("bharathkumar-n@hcl.com");
-
-        // Select the option "Mr." in Title dropdown
-        WebElement titleDropdown = driver.findElement(By.xpath("//select[@id='title']/option[text()='Mr.']"));
-        Select titleSelect = new Select(titleDropdown);
-        titleSelect.selectByVisibleText("Mr.");
-
-        // Enter first name
-        driver.findElement(By.id("input_firstname")).sendKeys("Bharath");
-
-        // Enter last name
-        driver.findElement(By.id("input_lastname")).sendKeys("Ice");
-
-        // Enter permanent mailing address
-        driver.findElement(By.id("input_addressline1")).sendKeys("Harvest");
-
-        // Enter city
-        driver.findElement(By.id("input_city")).sendKeys("Ontario");
-
-        // Enter province/state
-        driver.findElement(By.id("input_state")).sendKeys("ON");
-
-        // Select the option "ON Ontario" in province/state dropdown
-        WebElement stateDropdown = driver.findElement(By.xpath("//select[@id='state_provinceterritory']/option[text()='ON Ontario']"));
-        Select stateSelect = new Select(stateDropdown);
-        stateSelect.selectByVisibleText("ON Ontario");
-
-        // Enter postal/zipcode
-        driver.findElement(By.id("input_postalzip")).sendKeys("M9C 4Y1");
-
-        // Select the option "Canada" in country/region dropdown
-        WebElement countryDropdown = driver.findElement(By.xpath("//select[@id='country']/option[text()='Canada']"));
-        Select countrySelect = new Select(countryDropdown);
-        countrySelect.selectByVisibleText("Canada");
-
-        // Enter primary phone number
-        driver.findElement(By.id("input_primaryphone")).sendKeys("8801070616");
-
-        // Click on "Next" button
-        driver.findElement(By.xpath("//button[text()='Next']")).click();
-
-        // Select the option "Air Canada" in airline dropdown
-        WebElement airlineDropdown = driver.findElement(By.xpath("//select[@id='airline']/option[text()='Air Canada']"));
-        Select airlineSelect = new Select(airlineDropdown);
-        airlineSelect.selectByVisibleText("Air Canada");
-
-        // Enter flight number
-        driver.findElement(By.id("input_flightnumber")).sendKeys("122");
-
-        // Enter flight date
-        driver.findElement(By.id("input_flightdate")).sendKeys("2023-08-17");
-
-        // Enter departure airport
-        driver.findElement(By.id("input_departureairport")).sendKeys("YVR");
-
-        // Select the option "YVR Vancouver Canada (Vancouver Intl)" in departure airport dropdown
-        WebElement departureAirportDropdown = driver.findElement(By.xpath("//select[@id='departureairport']/option[text()='YVR Vancouver Canada (Vancouver Intl)']"));
-        Select departureAirportSelect = new Select(departureAirportDropdown);
-        departureAirportSelect.selectByVisibleText("YVR Vancouver Canada (Vancouver Intl)");
-
-        // Enter arrival airport
-        driver.findElement(By.id("input_arrivalairport")).sendKeys("YYZ");
-
-        // Select the option "YYZ Toronto Canada (Lester B. Pearson Intl)" in arrival airport dropdown
-        WebElement arrivalAirportDropdown = driver.findElement(By.xpath("//select[@id='arrivalairport']/option[text()='YYZ Toronto Canada (Lester B. Pearson Intl)']"));
-        Select arrivalAirportSelect = new Select(arrivalAirportDropdown);
-        arrivalAirportSelect.selectByVisibleText("YYZ Toronto Canada (Lester B. Pearson Intl)");
-
-        // Enter booking reference
-        driver.findElement(By.id("input_bookingreference")).sendKeys("3ED8RH");
-
-        // Enter ticket number
-        driver.findElement(By.id("input_ticketnumber")).sendKeys("0142173322307");
-
-        // Click on "Next" button
-        driver.findElement(By.xpath("//button[text()='Next']")).click();
-
-        // Verify "Do not add any payment information in the comment field" below message field in the current page
-        WebElement messageField = driver.findElement(By.xpath("//textarea[@id='description']"));
-        String messageFieldValue = messageField.getAttribute("value");
-        if (messageFieldValue.contains("Do not add any payment information in the comment field")) {
-            System.out.println("Verification successful. Message field contains the expected text.");
+        driver.get("https://www.magento.com");
+        
+        // Click on the "Sign In" link
+        WebElement signInLink = driver.findElement(By.linkText("Sign In"));
+        signInLink.click();
+        
+        // Verify that the browser name and page name is set as "Customer Login"
+        String browserName = driver.getTitle();
+        String pageName = driver.findElement(By.tagName("h1")).getText();
+        if(browserName.equals("Customer Login") && pageName.equals("Customer Login")) {
+            System.out.println("Browser name and page name is set as 'Customer Login'");
         } else {
-            System.out.println("Verification failed. Message field does not contain the expected text.");
+            System.out.println("Browser name and page name is not set as 'Customer Login'");
         }
-
-        // Enter subject
-        driver.findElement(By.id("input_subject")).sendKeys("Air Canada Booking");
-
-        // Click on "Submit" button
-        driver.findElement(By.xpath("//button[text()='Submit']")).click();
-
-        // Verify "Thank you for sharing your travel experience..." displayed in the current page
-        WebElement successMessage = driver.findElement(By.xpath("//div[@id='form_success_message']"));
-        String successMessageText = successMessage.getText();
-        if (successMessageText.equals("Thank you for sharing your travel experience. This is an automated response to let you know that we received your comments. A file number has been assigned and will be emailed to you shortly. Your feedback is very important and it may take some time to research and investigate your concerns. We will get back to you as soon as possible. Thank you for your patience.")) {
-            System.out.println("Verification successful. Success message is displayed correctly.");
+        
+        // Enter the email address and password in the designated fields
+        WebElement emailField = driver.findElement(By.id("email"));
+        emailField.sendKeys("testermail@gmail.com");
+        
+        WebElement passwordField = driver.findElement(By.id("password"));
+        passwordField.sendKeys("Tester@123");
+        
+        // Click on the "Sign In" button
+        WebElement signInButton = driver.findElement(By.id("send2"));
+        signInButton.click();
+        
+        // Hover over the "Gear" menu and click on the "Bags" link
+        WebElement gearMenu = driver.findElement(By.className("gear-icon"));
+        Actions actions = new Actions(driver);
+        actions.moveToElement(gearMenu).build().perform();
+        
+        WebElement bagsLink = driver.findElement(By.linkText("Bags"));
+        bagsLink.click();
+        
+        // Click on the image of the "Driven Backpack" product
+        WebElement drivenBackpackImage = driver.findElement(By.xpath("//img[@alt='Driven Backpack']"));
+        drivenBackpackImage.click();
+        
+        // Click on the "Add to Cart" button
+        WebElement addToCartButton = driver.findElement(By.xpath("//button[@title='Add to Cart']"));
+        addToCartButton.click();
+        
+        // Click on the "My Cart" link
+        WebElement myCartLink = driver.findElement(By.linkText("My Cart"));
+        myCartLink.click();
+        
+        // Verify that the "Order Summary" includes the "Driven Backpack" product
+        WebElement orderSummary = driver.findElement(By.xpath("//h2[text()='Order Summary']"));
+        if(orderSummary.getText().contains("Driven Backpack")) {
+            System.out.println("Order Summary includes 'Driven Backpack' product");
         } else {
-            System.out.println("Verification failed. Success message is not displayed correctly.");
+            System.out.println("Order Summary does not include 'Driven Backpack' product");
         }
-
+        
+        // Click on the "Proceed to Checkout" button
+        WebElement proceedToCheckoutButton = driver.findElement(By.xpath("//button[@title='Proceed to Checkout']"));
+        proceedToCheckoutButton.click();
+        
+        // Click on the "New Address" button
+        WebElement newAddressButton = driver.findElement(By.xpath("//button[@title='New Address']"));
+        newAddressButton.click();
+        
+        // Enter the address details
+        WebElement streetAddressField = driver.findElement(By.id("street_1"));
+        streetAddressField.sendKeys("123 Main Street");
+        
+        WebElement cityField = driver.findElement(By.id("city"));
+        cityField.sendKeys("New York");
+        
+        WebElement stateField = driver.findElement(By.id("region_id"));
+        stateField.sendKeys("New York");
+        
+        WebElement zipField = driver.findElement(By.id("postcode"));
+        zipField.sendKeys("10001");
+        
+        WebElement phoneField = driver.findElement(By.id("telephone"));
+        phoneField.sendKeys("1234567890");
+        
+        // Click on the "Ship Here" button
+        WebElement shipHereButton = driver.findElement(By.xpath("//button[@title='Ship Here']"));
+        shipHereButton.click();
+        
+        // Select the "Fixed" radio button
+        WebElement fixedRadioButton = driver.findElement(By.id("s_method_flatrate_flatrate"));
+        fixedRadioButton.click();
+        
+        // Click on the "Next" button
+        WebElement nextButton = driver.findElement(By.xpath("//button[@title='Next']"));
+        nextButton.click();
+        
+        // Select the "My billing and shipping address are the same" checkbox
+        WebElement billingShippingCheckbox = driver.findElement(By.id("billing:use_for_shipping_yes"));
+        billingShippingCheckbox.click();
+        
+        // Click on the "Place Order" button
+        WebElement placeOrderButton = driver.findElement(By.xpath("//button[@title='Place Order']"));
+        placeOrderButton.click();
+        
+        // Verify that a confirmation message saying "Thank you for your purchase!" is displayed
+        WebElement confirmationMessage = driver.findElement(By.xpath("//span[text()='Thank you for your purchase!']"));
+        if(confirmationMessage.isDisplayed()) {
+            System.out.println("Confirmation message 'Thank you for your purchase!' is displayed");
+        } else {
+            System.out.println("Confirmation message 'Thank you for your purchase!' is not displayed");
+        }
+        
+        // Click on the "Change" button
+        WebElement changeButton = driver.findElement(By.xpath("//button[@title='Change']"));
+        changeButton.click();
+        
+        // Click on the "Sign Out" link
+        WebElement signOutLink = driver.findElement(By.partialLinkText("Sign Out"));
+        signOutLink.click();
+        
         // Close the browser
         driver.quit();
     }
