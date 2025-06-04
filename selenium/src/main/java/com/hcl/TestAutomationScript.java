@@ -2,133 +2,87 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.interactions.Actions;
+import org.openqa.selenium.support.ui.Select;
+import org.openqa.selenium.support.ui.WebDriverWait;
+import org.openqa.selenium.support.ui.ExpectedConditions;
 
 public class TestAutomationScript {
 
-    public static void main(String[] args) {
-        
-        // Set the path of ChromeDriver executable
-        System.setProperty("webdriver.chrome.driver", "path/to/chromedriver");
-
-        // Create an instance of ChromeDriver
-        WebDriver driver = new ChromeDriver();
-        
-        // Step 1: Open the Magento website
-        driver.get("http://www.example.com");
-
-        // Step 2: Click on the "Sign In" link
-        WebElement signInLink = driver.findElement(By.linkText("Sign In"));
-        signInLink.click();
-        
-        // Step 3: Verify that the browser name and page name is set as "Customer Login"
-        String browserName = driver.getCapabilities().getBrowserName();
-        String pageTitle = driver.getTitle();
-        if (browserName.equals("Chrome") && pageTitle.equals("Customer Login")) {
-            System.out.println("Browser name and page name are set correctly.");
-        } else {
-            System.out.println("Browser name and page name are not set correctly.");
-        }
-        
-        // Step 4: Enter the email address and password in the designated fields
-        WebElement emailField = driver.findElement(By.id("email"));
-        emailField.sendKeys("testermail@gmail.com");
-        
-        WebElement passwordField = driver.findElement(By.id("password"));
-        passwordField.sendKeys("Tester@123");
-        
-        // Step 5: Click on the "Sign In" button
-        WebElement signInButton = driver.findElement(By.id("signin-button"));
-        signInButton.click();
-        
-        // Step 6: Hover over the "Gear" menu and click on the "Bags" link
-        WebElement gearMenu = driver.findElement(By.id("gear-menu"));
-        Actions actions = new Actions(driver);
-        actions.moveToElement(gearMenu).build().perform();
-        
-        WebElement bagsLink = driver.findElement(By.linkText("Bags"));
-        bagsLink.click();
-        
-        // Step 7: Click on the image of the "Driven Backpack" product
-        WebElement drivenBackpackImage = driver.findElement(By.xpath("//img[@alt='Driven Backpack']"));
-        drivenBackpackImage.click();
-        
-        // Step 8: Click on the "Add to Cart" button
-        WebElement addToCartButton = driver.findElement(By.id("add-to-cart-button"));
-        addToCartButton.click();
-        
-        // Step 9: Click on the "My Cart" link
-        WebElement myCartLink = driver.findElement(By.linkText("My Cart"));
-        myCartLink.click();
-        
-        // Step 10: Verify that the "Order Summary" includes the "Driven Backpack" product
-        WebElement orderSummary = driver.findElement(By.id("order-summary"));
-        if (orderSummary.getText().contains("Driven Backpack")) {
-            System.out.println("Order Summary includes the Driven Backpack product.");
-        } else {
-            System.out.println("Order Summary does not include the Driven Backpack product.");
-        }
-        
-        // Step 11: Click on the "Proceed to Checkout" button
-        WebElement proceedToCheckoutButton = driver.findElement(By.id("proceed-to-checkout-button"));
-        proceedToCheckoutButton.click();
-        
-        // Step 12: Click on the "New Address" button
-        WebElement newAddressButton = driver.findElement(By.id("new-address-button"));
-        newAddressButton.click();
-        
-        // Step 13: Enter the address details
-        WebElement streetAddressField = driver.findElement(By.id("street-address"));
-        streetAddressField.sendKeys("123 Main Street");
-        
-        WebElement cityField = driver.findElement(By.id("city"));
-        cityField.sendKeys("New York");
-        
-        WebElement stateField = driver.findElement(By.id("state"));
-        stateField.sendKeys("NY");
-        
-        WebElement zipCodeField = driver.findElement(By.id("zip-code"));
-        zipCodeField.sendKeys("10001");
-        
-        WebElement phoneNumberField = driver.findElement(By.id("phone-number"));
-        phoneNumberField.sendKeys("123-456-7890");
-        
-        // Step 14: Click on the "Ship Here" button
-        WebElement shipHereButton = driver.findElement(By.id("ship-here-button"));
-        shipHereButton.click();
-        
-        // Step 15: Select the "Fixed" radio button
-        WebElement fixedRadioButton = driver.findElement(By.id("fixed-radio-button"));
-        fixedRadioButton.click();
-        
-        // Step 16: Click on the "Next" button
-        WebElement nextButton = driver.findElement(By.id("next-button"));
-        nextButton.click();
-        
-        // Step 17: Select the "My billing and shipping address are the same" checkbox
-        WebElement sameAddressCheckbox = driver.findElement(By.id("same-address-checkbox"));
-        sameAddressCheckbox.click();
-        
-        // Step 18: Click on the "Place Order" button
-        WebElement placeOrderButton = driver.findElement(By.id("place-order-button"));
-        placeOrderButton.click();
-        
-        // Step 19: Verify that a confirmation message is displayed
-        WebElement confirmationMessage = driver.findElement(By.id("confirmation-message"));
-        if (confirmationMessage.getText().equals("Thank you for your purchase!")) {
-            System.out.println("Confirmation message is displayed.");
-        } else {
-            System.out.println("Confirmation message is not displayed.");
-        }
-        
-        // Step 20: Click on the "Change" button
-        WebElement changeButton = driver.findElement(By.id("change-button"));
-        changeButton.click();
-        
-        // Step 21: Click on the "Signout" link
-        WebElement signoutLink = driver.findElement(By.linkText("Signout"));
-        signoutLink.click();
-        
-        // Close the browser
-        driver.quit();
-    }
+   @app.route("/find_matches_from_jira_steps", methods=["POST"])
+def find_step_level_matches():
+    try:
+        data = request.json
+        JIRA_URL = data.get("jira_url", "").strip()
+        JIRA_PROJECT_KEY = data.get("project_key", "").strip()
+        JIRA_USERNAME = data.get("username", "").strip()
+        JIRA_API_TOKEN = data.get("api_token", "").strip()
+        INPUT_DESCRIPTION = data.get("test_case", "").strip()
+ 
+        if not all([JIRA_URL, JIRA_PROJECT_KEY, JIRA_USERNAME, JIRA_API_TOKEN, INPUT_DESCRIPTION]):
+            return jsonify({"error": "Missing one or more required fields"}), 400
+ 
+        project_keys = [key.strip() for key in JIRA_PROJECT_KEY.split(",") if key.strip()]
+        project_str = ",".join(f'"{key}"' for key in project_keys)
+ 
+        options = {"server": JIRA_URL}
+        try:
+            jira = JIRA(options, basic_auth=(JIRA_USERNAME, JIRA_API_TOKEN))
+        except Exception as auth_error:
+            return jsonify({"error": f"Authentication failed: {auth_error}"}), 401
+ 
+        try:
+            jql = f"project in ({project_str}) AND issuetype=Test"
+            issues = jira.search_issues(jql, maxResults=1000)
+        except Exception as jql_error:
+            return jsonify({"error": f"Failed to fetch issues with JQL: {jql_error}"}), 400
+ 
+        test_cases = []
+        for issue in issues:
+            desc = issue.fields.description or ""
+            test_cases.append({
+                "id": issue.key,
+                "description": desc
+            })
+ 
+        input_steps = [step.strip() for step in INPUT_DESCRIPTION.split("\n") if step.strip()]
+        input_embeddings = model.encode(input_steps, normalize_embeddings=True)
+ 
+        response = []
+ 
+        for i, step_embedding in enumerate(input_embeddings):
+            step_result = {
+                "Input_Step": input_steps[i],
+                "Top_Matches": []
+            }
+            best_matches = []
+ 
+            for tc in test_cases:
+                tc_steps = [s.strip() for s in tc["description"].split("\n") if s.strip()]
+                if not tc_steps:
+                    continue
+ 
+                tc_embeddings = model.encode(tc_steps, normalize_embeddings=True)
+                sims = cosine_similarity([step_embedding], tc_embeddings)[0]
+ 
+                for idx, sim_score in enumerate(sims):
+                    if sim_score >= 0.85:
+                        best_matches.append({
+                            "Matched_ID": tc["id"],
+                            "Matched_Step": tc_steps[idx],
+                            "Similarity": round(sim_score, 3)
+                        })
+ 
+            if best_matches:
+                sorted_matches = sorted(best_matches, key=lambda x: x["Similarity"], reverse=True)[:3]
+                step_result["Top_Matches"] = sorted_matches
+            else:
+                step_result["Top_Matches"] = "No match found"
+ 
+            response.append(step_result)
+ 
+        return jsonify(response)
+ 
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 }
