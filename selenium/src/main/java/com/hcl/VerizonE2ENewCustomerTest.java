@@ -144,4 +144,27 @@ public class VerizonE2ENewCustomerTest {
         Assert.assertTrue(agreementsCheckbox.isSelected(), "Agreements not accepted");
 
         // Step 20: Verify if "Place Order" button is displayed
-        WebElement placeOrderBtn = wait.until(ExpectedConditions.visibilityOfElementLocated(By
+        WebElement placeOrderBtn = wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//button[contains(text(),'Place Order')]")));
+        Assert.assertTrue(placeOrderBtn.isDisplayed(), "'Place Order' button is not displayed");
+
+        // Place order for E2E flow
+        placeOrderBtn.click();
+
+        // Step 21: Order confirmation
+        WebElement confirmationMsg = wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//*[contains(text(),'Thank you for your order') or contains(text(),'Order Confirmation')]")));
+        Assert.assertTrue(confirmationMsg.isDisplayed(), "Order confirmation message is not displayed");
+
+        // Step 22: Verify order details in confirmation (could check for order #)
+        WebElement orderNumber = driver.findElement(By.xpath("//span[contains(@class,'order-number')]"));
+        Assert.assertTrue(orderNumber.getText().matches("\\d+"), "Order number not found in confirmation");
+
+        // Additional: Would check for confirmation email or order history if possible (out of scope for UI automation in general)
+    }
+
+    @AfterClass
+    public void tearDown() {
+        if (driver != null) {
+            driver.quit();
+        }
+    }
+}
