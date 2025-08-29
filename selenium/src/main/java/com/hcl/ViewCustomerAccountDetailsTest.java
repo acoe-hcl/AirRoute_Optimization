@@ -2,148 +2,158 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
-import org.openqa.selenium.support.ui.ExpectedConditions;
-import org.openqa.selenium.support.ui.WebDriverWait;
 
 public class ViewCustomerAccountDetailsTest {
-
     public static void main(String[] args) {
-        // Set up ChromeDriver
+
+        // Initialize WebDriver
         System.setProperty("webdriver.chrome.driver", "/path/to/chromedriver");
         WebDriver driver = new ChromeDriver();
-        WebDriverWait wait = new WebDriverWait(driver, 10);
 
         try {
-            // Scenario 1: View Account Details
+            // Feature: View Customer Account Details
+
+            // Scenario: View Account Details
             driver.get("http://localhost/");
-            // Assume login page has username and password fields with ids "username" and "password"
-            WebElement usernameField = wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("username")));
-            WebElement passwordField = driver.findElement(By.id("password"));
-            usernameField.sendKeys("testUser");
-            passwordField.sendKeys("testPass");
-            // Assume submit button has id "submitBtn"
+            Thread.sleep(1500);
+
+            // Enter username and password
+            WebElement usernameInput = driver.findElement(By.id("username"));
+            usernameInput.sendKeys("testuser");
+            WebElement passwordInput = driver.findElement(By.id("password"));
+            passwordInput.sendKeys("testpassword");
+
+            // Click on "Submit" button
             WebElement submitButton = driver.findElement(By.id("submitBtn"));
             submitButton.click();
+            Thread.sleep(1500);
 
-            // Wait for home page after login
-            wait.until(ExpectedConditions.urlContains("home"));
-            // Assume "ACCOUNT VIEW" navigation exists via link text
-            WebElement accountViewLink = wait.until(ExpectedConditions.visibilityOfElementLocated(By.linkText("ACCOUNT VIEW")));
-            accountViewLink.click();
+            // Assert home page loaded; e.g. by presence of home identifier
+            WebElement homeHeader = driver.findElement(By.id("homeHeader"));
+            if (!homeHeader.isDisplayed()) {
+                throw new AssertionError("Home page did not load.");
+            }
 
-            // Enter valid account ID "2" in the account ID field with id "accountId"
-            WebElement accountIdField = wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("accountId")));
-            accountIdField.clear();
-            accountIdField.sendKeys("2");
-            // Assume search button has id "searchBtn"
-            WebElement searchButton = driver.findElement(By.id("searchBtn"));
-            searchButton.click();
+            // Navigate to ACCOUNT VIEW page
+            WebElement accountViewMenu = driver.findElement(By.id("accountViewMenu"));
+            accountViewMenu.click();
+            Thread.sleep(1000);
 
-            // Wait for account info to be displayed, assume id "accountInfo"
-            WebElement accountInfo = wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("accountInfo")));
-            assert accountInfo.isDisplayed();
+            // Enter valid account ID "2" and click "Search"
+            WebElement accountIdInput = driver.findElement(By.id("accountId"));
+            accountIdInput.clear();
+            accountIdInput.sendKeys("2");
+            WebElement searchBtn = driver.findElement(By.id("searchBtn"));
+            searchBtn.click();
+            Thread.sleep(2000);
 
-            // Scenario 2: Invalid account ID (blank)
+            // Verify system retrieves account information (e.g. presence of account summary)
+            WebElement accountInfo = driver.findElement(By.id("accountInfo"));
+            if (!accountInfo.isDisplayed()) {
+                throw new AssertionError("Account information not retrieved.");
+            }
+
+            // ----------------------------------------------------------------------
+            // Scenario: User enters invalid account ID (blank)
             driver.get("http://localhost/");
-            // Login steps (reuse)
-            usernameField = wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("username")));
-            passwordField = driver.findElement(By.id("password"));
-            usernameField.sendKeys("testUser");
-            passwordField.sendKeys("testPass");
-            submitButton = driver.findElement(By.id("submitBtn"));
-            submitButton.click();
+            Thread.sleep(1500);
 
-            // Navigate to ACCOUNT VIEW
-            wait.until(ExpectedConditions.urlContains("home"));
-            accountViewLink = wait.until(ExpectedConditions.visibilityOfElementLocated(By.linkText("ACCOUNT VIEW")));
-            accountViewLink.click();
+            accountViewMenu = driver.findElement(By.id("accountViewMenu"));
+            accountViewMenu.click();
+            Thread.sleep(1000);
 
-            // Account ID field blank
-            accountIdField = wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("accountId")));
-            accountIdField.clear();
-            searchButton = driver.findElement(By.id("searchBtn"));
-            searchButton.click();
+            accountIdInput = driver.findElement(By.id("accountId"));
+            accountIdInput.clear();
+            searchBtn = driver.findElement(By.id("searchBtn"));
+            searchBtn.click();
+            Thread.sleep(1000);
 
-            WebElement errorMsg = wait.until(
-                ExpectedConditions.visibilityOfElementLocated(By.id("accountIdError"))
-            );
-            String expectedMsg = "Account Filter must be a non-zero 11 digit number";
-            assert errorMsg.getText().contains(expectedMsg);
+            WebElement errorMsg1 = driver.findElement(By.id("accountIdError"));
+            String expectedErrorMsg1 = "Account Filter must be a non-zero 11 digit number";
+            if (!errorMsg1.getText().equals(expectedErrorMsg1)) {
+                throw new AssertionError("Error message mismatch for blank account ID.");
+            }
 
-            // Scenario 3: Invalid account ID (not numeric)
+            WebElement errorPrompt1 = driver.findElement(By.id("errorPrompt"));
+            if (!errorPrompt1.isDisplayed()) {
+                throw new AssertionError("Prompt for valid account ID not displayed (blank).");
+            }
+
+            // ----------------------------------------------------------------------
+            // Scenario: User enters invalid account ID (not numeric)
             driver.get("http://localhost/");
-            usernameField = wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("username")));
-            passwordField = driver.findElement(By.id("password"));
-            usernameField.sendKeys("testUser");
-            passwordField.sendKeys("testPass");
-            submitButton = driver.findElement(By.id("submitBtn"));
-            submitButton.click();
+            Thread.sleep(1500);
 
-            wait.until(ExpectedConditions.urlContains("home"));
-            accountViewLink = wait.until(ExpectedConditions.visibilityOfElementLocated(By.linkText("ACCOUNT VIEW")));
-            accountViewLink.click();
+            accountViewMenu = driver.findElement(By.id("accountViewMenu"));
+            accountViewMenu.click();
+            Thread.sleep(1000);
 
-            accountIdField = wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("accountId")));
-            accountIdField.clear();
-            accountIdField.sendKeys("@");
-            searchButton = driver.findElement(By.id("searchBtn"));
-            searchButton.click();
+            accountIdInput = driver.findElement(By.id("accountId"));
+            accountIdInput.clear();
+            accountIdInput.sendKeys("@");
+            searchBtn = driver.findElement(By.id("searchBtn"));
+            searchBtn.click();
+            Thread.sleep(1000);
 
-            errorMsg = wait.until(
-                ExpectedConditions.visibilityOfElementLocated(By.id("accountIdError"))
-            );
-            assert errorMsg.getText().contains(expectedMsg);
+            WebElement errorMsg2 = driver.findElement(By.id("accountIdError"));
+            String expectedErrorMsg2 = "Account Filter must be a non-zero 11 digit number";
+            if (!errorMsg2.getText().equals(expectedErrorMsg2)) {
+                throw new AssertionError("Error message mismatch for non-numeric account ID.");
+            }
 
-            // Scenario 4: Invalid account ID (less than 11 digits)
+            WebElement errorPrompt2 = driver.findElement(By.id("errorPrompt"));
+            if (!errorPrompt2.isDisplayed()) {
+                throw new AssertionError("Prompt for valid account ID not displayed (non-numeric).");
+            }
+
+            // ----------------------------------------------------------------------
+            // Scenario: User enters invalid account ID (less than 11 digits)
             driver.get("http://localhost/");
-            usernameField = wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("username")));
-            passwordField = driver.findElement(By.id("password"));
-            usernameField.sendKeys("testUser");
-            passwordField.sendKeys("testPass");
-            submitButton = driver.findElement(By.id("submitBtn"));
-            submitButton.click();
+            Thread.sleep(1500);
 
-            wait.until(ExpectedConditions.urlContains("home"));
-            accountViewLink = wait.until(ExpectedConditions.visibilityOfElementLocated(By.linkText("ACCOUNT VIEW")));
-            accountViewLink.click();
+            accountViewMenu = driver.findElement(By.id("accountViewMenu"));
+            accountViewMenu.click();
+            Thread.sleep(1000);
 
-            accountIdField = wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("accountId")));
-            accountIdField.clear();
-            accountIdField.sendKeys("1234567890");
-            searchButton = driver.findElement(By.id("searchBtn"));
-            searchButton.click();
+            accountIdInput = driver.findElement(By.id("accountId"));
+            accountIdInput.clear();
+            accountIdInput.sendKeys("1234567890");
+            searchBtn = driver.findElement(By.id("searchBtn"));
+            searchBtn.click();
+            Thread.sleep(1000);
 
-            errorMsg = wait.until(
-                ExpectedConditions.visibilityOfElementLocated(By.id("accountIdError"))
-            );
-            assert errorMsg.getText().contains(expectedMsg);
+            WebElement errorMsg3 = driver.findElement(By.id("accountIdError"));
+            String expectedErrorMsg3 = "Account Filter must be a non-zero 11 digit number";
+            if (!errorMsg3.getText().equals(expectedErrorMsg3)) {
+                throw new AssertionError("Error message mismatch for account ID less than 11 digits.");
+            }
 
-            // Scenario 5: Invalid account ID (more than 11 digits)
+            // ----------------------------------------------------------------------
+            // Scenario: User enters invalid account ID (more than 11 digits)
             driver.get("http://localhost/");
-            usernameField = wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("username")));
-            passwordField = driver.findElement(By.id("password"));
-            usernameField.sendKeys("testUser");
-            passwordField.sendKeys("testPass");
-            submitButton = driver.findElement(By.id("submitBtn"));
-            submitButton.click();
+            Thread.sleep(1500);
 
-            wait.until(ExpectedConditions.urlContains("home"));
-            accountViewLink = wait.until(ExpectedConditions.visibilityOfElementLocated(By.linkText("ACCOUNT VIEW")));
-            accountViewLink.click();
+            accountViewMenu = driver.findElement(By.id("accountViewMenu"));
+            accountViewMenu.click();
+            Thread.sleep(1000);
 
-            accountIdField = wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("accountId")));
-            accountIdField.clear();
-            accountIdField.sendKeys("123456789012");
-            searchButton = driver.findElement(By.id("searchBtn"));
-            searchButton.click();
+            accountIdInput = driver.findElement(By.id("accountId"));
+            accountIdInput.clear();
+            accountIdInput.sendKeys("123456789012");
+            searchBtn = driver.findElement(By.id("searchBtn"));
+            searchBtn.click();
+            Thread.sleep(1000);
 
-            errorMsg = wait.until(
-                ExpectedConditions.visibilityOfElementLocated(By.id("accountIdError"))
-            );
-            assert errorMsg.getText().contains(expectedMsg);
+            WebElement errorMsg4 = driver.findElement(By.id("accountIdError"));
+            String expectedErrorMsg4 = "Account Filter must be a non-zero 11 digit number";
+            if (!errorMsg4.getText().equals(expectedErrorMsg4)) {
+                throw new AssertionError("Error message mismatch for account ID more than 11 digits.");
+            }
 
-            System.out.println("All scenarios executed successfully.");
+            System.out.println("All test scenarios passed.");
 
+        } catch (Exception e) {
+            e.printStackTrace();
         } finally {
             driver.quit();
         }
