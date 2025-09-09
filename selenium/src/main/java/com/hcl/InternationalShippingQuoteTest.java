@@ -1,163 +1,207 @@
 import org.openqa.selenium.By;
-import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.WindowType;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.interactions.Actions;
-import org.openqa.selenium.support.ui.ExpectedConditions;
-import org.openqa.selenium.support.ui.Select;
+import org.openqa.selenium.Keys;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.testng.Assert;
 import org.testng.annotations.*;
 
 import java.time.Duration;
-import java.util.Iterator;
-import java.util.Set;
+import java.util.List;
 
 public class InternationalShippingQuoteTest {
-    WebDriver driver;
-    WebDriverWait wait;
-    String baseUrl = "https://your-shipping-homepage.com"; // Replace with actual URL
-    String quoteRefNumber;
-    String priorityAmount;
+    private WebDriver driver;
+    private WebDriverWait wait;
 
     @BeforeClass
     public void setup() {
-        System.setProperty("webdriver.chrome.driver", "path/to/chromedriver"); // Update path
         driver = new ChromeDriver();
         wait = new WebDriverWait(driver, Duration.ofSeconds(20));
         driver.manage().window().maximize();
     }
 
-    @Test(priority = 1)
-    public void endToEndInternationalShippingQuote() {
+    @Test
+    public void testInternationalShippingQuoteEndToEnd() {
         // Step 1: Access homepage
-        driver.get(baseUrl);
+        driver.get("https://shipping-service-url.com");
+        wait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector("button#get-quote-btn")));
 
-        // Step 2: Click "Express Book & Pay"
-        WebElement expressBookPayBtn = wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//button[contains(text(),'Express Book & Pay')]")));
-        expressBookPayBtn.click();
+        // Step 2: Click “Express Book & Pay”
+        WebElement expressBookBtn = driver.findElement(By.xpath("//a[text()='Express Book & Pay']"));
+        expressBookBtn.click();
 
-        // Step 3: Verify "Get a quote" CTA present
-        WebElement getQuoteCTA = wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//button[contains(text(),'Get a quote') or contains(text(),'Get Quote')]")));
-        Assert.assertTrue(getQuoteCTA.isDisplayed(), "'Get a quote' CTA not visible.");
+        // Step 3: Verify "Get a quote" CTA presence
+        WebElement getQuoteBtn = wait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector("button#get-quote-btn")));
+        Assert.assertTrue(getQuoteBtn.isDisplayed(), "Get a quote button should be visible.");
 
-        // Step 4: Click “Get a quote” button
-        getQuoteCTA.click();
+        // Test Combination: Assert no multiple "Get a quote" CTA
+        List<WebElement> quoteCtas = driver.findElements(By.cssSelector("button#get-quote-btn"));
+        Assert.assertEquals(quoteCtas.size(), 1, "One 'Get a quote' button should be present.");
 
-        // Step 5: Handle navigation to new tab for quote form
-        String mainWindow = driver.getWindowHandle();
-        Set<String> allWindows = driver.getWindowHandles();
-        Iterator<String> iterator = allWindows.iterator();
-        String quoteWindow = mainWindow;
-        while (iterator.hasNext()) {
-            String handle = iterator.next();
-            if (!handle.equals(mainWindow)) {
-                quoteWindow = handle;
+        // Step 4: Click “Get a quote”
+        getQuoteBtn.click();
+
+        // Step 5: Navigated to Quote Form (new tab)
+        String homeTab = driver.getWindowHandle();
+        for (String tab : driver.getWindowHandles()) {
+            if (!tab.equals(homeTab)) {
+                driver.switchTo().window(tab);
                 break;
             }
         }
-        driver.switchTo().window(quoteWindow);
+        wait.until(ExpectedConditions.titleContains("Your Package Quote Estimate – Express Book & Pay – MyTeamGE"));
 
-        // Step 6/7: Fill "Send from" with auto-complete dropdown & choose Business
-        WebElement fromInput = wait.until(ExpectedConditions.elementToBeClickable(By.id("fromLocation")));
-        fromInput.sendKeys("New York"); // Example, update locator/logic as per actual app
+        // Step 6: Locate “Send from” and “Deliver to” fields.
+        WebElement fromField = wait.until(
+                ExpectedConditions.visibilityOfElementLocated(By.id("send-from-location")));
+        WebElement toField = driver.findElement(By.id("deliver-to-location"));
 
-        WebElement fromAutoSuggestion = wait.until(ExpectedConditions.visibilityOfElementLocated(
-                By.xpath("//li[contains(@class, 'autocomplete-suggestion') and contains(.,'New York')]")));
-        fromAutoSuggestion.click();
+        // Step 7: Type valid “From” location, select from auto-complete
+        fromField.sendKeys("Los Angeles");
+        WebElement fromAutoDropdown = wait.until(
+                ExpectedConditions.visibilityOfElementLocated(By.cssSelector(".autocomplete-dropdown")));
+        List<WebElement> fromSuggestions =
+                fromAutoDropdown.findElements(By.tagName("li"));
+        for (WebElement suggestion : fromSuggestions) {
+            if (suggestion.getText().contains("Los Angeles, CA, USA")) {
+                suggestion.click();
+                break;
+            }
+        }
+        // Assert auto-complete drops down
+        Assert.assertTrue(fromAutoDropdown.isDisplayed());
 
-        WebElement fromType = wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//select[@id='fromDeliveryType']")));
-        Select fromDeliveryType = new Select(fromType);
-        fromDeliveryType.selectByVisibleText("Business");
+        // Step 8: Select delivery type “Business”
+        WebElement deliveryTypeBusiness = driver.findElement(By.id("delivery-type-business"));
+        deliveryTypeBusiness.click();
+        Assert.assertTrue(deliveryTypeBusiness.isSelected());
 
-        // Step 8/9/10: Fill “Deliver to” with auto-complete dropdown & choose Residential
-        WebElement toInput = wait.until(ExpectedConditions.elementToBeClickable(By.id("toLocation")));
-        toInput.sendKeys("Melbourne");
+        // Step 9: Type valid “To” location, select from auto-complete
+        toField.sendKeys("Sydney");
+        WebElement toAutoDropdown = wait.until(
+                ExpectedConditions.visibilityOfElementLocated(By.cssSelector(".autocomplete-dropdown")));
+        List<WebElement> toSuggestions = toAutoDropdown.findElements(By.tagName("li"));
+        for (WebElement suggestion : toSuggestions) {
+            if (suggestion.getText().contains("Sydney, NSW, Australia")) {
+                suggestion.click();
+                break;
+            }
+        }
+        Assert.assertTrue(toAutoDropdown.isDisplayed());
 
-        WebElement toAutoSuggestion = wait.until(ExpectedConditions.visibilityOfElementLocated(
-                By.xpath("//li[contains(@class, 'autocomplete-suggestion') and contains(.,'Melbourne')]")));
-        toAutoSuggestion.click();
+        // Step 10: Select delivery type “Residential”
+        WebElement deliveryTypeResidential = driver.findElement(By.id("delivery-type-residential"));
+        deliveryTypeResidential.click();
+        Assert.assertTrue(deliveryTypeResidential.isSelected());
 
-        WebElement toType = wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//select[@id='toDeliveryType']")));
-        Select toDeliveryType = new Select(toType);
-        toDeliveryType.selectByVisibleText("Residential");
-
-        // Step 11: Click Continue
-        WebElement continueBtn = wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//button[contains(text(),'Continue')]")));
+        // Step 11: Click “Continue”
+        WebElement continueBtn = driver.findElement(By.cssSelector("button.continue-btn"));
         continueBtn.click();
 
-        // Step 12: Click "Use your own satchel"
-        WebElement ownSatchelBtn = wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//button[contains(text(),'Use your own satchel')]")));
+        // Step 12: Click “Use your own satchel”
+        WebElement ownSatchelBtn = wait.until(ExpectedConditions.elementToBeClickable(By.id("own-satchel-btn")));
         ownSatchelBtn.click();
 
-        // Step 13: Review prohibited items list & check confirmation
-        WebElement prohibitedCheckbox = wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//input[@type='checkbox' and contains(@id,'prohibitedItemsConfirm')]")));
-        prohibitedCheckbox.click();
+        // Step 13: Review prohibited items, check confirmation box
+        WebElement prohibitedList = wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("prohibited-items-list")));
+        Assert.assertTrue(prohibitedList.isDisplayed());
+        WebElement prohibitedConfirm = driver.findElement(By.id("prohibited-confirm"));
+        prohibitedConfirm.click();
+        Assert.assertTrue(prohibitedConfirm.isSelected());
 
-        // Step 14: Continue
-        WebElement continueBtn2 = wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//button[contains(text(),'Continue')]")));
-        continueBtn2.click();
+        // Negative Test: Try continue without confirming prohibited items, expect error
+        prohibitedConfirm.click(); // Uncheck
+        continueBtn = driver.findElement(By.cssSelector("button.continue-btn"));
+        continueBtn.click();
+        WebElement errorMsg = wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("error-message")));
+        Assert.assertTrue(errorMsg.getText().contains("Please confirm prohibited items acknowledgement"));
+        prohibitedConfirm.click(); // Re-check for next step
 
-        // Step 15: Click "Concierge pickup" and Continue
-        WebElement conciergePickupBtn = wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//input[@type='radio' and contains(@value,'Concierge')]")));
-        conciergePickupBtn.click();
+        // Step 14: Click “Continue”
+        continueBtn.click();
 
-        WebElement continueBtn3 = wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//button[contains(text(),'Continue')]")));
-        continueBtn3.click();
+        // Step 15: Concierge pickup, click continue
+        WebElement conciergePickup = wait.until(ExpectedConditions.elementToBeClickable(By.id("concierge-pickup-btn")));
+        conciergePickup.click();
+        driver.findElement(By.cssSelector("button.continue-btn")).click();
 
-        // Step 16: Click "Save The Quote"
-        WebElement saveQuoteBtn = wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//button[contains(text(),'Save The Quote')]")));
+        // Step 16: Click “Save The Quote”
+        WebElement saveQuoteBtn = wait.until(ExpectedConditions.elementToBeClickable(By.id("save-quote-btn")));
         saveQuoteBtn.click();
 
-        // Step 17/18: Note/Capture quote reference number
-        WebElement quoteRefElem = wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//span[contains(@class,'quote-reference')]")));
-        quoteRefNumber = quoteRefElem.getText();
-        Assert.assertNotNull(quoteRefNumber, "Quote Reference Number not found");
+        // Step 17: Note quote reference number
+        WebElement quoteReference = wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("quote-reference-number")));
+        String quoteRefNo = quoteReference.getText();
+        Assert.assertFalse(quoteRefNo.isEmpty(), "Quote reference number should be displayed.");
 
-        // Step 19: Capture Priority amount
-        WebElement priorityAmountElem = wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//span[contains(@class,'priority-amount')]")));
-        priorityAmount = priorityAmountElem.getText();
-        Assert.assertTrue(priorityAmount != null && !priorityAmount.isEmpty(), "Priority Amount not visible");
+        // Step 18: Copy quote reference number (using variable already)
 
-        // Step 20: Navigate to Home Page, switch to main window
-        driver.close();
-        driver.switchTo().window(mainWindow);
+        // Step 19: Copy Priority amount
+        WebElement priorityAmount = driver.findElement(By.id("priority-amount"));
+        String savedPriorityAmount = priorityAmount.getText();
+        Assert.assertFalse(savedPriorityAmount.isEmpty(), "Priority amount should be displayed.");
+
+        // Step 20: Navigate back to homepage
+        driver.switchTo().window(homeTab);
         driver.navigate().refresh();
 
-        // Step 21: Locate and use “Retrieve a Quote” with the code
-        WebElement retrieveQuoteBtn = wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//button[contains(text(),'Retrieve A Quote')]")));
+        // Step 21: Locate “Retrieve A Quote”, enter reference number
+        WebElement retrieveQuoteBtn = wait.until(ExpectedConditions.elementToBeClickable(By.id("retrieve-quote-btn")));
         retrieveQuoteBtn.click();
+        WebElement refInput = wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("retrieve-quote-input")));
+        refInput.sendKeys(quoteRefNo);
+        driver.findElement(By.id("submit-retrieve-quote")).click();
 
-        WebElement quoteCodeInput = wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//input[@id='quoteReference']")));
-        quoteCodeInput.sendKeys(quoteRefNumber);
+        // Step 22: Upon retrieval, check original quote summary
+        WebElement retrievedQuoteSummary = wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("retrieved-quote-summary")));
 
-        WebElement retrieveSubmitBtn = wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//button[contains(text(),'Retrieve')]")));
-        retrieveSubmitBtn.click();
+        Assert.assertTrue(retrievedQuoteSummary.getText().contains("Los Angeles"), "Retrieved summary should contain origin.");
+        Assert.assertTrue(retrievedQuoteSummary.getText().contains("Sydney"), "Retrieved summary should contain destination.");
+        Assert.assertTrue(retrievedQuoteSummary.getText().contains(quoteRefNo), "Retrieved summary should show reference number.");
 
-        // Step 22: Confirm display of original quote summary and details
-        WebElement quoteSummary = wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//div[contains(@class,'quote-summary')]")));
-        Assert.assertTrue(quoteSummary.isDisplayed(), "Quote Summary not displayed");
+        // Step 23: Verify Priority amount in summary
+        WebElement retrievedPriorityAmount = retrievedQuoteSummary.findElement(By.id("priority-amount"));
+        Assert.assertEquals(retrievedPriorityAmount.getText(), savedPriorityAmount, "Priority amount should match.");
 
-        WebElement displayedRef = wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//span[contains(text(),'" + quoteRefNumber + "')]")));
-        Assert.assertEquals(displayedRef.getText(), quoteRefNumber, "Quote reference mismatch after retrieval");
+        // Test Combination: Try retrieval with invalid quote number, assert error
+        retrieveQuoteBtn.click();
+        WebElement refInputInvalid = wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("retrieve-quote-input")));
+        refInputInvalid.sendKeys("INVALIDCODE123");
+        driver.findElement(By.id("submit-retrieve-quote")).click();
+        WebElement invalidRefMsg = wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("error-message")));
+        Assert.assertTrue(invalidRefMsg.getText().contains("No quote found for the provided reference"));
 
-        // Step 23: Verify copied priority amount in quote details
-        WebElement displayedPriorityAmount = wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//span[contains(@class,'priority-amount')]")));
-        Assert.assertEquals(displayedPriorityAmount.getText(), priorityAmount, "Priority Amount mismatch after retrieval");
+        // Test Combination: All mandatory fields are required to proceed
+        driver.switchTo().window(tabWithQuoteForm());
+        fromField.clear();
+        continueBtn.click();
+        WebElement mandatoryErrorMsg = wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("error-message")));
+        Assert.assertTrue(mandatoryErrorMsg.getText().contains("Please enter a valid 'From' location"));
 
-        // --- Negative case for step 13: Try continuing without prohibited checkbox ---
-        driver.navigate().back(); // To Prohibited Items page
-        prohibitedCheckbox = wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//input[@type='checkbox' and contains(@id,'prohibitedItemsConfirm')]")));
-        prohibitedCheckbox.click(); // Uncheck
-        continueBtn2 = wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//button[contains(text(),'Continue')]")));
-        continueBtn2.click();
-        WebElement errorMsg = wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//div[contains(@class,'error') and contains(text(),'must confirm')]")));
-        Assert.assertTrue(errorMsg.isDisplayed(), "Error message not displayed when prohibited items not acknowledged");
+        // Test Combination: Try entering a non-supported country
+        fromField.sendKeys("Atlantis");
+        WebElement unsupportedDropdown = wait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector(".autocomplete-dropdown")));
+        List<WebElement> unsupportedSuggestions = unsupportedDropdown.findElements(By.tagName("li"));
+        Assert.assertTrue(
+            unsupportedSuggestions.stream().noneMatch(el -> el.getText().contains("Atlantis")), 
+            "'Atlantis' should not be selectable as destination");
+
+    }
+
+    private String tabWithQuoteForm() {
+        for (String tab : driver.getWindowHandles()) {
+            driver.switchTo().window(tab);
+            if (driver.getTitle().contains("Express Book & Pay")) return tab;
+        }
+        return driver.getWindowHandle();
     }
 
     @AfterClass
-    public void tearDown() {
+    public void teardown() {
         driver.quit();
     }
 }
