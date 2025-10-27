@@ -2,117 +2,172 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
 import org.testng.annotations.*;
 
 import java.time.Duration;
+import java.util.List;
 
 public class OrangeHRMEmployeeManagementTest {
+    WebDriver driver;
+    WebDriverWait wait;
 
-    private WebDriver driver;
-    private final String baseUrl = "https://orangehrm-demo-6x.orangehrmlive.com/";
-    private final String adminUsername = "admin_user";
-    private final String adminPassword = "admin_pass";
-    private final String empFirstName = "John";
-    private final String empLastName = "Doe";
-    private final String empId = "12345";
-    private final String empUsername = "johndoe";
-    private final String empPassword = "Emp@1234";
-    private final String invalidUsername = "invalid_user";
-    private final String invalidPassword = "invalid_pass";
+    // Test data
+    final String baseUrl = "https://orangehrm-demo-url.com"; // Replace with actual URL
+    final String adminUsername = "admin_user";
+    final String adminPassword = "admin_pass";
+    final String empFirstName = "John";
+    final String empLastName = "Doe";
+    final String empId = "12345";
+    final String empUsername = "johndoe";
+    final String empPassword = "Emp@1234";
+    final String invalidUsername = "invalid_user";
+    final String invalidPassword = "invalid_pass";
 
     @BeforeClass
     public void setUp() {
         driver = new ChromeDriver();
-        driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
+        wait = new WebDriverWait(driver, Duration.ofSeconds(15));
         driver.manage().window().maximize();
     }
 
     @AfterClass
     public void tearDown() {
-        if (driver != null) {
-            driver.quit();
-        }
+        driver.quit();
+    }
+
+    // Utility login method
+    public void login(String username, String password) {
+        driver.get(baseUrl + "/auth/login");
+        wait.until(ExpectedConditions.visibilityOfElementLocated(By.name("username"))).sendKeys(username);
+        driver.findElement(By.name("password")).sendKeys(password);
+        driver.findElement(By.cssSelector("button[type='submit']")).click();
+    }
+
+    // Utility logout method
+    public void logout() {
+        wait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector("span.oxd-userdropdown-tab"))).click();
+        WebElement logoutBtn = wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//a[text()='Logout']")));
+        logoutBtn.click();
+        wait.until(ExpectedConditions.urlContains("/auth/login"));
     }
 
     @Test(priority = 1)
     public void testAdminLogin() {
-        driver.get(baseUrl);
-        driver.findElement(By.id("txtUsername")).sendKeys(adminUsername);
-        driver.findElement(By.id("txtPassword")).sendKeys(adminPassword);
-        driver.findElement(By.id("btnLogin")).click();
-        WebElement dashboard = driver.findElement(By.id("menu_dashboard_index"));
-        Assert.assertTrue(dashboard.isDisplayed(), "Dashboard is not displayed after login.");
+        login(adminUsername, adminPassword);
+        // Assert dashboard loaded
+        WebElement dashboardHeader = wait.until(
+                ExpectedConditions.visibilityOfElementLocated(By.xpath("//h6[text()='Dashboard']")));
+        Assert.assertTrue(dashboardHeader.isDisplayed(), "Dashboard is not displayed, login might have failed.");
     }
 
-    @Test(priority = 2)
+    @Test(priority = 2, dependsOnMethods = "testAdminLogin")
     public void testAddNewEmployee() {
-        driver.findElement(By.id("menu_pim_viewPimModule")).click();
-        driver.findElement(By.id("menu_pim_addEmployee")).click();
-        driver.findElement(By.id("firstName")).sendKeys(empFirstName);
-        driver.findElement(By.id("lastName")).sendKeys(empLastName);
-        WebElement empIdField = driver.findElement(By.id("employeeId"));
+        // Navigate to PIM
+        wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//span[text()='PIM']"))).click();
+        // Click Add Employee
+        WebElement addEmployeeBtn = wait.until(ExpectedConditions.visibilityOfElementLocated(
+                By.xpath("//a[contains(@href,'/pim/addEmployee')]")));
+        addEmployeeBtn.click();
+        // Fill employee details
+        wait.until(ExpectedConditions.visibilityOfElementLocated(By.name("firstName"))).sendKeys(empFirstName);
+        driver.findElement(By.name("lastName")).sendKeys(empLastName);
+        WebElement empIdField = driver.findElement(By.xpath("//label[text()='Employee Id']/following::input[1]"));
         empIdField.clear();
         empIdField.sendKeys(empId);
-        driver.findElement(By.id("chkLogin")).click();
-        driver.findElement(By.id("user_name")).sendKeys(empUsername);
-        driver.findElement(By.id("user_password")).sendKeys(empPassword);
-        driver.findElement(By.id("re_password")).sendKeys(empPassword);
-        driver.findElement(By.id("btnSave")).click();
-        WebElement personalDetailsHeader = driver.findElement(By.xpath("//h1[contains(text(),'Personal Details')]"));
-        Assert.assertTrue(personalDetailsHeader.isDisplayed(), "Not redirected to Personal Details page after adding employee.");
+        // Enable 'Create Login Details'
+        driver.findElement(By.cssSelector("span.oxd-switch-input.oxd-switch-input--active")).click();
+        wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//label[text()='Username']/following::input[1]")))
+                .sendKeys(empUsername);
+        driver.findElement(By.xpath("//label[text()='Password']/following::input[1]")).sendKeys(empPassword);
+        driver.findElement(By.xpath("//label[text()='Confirm Password']/following::input[1]")).sendKeys(empPassword);
+        // Click Save
+        driver.findElement(By.xpath("//button[@type='submit']")).click();
+        // Verify redirection and personal details
+        WebElement personalDetailsHeader = wait.until(ExpectedConditions.visibilityOfElementLocated(
+                By.xpath("//h6[text()='Personal Details']")));
+        Assert.assertTrue(personalDetailsHeader.isDisplayed(), "Personal Details page not displayed.");
+        WebElement createdEmpName = driver.findElement(By.xpath("//div[@class='orangehrm-edit-employee-name']/h6"));
+        Assert.assertTrue(createdEmpName.getText().contains(empFirstName + " " + empLastName),
+                "Employee name does not match after creation.");
     }
 
     @Test(priority = 3, dependsOnMethods = "testAddNewEmployee")
     public void testVerifyEmployeeCreation() {
-        driver.findElement(By.id("menu_pim_viewEmployeeList")).click();
-        driver.findElement(By.id("empsearch_id")).clear();
-        driver.findElement(By.id("empsearch_id")).sendKeys(empId);
-        driver.findElement(By.id("searchBtn")).click();
-        WebElement empTable = driver.findElement(By.id("resultTable"));
-        Assert.assertTrue(empTable.getText().contains(empFirstName), "Employee first name not found in search results.");
-        Assert.assertTrue(empTable.getText().contains(empLastName), "Employee last name not found in search results.");
-        Assert.assertTrue(empTable.getText().contains(empId), "Employee ID not found in search results.");
+        // Navigate to PIM > Employee List
+        wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//span[text()='PIM']"))).click();
+        wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//a[contains(.,'Employee List')]"))).click();
+        // Search by Employee ID
+        WebElement empIdSearch = wait.until(ExpectedConditions.visibilityOfElementLocated(
+                By.xpath("//label[text()='Employee Id']/following::input[1]")));
+        empIdSearch.clear();
+        empIdSearch.sendKeys(empId);
+        driver.findElement(By.xpath("//button[@type='submit']")).click();
+        // Validate results
+        wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//div[@class='oxd-table-body']")));
+        List<WebElement> rows = driver.findElements(By.xpath("//div[@class='oxd-table-body']/div"));
+        Assert.assertTrue(rows.size() == 1, "Expected 1 employee in search result.");
+        String name = driver.findElement(By.xpath("//div[@class='oxd-table-cell'][2]")).getText();
+        String id = driver.findElement(By.xpath("//div[@class='oxd-table-cell'][3]")).getText();
+        Assert.assertEquals(name, empFirstName + " " + empLastName, "Employee name mismatch in list.");
+        Assert.assertEquals(id, empId, "Employee ID mismatch in list.");
     }
 
     @Test(priority = 4, dependsOnMethods = "testVerifyEmployeeCreation")
     public void testDeleteEmployee() {
-        WebElement row = driver.findElement(By.xpath("//a[text()='" + empId + "']/ancestor::tr"));
-        WebElement checkbox = row.findElement(By.xpath(".//input[@type='checkbox']"));
-        checkbox.click();
-        driver.findElement(By.id("btnDelete")).click();
-        driver.findElement(By.id("dialogDeleteBtn")).click();
-        WebElement noRecordsMsg = driver.findElement(By.xpath("//td[contains(text(),'No Records Found')]"));
-        Assert.assertTrue(noRecordsMsg.isDisplayed(), "Employee record was not deleted.");
+        // In Employee List, search again to ensure up-to-date list
+        wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//span[text()='PIM']"))).click();
+        wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//a[contains(.,'Employee List')]"))).click();
+        WebElement empIdSearch = wait.until(ExpectedConditions.visibilityOfElementLocated(
+                By.xpath("//label[text()='Employee Id']/following::input[1]")));
+        empIdSearch.clear();
+        empIdSearch.sendKeys(empId);
+        driver.findElement(By.xpath("//button[@type='submit']")).click();
+        wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//div[@class='oxd-table-body']/div")));
+        // Locate and click the Delete button
+        WebElement deleteBtn = driver.findElement(By.xpath("//button[@class='oxd-icon-button oxd-table-cell-action-space'][1]"));
+        deleteBtn.click();
+        // Confirm deletion in modal
+        WebElement confirmBtn = wait.until(ExpectedConditions.elementToBeClickable(
+                By.xpath("//button[text()=' Yes, Delete ']")));
+        confirmBtn.click();
+        // Verify employee removed (No Records Found)
+        wait.until(ExpectedConditions.visibilityOfElementLocated(
+                By.xpath("//span[text()='No Records Found']")));
+        WebElement noRecordsMsg = driver.findElement(By.xpath("//span[text()='No Records Found']"));
+        Assert.assertTrue(noRecordsMsg.isDisplayed(), "Employee record still present after deletion.");
     }
 
     @Test(priority = 5, dependsOnMethods = "testDeleteEmployee")
     public void testVerifyEmployeeDeletion() {
-        driver.findElement(By.id("welcome")).click();
-        driver.findElement(By.linkText("Logout")).click();
-
-        driver.findElement(By.id("txtUsername")).sendKeys(adminUsername);
-        driver.findElement(By.id("txtPassword")).sendKeys(adminPassword);
-        driver.findElement(By.id("btnLogin")).click();
-
-        driver.findElement(By.id("menu_pim_viewEmployeeList")).click();
-        driver.findElement(By.id("empsearch_id")).clear();
-        driver.findElement(By.id("empsearch_id")).sendKeys(empId);
-        driver.findElement(By.id("searchBtn")).click();
-        WebElement noRecordsMsg = driver.findElement(By.xpath("//td[contains(text(),'No Records Found')]"));
-        Assert.assertTrue(noRecordsMsg.isDisplayed(), "Deleted employee still appears in the list.");
+        logout();
+        login(adminUsername, adminPassword);
+        wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//span[text()='PIM']"))).click();
+        wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//a[contains(.,'Employee List')]"))).click();
+        WebElement empIdSearch = wait.until(ExpectedConditions.visibilityOfElementLocated(
+                By.xpath("//label[text()='Employee Id']/following::input[1]")));
+        empIdSearch.clear();
+        empIdSearch.sendKeys(empId);
+        driver.findElement(By.xpath("//button[@type='submit']")).click();
+        // Expect "No Records Found"
+        wait.until(ExpectedConditions.visibilityOfElementLocated(
+                By.xpath("//span[text()='No Records Found']")));
+        WebElement noRecordsMsg = driver.findElement(By.xpath("//span[text()='No Records Found']"));
+        Assert.assertTrue(noRecordsMsg.isDisplayed(), "Deleted employee still found in search.");
     }
 
-    @Test(priority = 6)
+    @Test(priority = 6, dependsOnMethods = "testVerifyEmployeeDeletion")
     public void testInvalidLoginAttempt() {
-        driver.findElement(By.id("welcome")).click();
-        driver.findElement(By.linkText("Logout")).click();
-
-        driver.findElement(By.id("txtUsername")).sendKeys(invalidUsername);
-        driver.findElement(By.id("txtPassword")).sendKeys(invalidPassword);
-        driver.findElement(By.id("btnLogin")).click();
-        WebElement errorMsg = driver.findElement(By.id("spanMessage"));
-        Assert.assertTrue(errorMsg.isDisplayed(), "Invalid login error message not displayed.");
-        Assert.assertEquals(errorMsg.getText().trim(), "Invalid credentials", "Error message text does not match expected.");
+        logout();
+        driver.get(baseUrl + "/auth/login");
+        wait.until(ExpectedConditions.visibilityOfElementLocated(By.name("username"))).sendKeys(invalidUsername);
+        driver.findElement(By.name("password")).sendKeys(invalidPassword);
+        driver.findElement(By.cssSelector("button[type='submit']")).click();
+        // Expect error message: "Invalid credentials"
+        WebElement errorMsg = wait.until(ExpectedConditions.visibilityOfElementLocated(
+                By.xpath("//*[contains(text(),'Invalid credentials')]")));
+        Assert.assertTrue(errorMsg.isDisplayed(), "Error message for invalid credentials not shown.");
     }
 }
