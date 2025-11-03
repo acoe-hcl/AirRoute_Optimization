@@ -1,165 +1,153 @@
-import org.openqa.selenium.By;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
-import org.openqa.selenium.Keys;
-import org.openqa.selenium.chrome.ChromeDriver;
 import org.testng.Assert;
 import org.testng.annotations.*;
-
+import org.openqa.selenium.*;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.interactions.Actions;
 import java.time.Duration;
-import java.util.Iterator;
-import java.util.Set;
 
 public class InternationalShippingQuoteTest {
-
-    WebDriver driver;
-    String baseUrl = "https://www.shippingservice.com"; // Replace with actual URL
-
-    String quoteReferenceNumber;
-    String priorityAmount;
-    String fromLocation = "Sydney, Australia";
-    String toLocation = "New York, USA";
+    private WebDriver driver;
+    private String baseUrl = "https://www.myteamge.com/"; // Replace with actual homepage URL
+    private String fromLocation = "Sydney, Australia";
+    private String toLocation = "London, United Kingdom";
+    private String quoteReference;
+    private String priorityAmount;
 
     @BeforeClass
-    public void setup() {
-        // System.setProperty("webdriver.chrome.driver", "path_to/chromedriver"); // set path accordingly
+    public void setUp() {
         driver = new ChromeDriver();
         driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
         driver.manage().window().maximize();
     }
 
     @Test(priority = 1)
-    public void testHomepageFlow() {
+    public void homepageQuoteCTAIsVisible() {
         driver.get(baseUrl);
-
-        // Verify 'Express Book & Pay' is visible and clickable
-        WebElement bookAndPayBtn = driver.findElement(By.xpath("//a[contains(text(),'Express Book & Pay')]"));
-        Assert.assertTrue(bookAndPayBtn.isDisplayed());
-        bookAndPayBtn.click();
-
-        // Verify 'Get a quote' CTA is present
-        WebElement getQuoteCTA = driver.findElement(By.xpath("//button[contains(text(),'Get a quote')]"));
-        Assert.assertTrue(getQuoteCTA.isDisplayed());
-
-        // Click 'Get a quote'; should open new tab
-        String originalWindow = driver.getWindowHandle();
-        getQuoteCTA.click();
-
-        Set<String> handles = driver.getWindowHandles();
-        Iterator<String> it = handles.iterator();
-        String newTab = originalWindow;
-        while(it.hasNext()) {
-            String handle = it.next();
-            if(!handle.equals(originalWindow)) {
-                newTab = handle;
-            }
-        }
-        driver.switchTo().window(newTab);
-
-        // Verify user is on the correct page
-        Assert.assertTrue(driver.getTitle().contains("Your Package Quote Estimate"));
+        Assert.assertTrue(driver.findElement(By.xpath("//button[contains(.,'Get a quote')]")).isDisplayed(), "Get a quote CTA is not visible.");
     }
 
     @Test(priority = 2)
-    public void testQuoteFormLocationAutoCompleteAndDeliveryType() {
-        // Type and select 'send from' location with auto-complete
-        WebElement fromField = driver.findElement(By.id("fromLocation")); // Adjust locator
-        fromField.sendKeys(fromLocation.substring(0,3));
-        WebElement autoSuggest = driver.findElement(By.xpath("//li[contains(text(),'" + fromLocation + "')]"));
-        Assert.assertTrue(autoSuggest.isDisplayed());
-        autoSuggest.click();
-        WebElement deliveryTypeBusiness = driver.findElement(By.xpath("//label[contains(text(),'Business')]//input[@type='radio']"));
-        deliveryTypeBusiness.click();
+    public void quoteFormOpensAndLocationsAutoComplete() {
+        driver.findElement(By.xpath("//button[contains(.,'Express Book & Pay')]")).click();
+        Assert.assertTrue(driver.findElement(By.xpath("//button[contains(.,'Get a quote')]")).isDisplayed(), "Get a quote button not visible after Express Book & Pay.");
 
-        // Type and select 'deliver to' location with auto-complete
-        WebElement toField = driver.findElement(By.id("toLocation")); // Adjust locator
-        toField.sendKeys(toLocation.substring(0,3));
-        WebElement autoSuggestTo = driver.findElement(By.xpath("//li[contains(text(),'" + toLocation + "')]"));
-        Assert.assertTrue(autoSuggestTo.isDisplayed());
-        autoSuggestTo.click();
-        WebElement deliveryTypeResidential = driver.findElement(By.xpath("//label[contains(text(),'Residential')]//input[@type='radio']"));
-        deliveryTypeResidential.click();
+        driver.findElement(By.xpath("//button[contains(.,'Get a quote')]")).click();
 
-        // Verify only valid options are selectable
-        Assert.assertTrue(deliveryTypeBusiness.isEnabled());
-        Assert.assertTrue(deliveryTypeResidential.isEnabled());
+        // Switch to new tab
+        for (String winHandle : driver.getWindowHandles()) {
+            driver.switchTo().window(winHandle);
+        }
+        Assert.assertTrue(driver.getTitle().contains("Your Package Quote Estimate"), "Quote form page title mismatch.");
 
-        driver.findElement(By.xpath("//button[contains(text(),'Continue')]")).click();
+        WebElement fromInput = driver.findElement(By.xpath("//input[contains(@placeholder,'Send from')]"));
+        fromInput.sendKeys(fromLocation.substring(0,3));
+        Actions actions = new Actions(driver);
+        actions.moveToElement(driver.findElement(By.xpath("//li[contains(.,'" + fromLocation + "')]"))).click().perform();
+
+        Assert.assertTrue(fromInput.getAttribute("value").contains("Sydney"), "From Location auto-complete failed.");
+
+        WebElement fromTypeBusiness = driver.findElement(By.xpath("//select[@name='fromType']/option[contains(.,'Business')]"));
+        fromTypeBusiness.click();
+
+        WebElement toInput = driver.findElement(By.xpath("//input[contains(@placeholder,'Deliver to')]"));
+        toInput.sendKeys(toLocation.substring(0,3));
+        actions.moveToElement(driver.findElement(By.xpath("//li[contains(.,'" + toLocation + "')]"))).click().perform();
+
+        Assert.assertTrue(toInput.getAttribute("value").contains("London"), "To Location auto-complete failed.");
+
+        WebElement toTypeResidential = driver.findElement(By.xpath("//select[@name='toType']/option[contains(.,'Residential')]"));
+        toTypeResidential.click();
     }
 
     @Test(priority = 3)
-    public void testProhibitedItemsValidation() {
-        driver.findElement(By.xpath("//button[contains(text(),'Use your own satchel')]")).click();
+    public void deliveryTypeSelectionAndValidations() {
+        driver.findElement(By.xpath("//button[contains(.,'Continue')]")).click();
 
-        // Try clicking Continue without acknowledging prohibited items
-        WebElement continueBtn = driver.findElement(By.xpath("//button[contains(text(),'Continue')]"));
-        continueBtn.click();
+        driver.findElement(By.xpath("//button[contains(.,'Use your own satchel')]")).click();
 
-        // Verify error message appears
-        WebElement errorMsg = driver.findElement(By.xpath("//span[contains(@class,'error') and contains(text(),'must acknowledge')]"));
-        Assert.assertTrue(errorMsg.isDisplayed());
+        // Prohibited items checkbox must be checked before continuing
+        driver.findElement(By.xpath("//label[contains(.,'I confirm that my package does not contain any prohibited items')]//input")).click();
 
-        // Check the confirmation box, now proceed
-        WebElement itemsConfirmCheck = driver.findElement(By.id("prohibitedItemsConfirm")); // Adjust locator
-        itemsConfirmCheck.click();
+        driver.findElement(By.xpath("//button[contains(.,'Continue')]")).click();
 
-        continueBtn.click();
-
-        // Concierge pickup
-        WebElement conciergePickup = driver.findElement(By.xpath("//button[contains(text(),'Concierge pickup')]"));
-        conciergePickup.click();
-        driver.findElement(By.xpath("//button[contains(text(),'Continue')]")).click();
+        driver.findElement(By.xpath("//button[contains(.,'Concierge pickup')]")).click();
+        driver.findElement(By.xpath("//button[contains(.,'Continue')]")).click();
     }
 
     @Test(priority = 4)
-    public void testSaveAndRetrieveQuoteFlow() {
-        // Save the quote
-        WebElement saveQuoteBtn = driver.findElement(By.xpath("//button[contains(text(),'Save The Quote')]"));
-        Assert.assertTrue(saveQuoteBtn.isDisplayed());
-        saveQuoteBtn.click();
+    public void saveQuoteAndVerifyReferenceAndAmount() {
+        driver.findElement(By.xpath("//button[contains(.,'Save The Quote')]")).click();
 
-        // Note quote reference number
-        WebElement quoteRefElem = driver.findElement(By.xpath("//span[@id='quoteReferenceNumber']"));
-        quoteReferenceNumber = quoteRefElem.getText();
-        Assert.assertTrue(quoteReferenceNumber.matches("[A-Z0-9]+"));
+        WebElement referenceElem = driver.findElement(By.xpath("//span[contains(@class,'quote-reference')]"));
+        quoteReference = referenceElem.getText();
+        Assert.assertNotNull(quoteReference, "Quote reference is missing.");
 
-        // Copy priority amount
-        WebElement priorityAmountElem = driver.findElement(By.xpath("//span[@class='priority-amount']"));
+        WebElement priorityAmountElem = driver.findElement(By.xpath("//div[contains(@class,'priority-amount')]"));
         priorityAmount = priorityAmountElem.getText();
-        Assert.assertTrue(priorityAmount.matches("\\$[0-9,.]+"));
+        Assert.assertTrue(priorityAmount.matches("\\$\\d+\\.\\d{2}"), "Priority amount format invalid.");
+    }
 
-        // Go back to homepage
-        driver.close(); // Close current tab
-        Set<String> handles = driver.getWindowHandles();
-        for (String handle : handles) {
-            driver.switchTo().window(handle);
-            break;
+    @Test(priority = 5)
+    public void retrieveAndValidateSavedQuote() {
+        driver.get(baseUrl);
+        WebElement retrieveQuoteBtn = driver.findElement(By.xpath("//button[contains(.,'Retrieve A Quote')]"));
+        retrieveQuoteBtn.click();
+        WebElement quoteInput = driver.findElement(By.xpath("//input[@name='quoteReference']"));
+        quoteInput.sendKeys(quoteReference);
+        driver.findElement(By.xpath("//button[contains(.,'Retrieve')]")).click();
+
+        WebElement retrievedReferenceElem = driver.findElement(By.xpath("//span[contains(@class,'quote-reference')]"));
+        String retrievedReference = retrievedReferenceElem.getText();
+        Assert.assertEquals(retrievedReference, quoteReference, "Retrieved quote reference does not match.");
+
+        WebElement retrievedPriorityElem = driver.findElement(By.xpath("//div[contains(@class,'priority-amount')]"));
+        String retrievedAmount = retrievedPriorityElem.getText();
+        Assert.assertEquals(retrievedAmount, priorityAmount, "Retrieved priority amount does not match original.");
+
+        WebElement summaryLocationFrom = driver.findElement(By.xpath("//div[contains(@class,'summary-from') and contains(.,'Sydney')]"));
+        WebElement summaryLocationTo = driver.findElement(By.xpath("//div[contains(@class,'summary-to') and contains(.,'London')]"));
+        Assert.assertTrue(summaryLocationFrom.isDisplayed(), "Origin location not present in summary.");
+        Assert.assertTrue(summaryLocationTo.isDisplayed(), "Destination location not present in summary.");
+    }
+
+    @Test(priority = 6)
+    public void mandatoryProhibitedItemsCheckboxValidation() {
+        driver.get(baseUrl);
+        driver.findElement(By.xpath("//button[contains(.,'Express Book & Pay')]")).click();
+        driver.findElement(By.xpath("//button[contains(.,'Get a quote')]")).click();
+
+        // Switch to new tab again
+        for (String winHandle : driver.getWindowHandles()) {
+            driver.switchTo().window(winHandle);
         }
 
-        driver.navigate().refresh();
+        // Repeat a quick minimal form fill
+        WebElement fromInput = driver.findElement(By.xpath("//input[contains(@placeholder,'Send from')]"));
+        fromInput.sendKeys(fromLocation.substring(0,3));
+        Actions actions = new Actions(driver);
+        actions.moveToElement(driver.findElement(By.xpath("//li[contains(.,'" + fromLocation + "')]"))).click().perform();
 
-        // Locate 'Retrieve A Quote'
-        WebElement retrieveQuoteBtn = driver.findElement(By.xpath("//button[contains(text(),'Retrieve A Quote')]"));
-        retrieveQuoteBtn.click();
+        WebElement fromTypeBusiness = driver.findElement(By.xpath("//select[@name='fromType']/option[contains(.,'Business')]"));
+        fromTypeBusiness.click();
 
-        // Enter reference number
-        WebElement refNumInput = driver.findElement(By.id("retrieveReferenceNumber"));
-        refNumInput.sendKeys(quoteReferenceNumber);
+        WebElement toInput = driver.findElement(By.xpath("//input[contains(@placeholder,'Deliver to')]"));
+        toInput.sendKeys(toLocation.substring(0,3));
+        actions.moveToElement(driver.findElement(By.xpath("//li[contains(.,'" + toLocation + "')]"))).click().perform();
 
-        driver.findElement(By.xpath("//button[contains(text(),'Retrieve')]")).click();
+        WebElement toTypeResidential = driver.findElement(By.xpath("//select[@name='toType']/option[contains(.,'Residential')]"));
+        toTypeResidential.click();
 
-        // Assert that the retrieved quote details match original
-        WebElement retrievedRefNumElem = driver.findElement(By.xpath("//span[@id='quoteReferenceNumber']"));
-        String retrievedRefNum = retrievedRefNumElem.getText();
-        Assert.assertEquals(retrievedRefNum, quoteReferenceNumber);
+        driver.findElement(By.xpath("//button[contains(.,'Continue')]")).click();
+        driver.findElement(By.xpath("//button[contains(.,'Use your own satchel')]")).click();
 
-        WebElement retrievedPriorityAmountElem = driver.findElement(By.xpath("//span[@class='priority-amount']"));
-        String retrievedPriorityAmount = retrievedPriorityAmountElem.getText();
-        Assert.assertEquals(retrievedPriorityAmount, priorityAmount);
+        // Without checking prohibited items checkbox
+        driver.findElement(By.xpath("//button[contains(.,'Continue')]")).click();
+        WebElement errorElem = driver.findElement(By.xpath("//div[contains(@class,'error') and contains(.,'Please confirm your package does not contain prohibited items')]"));
+        Assert.assertTrue(errorElem.isDisplayed(), "Error message for prohibited items not displayed.");
     }
 
     @AfterClass
-    public void teardown() {
-        driver.quit();
+    public void tearDown() {
+        if (driver != null) driver.quit();
     }
 }
