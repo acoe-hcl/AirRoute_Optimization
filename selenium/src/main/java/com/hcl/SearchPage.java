@@ -218,4 +218,536 @@ public class SearchPage extends BasePage {
 
     public boolean verifySortableColumns() {
         try {
-            if (sor
+            if (sortableCifColumn.isDisplayed() && sortableObligorColumn.isDisplayed()) {
+                reportLog("pass", "CIF# and Obligor# columns are sortable", true);
+                return true;
+            } else {
+                reportLog("fail", "CIF# and Obligor# columns are not sortable", true);
+                return false;
+            }
+        } catch (Exception e) {
+            reportLog("fail", "Exception while verifying sortable columns: " + e.getMessage(), true);
+            return false;
+        }
+    }
+
+    public boolean verifyRecordCountDisplayed() {
+        try {
+            if (recordCountElement.isDisplayed()) {
+                String recordCount = recordCountElement.getText();
+                reportLog("pass", "Record count is displayed: " + recordCount, true);
+                return true;
+            } else {
+                reportLog("fail", "Record count is not displayed", true);
+                return false;
+            }
+        } catch (Exception e) {
+            reportLog("fail", "Exception while verifying record count: " + e.getMessage(), true);
+            return false;
+        }
+    }
+
+    public boolean verifyPaginationEnabled() {
+        try {
+            String recordCountText = recordCountElement.getText();
+            int recordCount = Integer.parseInt(recordCountText.replaceAll("[^0-9]", ""));
+            
+            if (recordCount > 15) {
+                if (paginationElement.isDisplayed()) {
+                    reportLog("pass", "Pagination is enabled for record count greater than 15", true);
+                    return true;
+                } else {
+                    reportLog("fail", "Pagination is not enabled for record count greater than 15", true);
+                    return false;
+                }
+            } else {
+                reportLog("pass", "Record count is 15 or less, pagination check not required", true);
+                return true;
+            }
+        } catch (Exception e) {
+            reportLog("fail", "Exception while verifying pagination: " + e.getMessage(), true);
+            return false;
+        }
+    }
+
+    public boolean verifyNoRecordsMessage() {
+        try {
+            if (noRecordsMessage.isDisplayed() && noRecordsMessage.getText().equals("No records found")) {
+                reportLog("pass", "No records found message is displayed", true);
+                return true;
+            } else {
+                reportLog("fail", "No records found message is not displayed", true);
+                return false;
+            }
+        } catch (Exception e) {
+            reportLog("fail", "Exception while verifying no records message: " + e.getMessage(), true);
+            return false;
+        }
+    }
+
+    public boolean verifyPaginationNotShown() {
+        try {
+            if (!paginationElement.isDisplayed()) {
+                reportLog("pass", "Pagination is not shown", true);
+                return true;
+            } else {
+                reportLog("fail", "Pagination is shown when it should not be", true);
+                return false;
+            }
+        } catch (Exception e) {
+            reportLog("pass", "Pagination element not found, which is expected", true);
+            return true;
+        }
+    }
+
+    public boolean verifyNoSearchResults() {
+        try {
+            if (!searchResultsTable.isDisplayed()) {
+                reportLog("pass", "No search results are displayed", true);
+                return true;
+            } else {
+                reportLog("fail", "Search results are displayed when they should not be", true);
+                return false;
+            }
+        } catch (Exception e) {
+            reportLog("pass", "Search results table not found, which is expected", true);
+            return true;
+        }
+    }
+
+    public boolean verifyPartialAccountNumberResults(String partialAccountNumber) {
+        try {
+            String resultAccountNumber = accountNumberCell.getText();
+            if (resultAccountNumber.startsWith(partialAccountNumber)) {
+                reportLog("pass", "Search results contain account numbers starting with: " + partialAccountNumber, true);
+                return true;
+            } else {
+                reportLog("fail", "Search results do not contain account numbers starting with: " + partialAccountNumber, true);
+                return false;
+            }
+        } catch (Exception e) {
+            reportLog("fail", "Exception while verifying partial account number results: " + e.getMessage(), true);
+            return false;
+        }
+    }
+}
+```
+
+```java
+// AccountSearchTest.java
+package tests;
+
+import org.testng.annotations.Test;
+import pages.SearchPage;
+import utils.ExcelUtils;
+import java.util.Map;
+
+public class AccountSearchTest extends BaseTest {
+
+    @Test(priority = 1, description = "TC_SEARCH_ACCOUNT_001")
+    public void verifySearchResultsForValidAccountNumber() {
+        Map<String, String> testData = ExcelUtils.getTestData("AccountSearchTest", "TC_SEARCH_ACCOUNT_001");
+        
+        SearchPage searchPage = new SearchPage(driver);
+        
+        if (searchPage.navigateToSearchPage()) {
+            if (searchPage.selectSearchType(testData.get("SearchType"))) {
+                if (searchPage.enterAccountNumber(testData.get("AccountNumber"))) {
+                    if (searchPage.clickSearchButton()) {
+                        if (searchPage.verifySearchResultsDisplayed()) {
+                            if (searchPage.verifyAccountNumberInResults(testData.get("AccountNumber"))) {
+                                if (searchPage.verifyDisplayedColumns()) {
+                                    if (searchPage.verifyAdditionalColumns()) {
+                                        if (searchPage.verifyClientNameHyperlink()) {
+                                            if (searchPage.verifySortableColumns()) {
+                                                if (searchPage.verifyRecordCountDisplayed()) {
+                                                    searchPage.verifyPaginationEnabled();
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    @Test(priority = 2, description = "TC_SEARCH_ACCOUNT_002")
+    public void verifySearchResultsForPartialAccountNumber() {
+        Map<String, String> testData = ExcelUtils.getTestData("AccountSearchTest", "TC_SEARCH_ACCOUNT_002");
+        
+        SearchPage searchPage = new SearchPage(driver);
+        
+        if (searchPage.navigateToSearchPage()) {
+            if (searchPage.selectSearchType(testData.get("SearchType"))) {
+                if (searchPage.enterAccountNumber(testData.get("PartialAccountNumber"))) {
+                    if (searchPage.clickSearchButton()) {
+                        if (searchPage.verifySearchResultsDisplayed()) {
+                            if (searchPage.verifyPartialAccountNumberResults(testData.get("PartialAccountNumber"))) {
+                                if (searchPage.verifyDisplayedColumns()) {
+                                    if (searchPage.verifyAdditionalColumns()) {
+                                        if (searchPage.verifyClientNameHyperlink()) {
+                                            if (searchPage.verifySortableColumns()) {
+                                                if (searchPage.verifyRecordCountDisplayed()) {
+                                                    searchPage.verifyPaginationEnabled();
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    @Test(priority = 3, description = "TC_SEARCH_ACCOUNT_003")
+    public void verifySearchResultsForInvalidAccountNumber() {
+        Map<String, String> testData = ExcelUtils.getTestData("AccountSearchTest", "TC_SEARCH_ACCOUNT_003");
+        
+        SearchPage searchPage = new SearchPage(driver);
+        
+        if (searchPage.navigateToSearchPage()) {
+            if (searchPage.selectSearchType(testData.get("SearchType"))) {
+                if (searchPage.enterAccountNumber(testData.get("InvalidAccountNumber"))) {
+                    if (searchPage.clickSearchButton()) {
+                        if (searchPage.verifyNoSearchResults()) {
+                            if (searchPage.verifyNoRecordsMessage()) {
+                                searchPage.verifyPaginationNotShown();
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    @Test(priority = 4, description = "TC_SEARCH_ACCOUNT_004")
+    public void verifySearchResultsForEmptyAccountNumber() {
+        Map<String, String> testData = ExcelUtils.getTestData("AccountSearchTest", "TC_SEARCH_ACCOUNT_004");
+        
+        SearchPage searchPage = new SearchPage(driver);
+        
+        if (searchPage.navigateToSearchPage()) {
+            if (searchPage.selectSearchType(testData.get("SearchType"))) {
+                if (searchPage.enterAccountNumber(testData.get("EmptyAccountNumber"))) {
+                    if (searchPage.clickSearchButton()) {
+                        if (searchPage.verifyNoSearchResults()) {
+                            if (searchPage.verifyNoRecordsMessage()) {
+                                searchPage.verifyPaginationNotShown();
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    @Test(priority = 5, description = "TC_SEARCH_ACCOUNT_005")
+    public void verifySearchResultsForSpecialCharactersInAccountNumber() {
+        Map<String, String> testData = ExcelUtils.getTestData("AccountSearchTest", "TC_SEARCH_ACCOUNT_005");
+        
+        SearchPage searchPage = new SearchPage(driver);
+        
+        if (searchPage.navigateToSearchPage()) {
+            if (searchPage.selectSearchType(testData.get("SearchType"))) {
+                if (searchPage.enterAccountNumber(testData.get("SpecialCharAccountNumber"))) {
+                    if (searchPage.clickSearchButton()) {
+                        if (searchPage.verifyNoSearchResults()) {
+                            if (searchPage.verifyNoRecordsMessage()) {
+                                searchPage.verifyPaginationNotShown();
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    @Test(priority = 6, description = "TC_SEARCH_ACCOUNT_006")
+    public void verifySearchResultsForAlphanumericAccountNumber() {
+        Map<String, String> testData = ExcelUtils.getTestData("AccountSearchTest", "TC_SEARCH_ACCOUNT_006");
+        
+        SearchPage searchPage = new SearchPage(driver);
+        
+        if (searchPage.navigateToSearchPage()) {
+            if (searchPage.selectSearchType(testData.get("SearchType"))) {
+                if (searchPage.enterAccountNumber(testData.get("AlphanumericAccountNumber"))) {
+                    if (searchPage.clickSearchButton()) {
+                        if (searchPage.verifyNoSearchResults()) {
+                            if (searchPage.verifyNoRecordsMessage()) {
+                                searchPage.verifyPaginationNotShown();
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    @Test(priority = 7, description = "TC_SEARCH_001")
+    public void verifySearchWithValid4DigitPrefix() {
+        Map<String, String> testData = ExcelUtils.getTestData("AccountSearchTest", "TC_SEARCH_001");
+        
+        SearchPage searchPage = new SearchPage(driver);
+        
+        if (searchPage.navigateToSearchPage()) {
+            if (searchPage.selectSearchType(testData.get("SearchType"))) {
+                if (searchPage.enterAccountNumber(testData.get("AccountNumberPrefix"))) {
+                    if (searchPage.clickSearchButton()) {
+                        if (searchPage.verifySearchResultsDisplayed()) {
+                            if (searchPage.verifyPartialAccountNumberResults(testData.get("AccountNumberPrefix"))) {
+                                if (searchPage.verifyDisplayedColumns()) {
+                                    if (searchPage.verifyAdditionalColumns()) {
+                                        if (searchPage.verifyClientNameHyperlink()) {
+                                            if (searchPage.verifySortableColumns()) {
+                                                if (searchPage.verifyRecordCountDisplayed()) {
+                                                    searchPage.verifyPaginationEnabled();
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    @Test(priority = 8, description = "TC_SEARCH_002")
+    public void verifySearchWithInvalidPrefix() {
+        Map<String, String> testData = ExcelUtils.getTestData("AccountSearchTest", "TC_SEARCH_002");
+        
+        SearchPage searchPage = new SearchPage(driver);
+        
+        if (searchPage.navigateToSearchPage()) {
+            if (searchPage.selectSearchType(testData.get("SearchType"))) {
+                if (searchPage.enterAccountNumber(testData.get("InvalidPrefix"))) {
+                    if (searchPage.clickSearchButton()) {
+                        if (searchPage.verifyNoSearchResults()) {
+                            if (searchPage.verifyNoRecordsMessage()) {
+                                searchPage.verifyPaginationNotShown();
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    @Test(priority = 9, description = "TC_SEARCH_003")
+    public void verifySearchWithValidTSYSAccountNumber() {
+        Map<String, String> testData = ExcelUtils.getTestData("AccountSearchTest", "TC_SEARCH_003");
+        
+        SearchPage searchPage = new SearchPage(driver);
+        
+        if (searchPage.navigateToSearchPage()) {
+            if (searchPage.selectSearchType(testData.get("SearchType"))) {
+                if (searchPage.enterAccountNumber(testData.get("TSYSAccountNumber"))) {
+                    if (searchPage.clickSearchButton()) {
+                        if (searchPage.verifySearchResultsDisplayed()) {
+                            if (searchPage.verifyAccountNumberInResults(testData.get("TSYSAccountNumber"))) {
+                                if (searchPage.verifyDisplayedColumns()) {
+                                    if (searchPage.verifyAdditionalColumns()) {
+                                        if (searchPage.verifyClientNameHyperlink()) {
+                                            if (searchPage.verifySortableColumns()) {
+                                                if (searchPage.verifyRecordCountDisplayed()) {
+                                                    searchPage.verifyPaginationEnabled();
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    @Test(priority = 10, description = "TC_SEARCH_004")
+    public void verifySearchWithInvalidTSYSAccountNumber() {
+        Map<String, String> testData = ExcelUtils.getTestData("AccountSearchTest", "TC_SEARCH_004");
+        
+        SearchPage searchPage = new SearchPage(driver);
+        
+        if (searchPage.navigateToSearchPage()) {
+            if (searchPage.selectSearchType(testData.get("SearchType"))) {
+                if (searchPage.enterAccountNumber(testData.get("InvalidTSYSAccountNumber"))) {
+                    if (searchPage.clickSearchButton()) {
+                        if (searchPage.verifyNoSearchResults()) {
+                            if (searchPage.verifyNoRecordsMessage()) {
+                                searchPage.verifyPaginationNotShown();
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    @Test(priority = 11, description = "TC_SEARCH_005")
+    public void verifySearchWithValidAFSAccountNumber() {
+        Map<String, String> testData = ExcelUtils.getTestData("AccountSearchTest", "TC_SEARCH_005");
+        
+        SearchPage searchPage = new SearchPage(driver);
+        
+        if (searchPage.navigateToSearchPage()) {
+            if (searchPage.selectSearchType(testData.get("SearchType"))) {
+                if (searchPage.enterAccountNumber(testData.get("AFSAccountNumber"))) {
+                    if (searchPage.clickSearchButton()) {
+                        if (searchPage.verifySearchResultsDisplayed()) {
+                            if (searchPage.verifyAccountNumberInResults(testData.get("AFSAccountNumber"))) {
+                                if (searchPage.verifyDisplayedColumns()) {
+                                    if (searchPage.verifyAdditionalColumns()) {
+                                        if (searchPage.verifyClientNameHyperlink()) {
+                                            if (searchPage.verifySortableColumns()) {
+                                                if (searchPage.verifyRecordCountDisplayed()) {
+                                                    searchPage.verifyPaginationEnabled();
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    @Test(priority = 12, description = "TC_SEARCH_006")
+    public void verifySearchWithInvalidAFSAccountNumber() {
+        Map<String, String> testData = ExcelUtils.getTestData("AccountSearchTest", "TC_SEARCH_006");
+        
+        SearchPage searchPage = new SearchPage(driver);
+        
+        if (searchPage.navigateToSearchPage()) {
+            if (searchPage.selectSearchType(testData.get("SearchType"))) {
+                if (searchPage.enterAccountNumber(testData.get("InvalidAFSAccountNumber"))) {
+                    if (searchPage.clickSearchButton()) {
+                        if (searchPage.verifyNoSearchResults()) {
+                            if (searchPage.verifyNoRecordsMessage()) {
+                                searchPage.verifyPaginationNotShown();
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    @Test(priority = 13, description = "TC_SEARCH_007")
+    public void verifySearchWithValidLeasewaveAccountNumber() {
+        Map<String, String> testData = ExcelUtils.getTestData("AccountSearchTest", "TC_SEARCH_007");
+        
+        SearchPage searchPage = new SearchPage(driver);
+        
+        if (searchPage.navigateToSearchPage()) {
+            if (searchPage.selectSearchType(testData.get("SearchType"))) {
+                if (searchPage.enterAccountNumber(testData.get("LeasewaveAccountNumber"))) {
+                    if (searchPage.clickSearchButton()) {
+                        if (searchPage.verifySearchResultsDisplayed()) {
+                            if (searchPage.verifyAccountNumberInResults(testData.get("LeasewaveAccountNumber"))) {
+                                if (searchPage.verifyDisplayedColumns()) {
+                                    if (searchPage.verifyAdditionalColumns()) {
+                                        if (searchPage.verifyClientNameHyperlink()) {
+                                            if (searchPage.verifySortableColumns()) {
+                                                if (searchPage.verifyRecordCountDisplayed()) {
+                                                    searchPage.verifyPaginationEnabled();
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    @Test(priority = 14, description = "TC_SEARCH_008")
+    public void verifySearchWithInvalidLeasewaveAccountNumber() {
+        Map<String, String> testData = ExcelUtils.getTestData("AccountSearchTest", "TC_SEARCH_008");
+        
+        SearchPage searchPage = new SearchPage(driver);
+        
+        if (searchPage.navigateToSearchPage()) {
+            if (searchPage.selectSearchType(testData.get("SearchType"))) {
+                if (searchPage.enterAccountNumber(testData.get("InvalidLeasewaveAccountNumber"))) {
+                    if (searchPage.clickSearchButton()) {
+                        if (searchPage.verifyNoSearchResults()) {
+                            if (searchPage.verifyNoRecordsMessage()) {
+                                searchPage.verifyPaginationNotShown();
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    @Test(priority = 15, description = "TC_SEARCH_009")
+    public void verifySearchWithValidDatascanAccountNumber() {
+        Map<String, String> testData = ExcelUtils.getTestData("AccountSearchTest", "TC_SEARCH_009");
+        
+        SearchPage searchPage = new SearchPage(driver);
+        
+        if (searchPage.navigateToSearchPage()) {
+            if (searchPage.selectSearchType(testData.get("SearchType"))) {
+                if (searchPage.enterAccountNumber(testData.get("DatascanAccountNumber"))) {
+                    if (searchPage.clickSearchButton()) {
+                        if (searchPage.verifySearchResultsDisplayed()) {
+                            if (searchPage.verifyAccountNumberInResults(testData.get("DatascanAccountNumber"))) {
+                                if (searchPage.verifyDisplayedColumns()) {
+                                    if (searchPage.verifyAdditionalColumns()) {
+                                        if (searchPage.verifyClientNameHyperlink()) {
+                                            if (searchPage.verifySortableColumns()) {
+                                                if (searchPage.verifyRecordCountDisplayed()) {
+                                                    searchPage.verifyPaginationEnabled();
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    @Test(priority = 16, description = "TC_SEARCH_010")
+    public void verifySearchWithInvalidDatascanAccountNumber() {
+        Map<String, String> testData = ExcelUtils.getTestData("AccountSearchTest", "TC_SEARCH_010");
+        
+        SearchPage searchPage = new SearchPage(driver);
+        
+        if (searchPage.navigateToSearchPage()) {
+            if (searchPage.selectSearchType(testData.get("SearchType"))) {
+                if (searchPage.enterAccountNumber(testData.get("InvalidDatascanAccountNumber"))) {
+                    if (searchPage.clickSearchButton()) {
+                        if (searchPage.verifyNoSearchResults()) {
+                            if (searchPage.verifyNoRecordsMessage()) {
+                                searchPage.verifyPaginationNotShown();
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+```
