@@ -1,4 +1,4 @@
-```java
+
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -7,13 +7,11 @@ import org.testng.Assert;
 import org.testng.annotations.*;
 
 public class LinkedInAccountCreationTest {
-
     WebDriver driver;
-    String baseUrl = "https://www.linkedin.com/";
-
+    
     @BeforeClass
-    public void setUp() {
-        // Set up ChromeDriver path as per local setup
+    public void setup() {
+        // Set path to chromedriver
         System.setProperty("webdriver.chrome.driver", "path/to/chromedriver");
         driver = new ChromeDriver();
         driver.manage().window().maximize();
@@ -21,46 +19,47 @@ public class LinkedInAccountCreationTest {
 
     @DataProvider(name = "accountData")
     public Object[][] accountData() {
-        return new Object[][]{
-            {"validemail123@testmail.com", "SecurePass@2024"}, // valid new email and password
-            {"validphone1234567890", "TestPassword123!"}      // valid new phone number and password
+        return new Object[][] {
+            {"validEmail@example.com", "StrongPass#1"},
+            {"validPhoneNumber", "ValidPwd!123"},
         };
     }
 
     @Test(dataProvider = "accountData")
-    public void testLinkedInAccountCreation(String userCredential, String password) throws InterruptedException {
-        driver.get(baseUrl);
+    public void testCreateLinkedInAccount(String emailOrPhone, String password) throws InterruptedException {
+        // Step 1: Open the web browser and navigate to LinkedIn
+        driver.get("https://www.linkedin.com/");
+        Assert.assertEquals(driver.getTitle().contains("LinkedIn"), true, "LinkedIn home page not loaded.");
 
-        // Step 2: Click "Join now"
-        WebElement joinNowBtn = driver.findElement(By.linkText("Join now"));
-        joinNowBtn.click();
+        // Step 2: Click on "New to LinkedIn? Join now"
+        WebElement joinNowButton = driver.findElement(By.linkText("Join now"));
+        joinNowButton.click();
 
         // Step 3: Verify redirection to "Create account" page
-        Assert.assertTrue(driver.getCurrentUrl().contains("/signup"), "Not redirected to Create account page");
+        WebElement createAccountHeader = driver.findElement(By.xpath("//h1[contains(text(), 'Create your account')]"));
+        Assert.assertTrue(createAccountHeader.isDisplayed(), "Create account page not displayed.");
+
+        // Step 4: Enter a valid email/phone number
         WebElement emailField = driver.findElement(By.id("email-or-phone"));
-        Assert.assertTrue(emailField.isDisplayed(), "Email/Phone input field not displayed");
-        
-        // Step 4: Enter valid email/phone
-        emailField.sendKeys(userCredential);
+        emailField.clear();
+        emailField.sendKeys(emailOrPhone);
 
         // Step 5: Enter password
         WebElement passwordField = driver.findElement(By.id("password"));
-        Assert.assertTrue(passwordField.isDisplayed(), "Password field not displayed");
+        passwordField.clear();
         passwordField.sendKeys(password);
 
         // Step 6: Click "Agree & Join"
-        WebElement agreeJoinBtn = driver.findElement(By.xpath("//button[contains(text(),'Agree & Join')]"));
-        agreeJoinBtn.click();
+        WebElement agreeJoinButton = driver.findElement(By.xpath("//button[contains(text(), 'Agree & Join')]"));
+        agreeJoinButton.click();
 
-        // Step 7: Wait for confirmation page and assert account creation
-        Thread.sleep(3000); // Please use explicit wait in actual implementation
-        Assert.assertTrue(driver.getCurrentUrl().contains("/checkpoint"), "Not redirected to account confirmation page after signup");
+        // Expected Result: Redirection to confirmation page after account creation
+        WebElement confirmationMsg = driver.findElement(By.xpath("//*[contains(text(),'We sent you a confirmation')]"));
+        Assert.assertTrue(confirmationMsg.isDisplayed(), "Confirmation page/message not displayed.");
 
-        // Confirm that account was created or next steps are presented (e.g., verification)
-        WebElement confirmationMsg = driver.findElement(By.xpath("//*[contains(text(),'Check your email')]"));
-        Assert.assertTrue(confirmationMsg.isDisplayed(), "Confirmation message not shown after account creation");
-
-        // Additional combinations: try empty fields, weak password, used credentials (not covered here due to scope)
+        // Optionally, assert partial link text for confirmation
+        WebElement confirmationEmailSMS = driver.findElement(By.xpath("//*[contains(text(),'Please check your email or phone')]"));
+        Assert.assertTrue(confirmationEmailSMS.isDisplayed(), "Confirmation email/SMS notice not shown.");
     }
 
     @AfterClass
@@ -70,4 +69,3 @@ public class LinkedInAccountCreationTest {
         }
     }
 }
-```
