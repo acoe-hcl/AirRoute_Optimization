@@ -1,0 +1,24 @@
+{
+  "request" : {
+    "urlPath" : "/api/users",
+    "method" : "POST",
+    "headers" : {
+      "Content-Type" : "application/json",
+      "Authorization" : "Bearer token123"
+    },
+    "bodyPatterns" : [ {
+      "equalToJson" : "{\"name\": \"Jane Smith\", \"email\": \"jane.smith@example.com\", \"role\": \"user\"}",
+      "ignoreArrayOrder" : true,
+      "ignoreExtraElements" : true
+    } ]
+  },
+  "response" : {
+    "status" : 201,
+    "body" : "{\"id\": 456, \"name\": \"Jane Smith\", \"email\": \"jane.smith@example.com\", \"role\": \"user\", \"createdAt\": \"2026-03-04T10:30:00Z\"}",
+    "headers" : {
+      "Content-Type" : "application/json",
+      "Location" : "/api/users/456"
+    },
+    "fixedDelayMilliseconds" : 200
+  }
+}
