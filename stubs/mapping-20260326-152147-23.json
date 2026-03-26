@@ -1,0 +1,18 @@
+{
+  "request" : {
+    "urlPathPattern" : "/pet/([^/]+)",
+    "method" : "GET"
+  },
+  "response" : {
+    "status" : 400,
+    "jsonBody" : {
+      "code" : 400,
+      "type" : "client_error",
+      "message" : "Invalid ID supplied"
+    },
+    "headers" : {
+      "Content-Type" : "application/json"
+    }
+  },
+  "priority" : 5
+}

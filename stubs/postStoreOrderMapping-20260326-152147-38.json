@@ -1,0 +1,26 @@
+{
+  "request" : {
+    "urlPath" : "/store/order",
+    "method" : "POST",
+    "bodyPatterns" : [ {
+      "equalToJson" : "{id=10, petId=198772, quantity=7, shipDate=2024-01-01T00:00:00Z, status=approved, complete=true}",
+      "ignoreArrayOrder" : true,
+      "ignoreExtraElements" : true
+    } ]
+  },
+  "response" : {
+    "status" : 200,
+    "jsonBody" : {
+      "id" : 10,
+      "petId" : 198772,
+      "quantity" : 7,
+      "shipDate" : "2024-01-01T00:00:00Z",
+      "status" : "approved",
+      "complete" : true
+    },
+    "headers" : {
+      "Content-Type" : "application/json"
+    }
+  },
+  "priority" : 5
+}

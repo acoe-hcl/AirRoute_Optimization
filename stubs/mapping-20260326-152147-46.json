@@ -1,0 +1,10 @@
+{
+  "request" : {
+    "urlPathPattern" : "/store/order/([^/]+)",
+    "method" : "DELETE"
+  },
+  "response" : {
+    "status" : 200
+  },
+  "priority" : 5
+}

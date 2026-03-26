@@ -1,0 +1,32 @@
+{
+  "request" : {
+    "urlPathPattern" : "/pet/([^/]+)",
+    "method" : "POST",
+    "queryParameters" : {
+      "status" : {
+        "equalTo" : "string"
+      }
+    }
+  },
+  "response" : {
+    "status" : 200,
+    "jsonBody" : {
+      "id" : 10,
+      "name" : "doggie",
+      "category" : {
+        "id" : 1,
+        "name" : "Dogs"
+      },
+      "photoUrls" : [ "string" ],
+      "tags" : [ {
+        "id" : 1,
+        "name" : "string"
+      } ],
+      "status" : "available"
+    },
+    "headers" : {
+      "Content-Type" : "application/json"
+    }
+  },
+  "priority" : 5
+}

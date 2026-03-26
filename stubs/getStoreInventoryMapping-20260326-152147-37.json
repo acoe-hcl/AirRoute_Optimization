@@ -1,0 +1,10 @@
+{
+  "request" : {
+    "urlPath" : "/store/inventory",
+    "method" : "GET"
+  },
+  "response" : {
+    "status" : 200
+  },
+  "priority" : 5
+}

@@ -1,0 +1,28 @@
+{
+  "request" : {
+    "urlPath" : "/user",
+    "method" : "POST",
+    "bodyPatterns" : [ {
+      "equalToJson" : "{id=10, username=theUser, firstName=John, lastName=James, email=john@email.com, password=12345, phone=12345, userStatus=1}",
+      "ignoreArrayOrder" : true,
+      "ignoreExtraElements" : true
+    } ]
+  },
+  "response" : {
+    "status" : 200,
+    "jsonBody" : {
+      "id" : 10,
+      "username" : "theUser",
+      "firstName" : "John",
+      "lastName" : "James",
+      "email" : "john@email.com",
+      "password" : "12345",
+      "phone" : "12345",
+      "userStatus" : 1
+    },
+    "headers" : {
+      "Content-Type" : "application/json"
+    }
+  },
+  "priority" : 5
+}

@@ -1,0 +1,15 @@
+{
+  "request" : {
+    "urlPath" : "/pet/findByTags",
+    "method" : "GET",
+    "queryParameters" : {
+      "tags" : {
+        "equalTo" : "example"
+      }
+    }
+  },
+  "response" : {
+    "status" : 200
+  },
+  "priority" : 5
+}

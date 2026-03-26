@@ -1,0 +1,19 @@
+{
+  "request" : {
+    "urlPath" : "/pet/findByStatus",
+    "method" : "GET",
+    "queryParameters" : {
+      "status" : {
+        "equalTo" : "pending"
+      }
+    }
+  },
+  "response" : {
+    "status" : 400,
+    "body" : "{\"code\":400,\"type\":\"client_error\",\"message\":\"Invalid status value\"}",
+    "headers" : {
+      "Content-Type" : "application/json"
+    }
+  },
+  "priority" : 5
+}

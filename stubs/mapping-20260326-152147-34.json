@@ -1,0 +1,28 @@
+{
+  "request" : {
+    "urlPathPattern" : "/pet/([^/]+)/uploadImage",
+    "method" : "POST",
+    "queryParameters" : {
+      "additionalMetadata" : {
+        "equalTo" : "string"
+      }
+    },
+    "bodyPatterns" : [ {
+      "equalToJson" : "string",
+      "ignoreArrayOrder" : true,
+      "ignoreExtraElements" : true
+    } ]
+  },
+  "response" : {
+    "status" : 404,
+    "jsonBody" : {
+      "code" : 404,
+      "type" : "client_error",
+      "message" : "Pet not found"
+    },
+    "headers" : {
+      "Content-Type" : "application/json"
+    }
+  },
+  "priority" : 5
+}

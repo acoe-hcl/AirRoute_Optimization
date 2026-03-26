@@ -1,0 +1,18 @@
+{
+  "request" : {
+    "urlPathPattern" : "/user/([^/]+)",
+    "method" : "GET"
+  },
+  "response" : {
+    "status" : 404,
+    "jsonBody" : {
+      "code" : 404,
+      "type" : "client_error",
+      "message" : "User not found"
+    },
+    "headers" : {
+      "Content-Type" : "application/json"
+    }
+  },
+  "priority" : 5
+}

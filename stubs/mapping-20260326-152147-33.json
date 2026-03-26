@@ -1,0 +1,28 @@
+{
+  "request" : {
+    "urlPathPattern" : "/pet/([^/]+)/uploadImage",
+    "method" : "POST",
+    "queryParameters" : {
+      "additionalMetadata" : {
+        "equalTo" : "string"
+      }
+    },
+    "bodyPatterns" : [ {
+      "equalToJson" : "string",
+      "ignoreArrayOrder" : true,
+      "ignoreExtraElements" : true
+    } ]
+  },
+  "response" : {
+    "status" : 400,
+    "jsonBody" : {
+      "code" : 400,
+      "type" : "client_error",
+      "message" : "No file uploaded"
+    },
+    "headers" : {
+      "Content-Type" : "application/json"
+    }
+  },
+  "priority" : 5
+}

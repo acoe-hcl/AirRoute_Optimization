@@ -1,0 +1,10 @@
+{
+  "request" : {
+    "urlPathPattern" : "/user/([^/]+)",
+    "method" : "GET"
+  },
+  "response" : {
+    "status" : 200
+  },
+  "priority" : 5
+}

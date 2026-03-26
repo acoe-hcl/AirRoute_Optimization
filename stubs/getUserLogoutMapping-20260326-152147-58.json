@@ -1,0 +1,10 @@
+{
+  "request" : {
+    "urlPath" : "/user/logout",
+    "method" : "GET"
+  },
+  "response" : {
+    "status" : 200
+  },
+  "priority" : 5
+}

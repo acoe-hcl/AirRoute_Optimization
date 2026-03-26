@@ -1,0 +1,18 @@
+{
+  "request" : {
+    "urlPathPattern" : "/store/order/([^/]+)",
+    "method" : "DELETE"
+  },
+  "response" : {
+    "status" : 404,
+    "jsonBody" : {
+      "code" : 404,
+      "type" : "client_error",
+      "message" : "Order not found"
+    },
+    "headers" : {
+      "Content-Type" : "application/json"
+    }
+  },
+  "priority" : 5
+}
