@@ -1,0 +1,19 @@
+{
+  "request" : {
+    "urlPath" : "/api/users/123",
+    "method" : "GET",
+    "headers" : {
+      "Accept" : "application/json",
+      "Authorization" : "Bearer token123"
+    }
+  },
+  "response" : {
+    "status" : 200,
+    "body" : "{\"id\": 123, \"name\": \"John Doe\", \"email\": \"john.doe@example.com\", \"role\": \"admin\"}",
+    "headers" : {
+      "Content-Type" : "application/json",
+      "X-Request-Id" : "abc-123"
+    },
+    "fixedDelayMilliseconds" : 500
+  }
+}
