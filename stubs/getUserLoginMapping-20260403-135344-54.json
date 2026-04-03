@@ -1,0 +1,21 @@
+{
+  "request" : {
+    "urlPath" : "/user/login",
+    "method" : "GET",
+    "queryParameters" : {
+      "password" : {
+        "equalTo" : "string"
+      }
+    }
+  },
+  "response" : {
+    "status" : 200,
+    "body" : "string",
+    "headers" : {
+      "X-Rate-Limit" : null,
+      "X-Expires-After" : null,
+      "Content-Type" : "application/xml"
+    }
+  },
+  "priority" : 5
+}

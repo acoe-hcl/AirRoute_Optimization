@@ -1,0 +1,23 @@
+{
+  "request" : {
+    "urlPath" : "/pet",
+    "method" : "PUT",
+    "bodyPatterns" : [ {
+      "equalToJson" : "{id=10, name=doggie, category={id=1, name=Dogs}, photoUrls=[string], tags=[{id=1, name=string}], status=available}",
+      "ignoreArrayOrder" : true,
+      "ignoreExtraElements" : true
+    } ]
+  },
+  "response" : {
+    "status" : 404,
+    "jsonBody" : {
+      "code" : 404,
+      "type" : "client_error",
+      "message" : "Pet not found"
+    },
+    "headers" : {
+      "Content-Type" : "application/json"
+    }
+  },
+  "priority" : 5
+}

@@ -1,0 +1,23 @@
+{
+  "request" : {
+    "urlPath" : "/pet/findByTags",
+    "method" : "GET",
+    "queryParameters" : {
+      "tags" : {
+        "equalTo" : "example"
+      }
+    }
+  },
+  "response" : {
+    "status" : 400,
+    "jsonBody" : {
+      "code" : 400,
+      "type" : "client_error",
+      "message" : "Invalid tag value"
+    },
+    "headers" : {
+      "Content-Type" : "application/json"
+    }
+  },
+  "priority" : 5
+}

@@ -1,0 +1,15 @@
+{
+  "request" : {
+    "urlPath" : "/user/login",
+    "method" : "GET",
+    "queryParameters" : {
+      "password" : {
+        "equalTo" : "string"
+      }
+    }
+  },
+  "response" : {
+    "status" : 200
+  },
+  "priority" : 5
+}

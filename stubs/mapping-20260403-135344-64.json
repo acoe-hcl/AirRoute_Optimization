@@ -1,0 +1,23 @@
+{
+  "request" : {
+    "urlPathPattern" : "/user/([^/]+)",
+    "method" : "PUT",
+    "bodyPatterns" : [ {
+      "equalToJson" : "{id=10, username=theUser, firstName=John, lastName=James, email=john@email.com, password=12345, phone=12345, userStatus=1}",
+      "ignoreArrayOrder" : true,
+      "ignoreExtraElements" : true
+    } ]
+  },
+  "response" : {
+    "status" : 400,
+    "jsonBody" : {
+      "code" : 400,
+      "type" : "client_error",
+      "message" : "bad request"
+    },
+    "headers" : {
+      "Content-Type" : "application/json"
+    }
+  },
+  "priority" : 5
+}

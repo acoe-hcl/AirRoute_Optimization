@@ -1,0 +1,23 @@
+{
+  "request" : {
+    "urlPath" : "/user/login",
+    "method" : "GET",
+    "queryParameters" : {
+      "password" : {
+        "equalTo" : "string"
+      }
+    }
+  },
+  "response" : {
+    "status" : 400,
+    "jsonBody" : {
+      "code" : 400,
+      "type" : "client_error",
+      "message" : "Invalid username/password supplied"
+    },
+    "headers" : {
+      "Content-Type" : "application/json"
+    }
+  },
+  "priority" : 5
+}

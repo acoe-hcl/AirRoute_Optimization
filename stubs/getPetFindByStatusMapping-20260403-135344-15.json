@@ -1,0 +1,15 @@
+{
+  "request" : {
+    "urlPath" : "/pet/findByStatus",
+    "method" : "GET",
+    "queryParameters" : {
+      "status" : {
+        "equalTo" : "pending"
+      }
+    }
+  },
+  "response" : {
+    "status" : 200
+  },
+  "priority" : 5
+}

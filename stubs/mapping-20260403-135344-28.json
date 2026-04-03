@@ -1,0 +1,15 @@
+{
+  "request" : {
+    "urlPathPattern" : "/pet/([^/]+)",
+    "method" : "POST",
+    "queryParameters" : {
+      "status" : {
+        "equalTo" : "string"
+      }
+    }
+  },
+  "response" : {
+    "status" : 200
+  },
+  "priority" : 5
+}

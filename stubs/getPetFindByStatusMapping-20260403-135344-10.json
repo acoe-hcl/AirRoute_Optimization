@@ -1,0 +1,19 @@
+{
+  "request" : {
+    "urlPath" : "/pet/findByStatus",
+    "method" : "GET",
+    "queryParameters" : {
+      "status" : {
+        "equalTo" : "available"
+      }
+    }
+  },
+  "response" : {
+    "status" : 200,
+    "body" : "[{\"id\":10,\"name\":\"doggie\",\"category\":{\"id\":1,\"name\":\"Dogs\"},\"photoUrls\":[\"string\"],\"tags\":[{\"id\":1,\"name\":\"string\"}],\"status\": \"available\"}]",
+    "headers" : {
+      "Content-Type" : "application/json"
+    }
+  },
+  "priority" : 5
+}

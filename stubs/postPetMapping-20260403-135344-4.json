@@ -1,0 +1,15 @@
+{
+  "request" : {
+    "urlPath" : "/pet",
+    "method" : "POST",
+    "bodyPatterns" : [ {
+      "equalToJson" : "{id=10, name=doggie, category={id=1, name=Dogs}, photoUrls=[string], tags=[{id=1, name=string}], status=available}",
+      "ignoreArrayOrder" : true,
+      "ignoreExtraElements" : true
+    } ]
+  },
+  "response" : {
+    "status" : 200
+  },
+  "priority" : 5
+}

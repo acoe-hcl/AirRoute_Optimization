@@ -1,0 +1,10 @@
+{
+  "request" : {
+    "urlPathPattern" : "/pet/([^/]+)",
+    "method" : "DELETE"
+  },
+  "response" : {
+    "status" : 200
+  },
+  "priority" : 5
+}
