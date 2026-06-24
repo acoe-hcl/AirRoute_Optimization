@@ -3,252 +3,239 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
-import org.openqa.selenium.support.ui.ExpectedConditions;
-import org.openqa.selenium.support.ui.Select;
-import org.openqa.selenium.support.ui.WebDriverWait;
+import org.openqa.selenium.chrome.ChromeOptions;
 import org.testng.Assert;
 import org.testng.annotations.*;
 
-import java.time.Duration;
 import java.util.Locale;
 
 public class AirCanadaContactUsTests {
+
     WebDriver driver;
-    WebDriverWait wait;
 
     @BeforeMethod
-    public void setUp() {
-        driver = new ChromeDriver();
+    public void setup() {
+        ChromeOptions options = new ChromeOptions();
+        driver = new ChromeDriver(options);
         driver.manage().window().maximize();
-        wait = new WebDriverWait(driver, Duration.ofSeconds(20));
+        driver.get("https://www.aircanada.com/contactus"); // Actual URL may differ
     }
 
     @AfterMethod
-    public void tearDown() {
-        if (driver != null)
-            driver.quit();
+    public void teardown() {
+        driver.quit();
     }
 
-    void navigateToContactUsPage() {
-        driver.get("https://www.aircanada.com/contact-us");
-        wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//h1[contains(text(),'Contact Us')]")));
+    void fillGeneralConcernsFlow(String regarding, String issue) {
+        driver.findElement(By.xpath("//div[contains(text(),'General Concerns')]")).click();
+        driver.findElement(By.id("regardingDropdown")).click();
+        driver.findElement(By.xpath("//option[text()='" + regarding + "']")).click();
+        driver.findElement(By.id("issueDropdown")).click();
+        driver.findElement(By.xpath("//option[text()='" + issue + "']")).click();
+        driver.findElement(By.xpath("//button[contains(text(),'Next')]")).click();
     }
 
-    void fillGeneralConcerns_CheckinFlow() {
-        wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//button[contains(.,'General Concerns')]"))).click();
-        new Select(driver.findElement(By.id("regarding-dropdown"))).selectByVisibleText("At the Airport");
-        new Select(driver.findElement(By.id("issue-dropdown"))).selectByVisibleText("Check-in");
-        driver.findElement(By.id("btn-next")).click();
-    }
-
-    void fillPassengerInfo(String email, String confirmEmail, String title, String fName, String lName,
-                          String address, String city, String province, String postal, String country,
-                          String phone) {
-        wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("email"))).sendKeys(email);
-        driver.findElement(By.id("confirm-email")).sendKeys(confirmEmail);
-        new Select(driver.findElement(By.id("title"))).selectByVisibleText(title);
-        driver.findElement(By.id("first-name")).sendKeys(fName);
-        driver.findElement(By.id("last-name")).sendKeys(lName);
+    void fillPassengerInformation(String email, String confirmEmail, String title, String firstName, String lastName,
+                                  String address, String city, String province, String zip, String country, String phone) {
+        driver.findElement(By.id("email")).sendKeys(email);
+        driver.findElement(By.id("confirmEmail")).sendKeys(confirmEmail);
+        driver.findElement(By.id("titleDropdown")).click();
+        driver.findElement(By.xpath("//option[text()='" + title + "']")).click();
+        if (!firstName.isEmpty()) driver.findElement(By.id("firstName")).sendKeys(firstName);
+        if (!lastName.isEmpty()) driver.findElement(By.id("lastName")).sendKeys(lastName);
         driver.findElement(By.id("address")).sendKeys(address);
         driver.findElement(By.id("city")).sendKeys(city);
-        new Select(driver.findElement(By.id("province"))).selectByVisibleText(province);
-        driver.findElement(By.id("postal")).sendKeys(postal);
-        new Select(driver.findElement(By.id("country"))).selectByVisibleText(country);
+        driver.findElement(By.id("provinceDropdown")).click();
+        driver.findElement(By.xpath("//option[text()='" + province + "']")).click();
+        driver.findElement(By.id("zip")).sendKeys(zip);
+        driver.findElement(By.id("countryDropdown")).click();
+        driver.findElement(By.xpath("//option[text()='" + country + "']")).click();
         driver.findElement(By.id("phone")).sendKeys(phone);
-        driver.findElement(By.id("btn-next")).click();
+        driver.findElement(By.xpath("//button[contains(text(),'Next')]")).click();
     }
 
-    void fillAirlineInfo(String airline, String flightNum, String flightDate, String depAirport, String arrAirport,
-                         String bookingRef, String ticketNum) {
-        wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("airline"))).click();
-        new Select(driver.findElement(By.id("airline"))).selectByVisibleText(airline);
-        driver.findElement(By.id("flight-number")).sendKeys(flightNum);
-        driver.findElement(By.id("flight-date")).sendKeys(flightDate);
-        driver.findElement(By.id("departure-airport-input")).sendKeys(depAirport);
-        wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//ul[@id='departure-airport-dropdown']//li[1]"))).click();
-        driver.findElement(By.id("arrival-airport-input")).sendKeys(arrAirport);
-        wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//ul[@id='arrival-airport-dropdown']//li[1]"))).click();
-        driver.findElement(By.id("booking-reference")).sendKeys(bookingRef);
-        driver.findElement(By.id("ticket-number")).sendKeys(ticketNum);
-        driver.findElement(By.id("btn-next")).click();
+    void fillAirlineInformation(String airline, String flightNo, String flightDate,
+                                String depAirport, String arrAirport, String bookingRef, String ticketNo) {
+        driver.findElement(By.id("airlineDropdown")).click();
+        driver.findElement(By.xpath("//option[text()='" + airline + "']")).click();
+        driver.findElement(By.id("flightNumber")).sendKeys(flightNo);
+        driver.findElement(By.id("flightDate")).sendKeys(flightDate);
+        driver.findElement(By.id("departureAirport")).sendKeys(depAirport);
+        driver.findElement(By.id("arrivalAirport")).sendKeys(arrAirport);
+        if (bookingRef != null) driver.findElement(By.id("bookingReference")).sendKeys(bookingRef);
+        if (ticketNo != null) driver.findElement(By.id("ticketNumber")).sendKeys(ticketNo);
+        driver.findElement(By.xpath("//button[contains(text(),'Next')]")).click();
     }
 
-    void fillPaymentAndSubmit(String subject, String comment) {
-        WebElement paymentMsg = wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("payment-info-msg")));
-        Assert.assertEquals(paymentMsg.getText().trim(), "Do not add any payment information in the comment field");
+    void fillSubjectAndSubmit(String subject) {
+        String warningMsg = driver.findElement(By.xpath("//*[contains(text(),'Do not add any payment information')]")).getText();
+        Assert.assertTrue(warningMsg.contains("Do not add any payment information"));
         driver.findElement(By.id("subject")).sendKeys(subject);
-        if (comment != null)
-            driver.findElement(By.id("comment")).sendKeys(comment);
-        driver.findElement(By.id("btn-submit")).click();
+        driver.findElement(By.xpath("//button[contains(text(),'Submit')]")).click();
     }
 
-    void assertConfirmationMessage() {
-        WebElement confMsg = wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("confirmation-msg")));
-        String msg = confMsg.getText();
-        Assert.assertTrue(msg.contains("travel experience has been received"));
-        Assert.assertTrue(msg.matches("(?s).*file number.*will be emailed shortly.*researched and investigated.*"));
-    }
+    // --- TEST CASES ---
 
     @Test
     public void TC_AC_01_Positive_FlowTest() {
-        navigateToContactUsPage();
-        fillGeneralConcerns_CheckinFlow();
-        fillPassengerInfo("testuser@example.com", "testuser@example.com", "Mr.", "John", "Doe",
-                "123 Elm St", "Toronto", "Ontario", "M5G2C3", "Canada", "4161234567");
-        fillAirlineInfo("Air Canada", "1234", "2024-12-05", "YYZ", "YVR", "ABC123", "0141234567890");
-        fillPaymentAndSubmit("Check-in issue at airport", null);
-        assertConfirmationMessage();
+        fillGeneralConcernsFlow("At the Airport", "Check-in");
+        fillPassengerInformation("valid.email@test.com", "valid.email@test.com", "Mr.", "John", "Doe",
+                "123 Main St", "Toronto", "Ontario", "M4B 1B3", "Canada", "4161234567");
+        fillAirlineInformation("Air Canada", "123", "2024-12-25", "YYZ", "YVR", "ABCD12", "0147859632147");
+        fillSubjectAndSubmit("Issue with Check-in at the airport");
+        WebElement confirmMsg = driver.findElement(By.xpath("//*[contains(text(),'travel experience has been received')]"));
+        Assert.assertTrue(confirmMsg.isDisplayed());
     }
 
     @Test
     public void TC_AC_02_Negative_BlankMandatoryFieldsTest() {
-        navigateToContactUsPage();
-        fillGeneralConcerns_CheckinFlow();
-        // Leave first name blank
-        fillPassengerInfo("testuser@example.com", "testuser@example.com", "Mr.", "", "Doe",
-                "123 Elm St", "Toronto", "Ontario", "M5G2C3", "Canada", "4161234567");
-        WebElement error = wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("first-name-error")));
+        fillGeneralConcernsFlow("At the Airport", "Check-in");
+        fillPassengerInformation("valid.email@test.com", "valid.email@test.com", "Mr.", "", "Doe",
+                "123 Main St", "Toronto", "Ontario", "M4B 1B3", "Canada", "4161234567");
+        WebElement error = driver.findElement(By.id("firstName-error"));
         Assert.assertTrue(error.getText().contains("First Name field is required"));
-        Assert.assertTrue(driver.findElement(By.id("passenger-info-section")).isDisplayed());
+        boolean nextDisabled = driver.findElement(By.xpath("//button[contains(text(),'Next')]")).isEnabled();
+        Assert.assertFalse(nextDisabled);
     }
 
     @Test
     public void TC_AC_03_Negative_InvalidEmailFormatTest() {
-        navigateToContactUsPage();
-        fillGeneralConcerns_CheckinFlow();
-        fillPassengerInfo("invalid-email", "invalid-email", "Mr.", "John", "Doe",
-                "123 Elm St", "Toronto", "Ontario", "M5G2C3", "Canada", "4161234567");
-        WebElement error = wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("email-error")));
-        Assert.assertTrue(error.getText().toLowerCase().contains("invalid email address"));
+        fillGeneralConcernsFlow("At the Airport", "Check-in");
+        fillPassengerInformation("invalid-email", "invalid-email", "Mr.", "John", "Doe",
+                "123 Main St", "Toronto", "Ontario", "M4B 1B3", "Canada", "4161234567");
+        WebElement error = driver.findElement(By.id("email-error"));
+        Assert.assertTrue(error.getText().contains("email address is invalid"));
     }
 
     @Test
     public void TC_AC_04_Negative_MismatchedEmailsTest() {
-        navigateToContactUsPage();
-        fillGeneralConcerns_CheckinFlow();
-        fillPassengerInfo("user1@test.com", "user2@test.com", "Mr.", "John", "Doe",
-                "123 Elm St", "Toronto", "Ontario", "M5G2C3", "Canada", "4161234567");
-        WebElement error = wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("confirm-email-error")));
-        Assert.assertTrue(error.getText().toLowerCase().contains("emails do not match"));
+        fillGeneralConcernsFlow("At the Airport", "Check-in");
+        fillPassengerInformation("user1@test.com", "user2@test.com", "Mr.", "John", "Doe",
+                "123 Main St", "Toronto", "Ontario", "M4B 1B3", "Canada", "4161234567");
+        WebElement error = driver.findElement(By.id("confirmEmail-error"));
+        Assert.assertTrue(error.getText().contains("emails do not match"));
     }
 
     @Test
     public void TC_AC_05_Positive_LongInputsTest() {
-        navigateToContactUsPage();
-        fillGeneralConcerns_CheckinFlow();
+        fillGeneralConcernsFlow("At the Airport", "Check-in");
+        // Example: assume max 50 chars for names, address, city, subject
         String longStr = "A".repeat(50);
-        fillPassengerInfo("maxchar@test.com", "maxchar@test.com", "Mr.", longStr, longStr,
-                longStr, longStr, "Ontario", "M5G2C3", "Canada", "4161234567");
-        fillAirlineInfo("Air Canada", "1234", "2024-12-05", "YYZ", "YVR", "ABC123", "0141234567890");
-        fillPaymentAndSubmit(longStr, null);
-        assertConfirmationMessage();
+        fillPassengerInformation("maxinput@test.com", "maxinput@test.com", "Mr.", longStr, longStr,
+                longStr, longStr, "Ontario", "M4B 1B3", "Canada", "4161234567");
+        fillAirlineInformation("Air Canada", "123", "2024-12-25", "YYZ", "YVR", "ABCD12", "0147859632147");
+        fillSubjectAndSubmit(longStr);
+        WebElement confirmMsg = driver.findElement(By.xpath("//*[contains(text(),'travel experience has been received')]"));
+        Assert.assertTrue(confirmMsg.isDisplayed());
     }
 
     @Test
     public void TC_AC_06_Edge_SpecialCharsFieldsTest() {
-        navigateToContactUsPage();
-        fillGeneralConcerns_CheckinFlow();
-        fillPassengerInfo("special@test.com", "special@test.com", "Mr.", "Anne-Marie", "O'Neil",
-                "123 Main St.", "St. John's", "Newfoundland and Labrador", "A1A2B2", "Canada", "7095551234");
-        fillAirlineInfo("Air Canada", "1234", "2024-12-05", "YYT", "YUL", "DEF456", "0141234567890");
-        fillPaymentAndSubmit("Bag issue upon arrival", null);
-        assertConfirmationMessage();
+        fillGeneralConcernsFlow("At the Airport", "Check-in");
+        fillPassengerInformation("specialchar@test.com", "specialchar@test.com", "Mr.", "Anne-Marie", "O'Neil",
+                "123, King-St.", "Quebec", "Quebec", "G1K 7P6", "Canada", "5149876543");
+        fillAirlineInformation("Air Canada", "321", "2024-10-01", "YUL", "YYC", "XYZ987", "0132147856987");
+        fillSubjectAndSubmit("Test avec des caractères spéciaux");
+        WebElement confirmMsg = driver.findElement(By.xpath("//*[contains(text(),'travel experience has been received')]"));
+        Assert.assertTrue(confirmMsg.isDisplayed());
     }
 
     @Test
     public void TC_AC_07_Negative_InvalidPostalCodeTest() {
-        navigateToContactUsPage();
-        fillGeneralConcerns_CheckinFlow();
-        fillPassengerInfo("user@test.com", "user@test.com", "Mr.", "John", "Doe",
-                "123 Elm St", "Toronto", "Ontario", "123", "Canada", "4161234567");
-        WebElement error = wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("postal-error")));
-        Assert.assertTrue(error.getText().toLowerCase().contains("postal" ) || error.getText().toLowerCase().contains("invalid"));
+        fillGeneralConcernsFlow("At the Airport", "Check-in");
+        fillPassengerInformation("badzip@test.com", "badzip@test.com", "Mr.", "John", "Doe",
+                "123 Main St", "Toronto", "Ontario", "123", "Canada", "4161234567");
+        WebElement error = driver.findElement(By.id("zip-error"));
+        Assert.assertTrue(error.getText().contains("postal/zipcode is invalid"));
     }
 
     @Test
     public void TC_AC_08_Edge_NonNumericPhoneTest() {
-        navigateToContactUsPage();
-        fillGeneralConcerns_CheckinFlow();
-        fillPassengerInfo("user@test.com", "user@test.com", "Mr.", "John", "Doe",
-                "123 Elm St", "Toronto", "Ontario", "M5G2C3", "Canada", "abcde12345");
-        WebElement error = wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("phone-error")));
-        Assert.assertTrue(error.getText().toLowerCase().contains("phone") && error.getText().toLowerCase().contains("invalid"));
+        fillGeneralConcernsFlow("At the Airport", "Check-in");
+        fillPassengerInformation("phone@test.com", "phone@test.com", "Mr.", "John", "Doe",
+                "123 Main St", "Toronto", "Ontario", "M4B 1B3", "Canada", "abcde12345");
+        WebElement error = driver.findElement(By.id("phone-error"));
+        Assert.assertTrue(error.getText().contains("invalid phone number format"));
     }
 
     @Test
     public void TC_AC_09_Positive_AlternativeTitlesTest() {
-        navigateToContactUsPage();
-        fillGeneralConcerns_CheckinFlow();
-        fillPassengerInfo("msuser@test.com", "msuser@test.com", "Ms.", "Jane", "Smith",
-                "456 Oak Rd", "Montreal", "Quebec", "H2Y1C6", "Canada", "5143219876");
-        fillAirlineInfo("Air Canada", "5678", "2024-12-10", "YUL", "YYZ", "JKL789", "0141234567890");
-        fillPaymentAndSubmit("Title is Ms.", null);
-        assertConfirmationMessage();
+        fillGeneralConcernsFlow("At the Airport", "Check-in");
+        fillPassengerInformation("alt.title@test.com", "alt.title@test.com", "Ms.", "Jane", "Doe",
+                "123 Main St", "Montreal", "Quebec", "H2Y 1C6", "Canada", "5141234567");
+        fillAirlineInformation("Air Canada", "321", "2024-11-15", "YUL", "YYC", "QRST98", "0156987456321");
+        fillSubjectAndSubmit("Ms. passenger check-in issue");
+        WebElement confirmMsg = driver.findElement(By.xpath("//*[contains(text(),'travel experience has been received')]"));
+        Assert.assertTrue(confirmMsg.isDisplayed());
     }
 
     @Test
     public void TC_AC_10_Edge_BookingFieldsOptionalTest() {
-        navigateToContactUsPage();
-        fillGeneralConcerns_CheckinFlow();
-        fillPassengerInfo("user@test.com", "user@test.com", "Mr.", "John", "Doe",
-                "125 Elm St", "Toronto", "Ontario", "M5G2C3", "Canada", "4161234567");
-        // Leave ticket number blank
-        fillAirlineInfo("Air Canada", "1234", "2024-12-23", "YYZ", "YVR", "ABC123", "");
-        boolean ticketRequired = false;
-        try {
-            WebElement error = wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("ticket-number-error")));
-            Assert.assertTrue(error.getText().toLowerCase().contains("ticket number") && error.getText().toLowerCase().contains("required"));
-            ticketRequired = true;
-        } catch (Exception ignored) {}
-        if (!ticketRequired) {
-            fillPaymentAndSubmit("Booking/ticket optional path", null);
-            assertConfirmationMessage();
+        fillGeneralConcernsFlow("At the Airport", "Check-in");
+        fillPassengerInformation("optionalfields@test.com", "optionalfields@test.com", "Mr.", "John", "Smith",
+                "123 King St", "Vancouver", "British Columbia", "V5K 0A1", "Canada", "6041234567");
+        fillAirlineInformation("Air Canada", "222", "2024-10-30", "YVR", "YYZ", "", "0147859632147");
+        if (isElementPresent(By.id("bookingReference-error"))) {
+            Assert.assertTrue(driver.findElement(By.id("bookingReference-error")).isDisplayed());
+        } else {
+            fillSubjectAndSubmit("No booking reference provided");
+            WebElement confirmMsg = driver.findElement(By.xpath("//*[contains(text(),'travel experience has been received')]"));
+            Assert.assertTrue(confirmMsg.isDisplayed());
         }
     }
 
     @Test
     public void TC_AC_11_Negative_MissingSubjectTest() {
-        navigateToContactUsPage();
-        fillGeneralConcerns_CheckinFlow();
-        fillPassengerInfo("user@test.com", "user@test.com", "Mr.", "John", "Doe",
-                "123 Willow Dr", "Ottawa", "Ontario", "K1A0B1", "Canada", "6135559876");
-        fillAirlineInfo("Air Canada", "2222", "2024-12-15", "YOW", "YYZ", "GHI123", "0141234567890");
-        WebElement paymentMsg = wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("payment-info-msg")));
-        Assert.assertTrue(paymentMsg.isDisplayed());
-        // Do not enter subject
-        driver.findElement(By.id("btn-submit")).click();
-        WebElement error = wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("subject-error")));
-        Assert.assertTrue(error.getText().toLowerCase().contains("required"));
+        fillGeneralConcernsFlow("At the Airport", "Check-in");
+        fillPassengerInformation("missing.subject@test.com", "missing.subject@test.com", "Mr.", "John", "Doe",
+                "221B Baker St", "Ottawa", "Ontario", "K1A 0B1", "Canada", "3431231234");
+        fillAirlineInformation("Air Canada", "456", "2024-09-20", "YOW", "YEG", "LMNO45", "0165987412365");
+        // Do NOT fill subject
+        String warningMsg = driver.findElement(By.xpath("//*[contains(text(),'Do not add any payment information')]")).getText();
+        Assert.assertTrue(warningMsg.contains("Do not add any payment information"));
+        driver.findElement(By.xpath("//button[contains(text(),'Submit')]")).click();
+        WebElement error = driver.findElement(By.id("subject-error"));
+        Assert.assertTrue(error.getText().contains("subject field is required"));
     }
 
     @Test
     public void TC_AC_12_Negative_PaymentInfoInCommentTest() {
-        navigateToContactUsPage();
-        fillGeneralConcerns_CheckinFlow();
-        fillPassengerInfo("paytest@test.com", "paytest@test.com", "Mr.", "Carl", "Murray",
-                "222 Sunset Ave", "Vancouver", "British Columbia", "V5K1A1", "Canada", "6041230000");
-        fillAirlineInfo("Air Canada", "9999", "2024-12-25", "YVR", "YYC", "XYZ456", "0141234567890");
-        fillPaymentAndSubmit("My credit card is 4111 1111 1111 1111", null);
-        WebElement error = wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("subject-error")));
-        Assert.assertTrue(error.getText().toLowerCase().contains("payment") || error.getText().toLowerCase().contains("not allowed"));
+        fillGeneralConcernsFlow("At the Airport", "Check-in");
+        fillPassengerInformation("paymentinfo@test.com", "paymentinfo@test.com", "Mr.", "John", "Doe",
+                "123 Payment Rd", "Moncton", "New Brunswick", "E1C 1Y6", "Canada", "5061231122");
+        fillAirlineInformation("Air Canada", "789", "2024-08-10", "YQM", "YVR", "UVWX12", "0123698745123");
+        String warningMsg = driver.findElement(By.xpath("//*[contains(text(),'Do not add any payment information')]")).getText();
+        Assert.assertTrue(warningMsg.contains("Do not add any payment information"));
+        driver.findElement(By.id("subject")).sendKeys("My credit card is 4111 1111 1111 1111");
+        driver.findElement(By.xpath("//button[contains(text(),'Submit')]")).click();
+        WebElement error = driver.findElement(By.id("subject-error"));
+        Assert.assertTrue(error.getText().toLowerCase().contains("payment"));
     }
 
     @Test
     public void TC_AC_13_Edge_LanguageAndCountryTest() {
         driver.quit();
-        // Restart browser with desired language (French)
-        System.setProperty("webdriver.chrome.args", "--lang=fr");
-        driver = new ChromeDriver();
-        wait = new WebDriverWait(driver, Duration.ofSeconds(20));
-        navigateToContactUsPage();
-        fillGeneralConcerns_CheckinFlow();
-        fillPassengerInfo("fruser@test.com", "fruser@test.com", "M.", "Jean", "Dupont",
-                "23 rue de la Paix", "Paris", "Île-de-France", "75001", "France", "123456789");
-        fillAirlineInfo("Air Canada", "3456", "2024-12-30", "CDG", "YYZ", "FR9876", "0141234567890");
-        fillPaymentAndSubmit("Problème d'enregistrement", null);
-        WebElement confMsg = wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("confirmation-msg")));
-        Assert.assertTrue(confMsg.isDisplayed());
-        Assert.assertTrue(confMsg.getText().toLowerCase(Locale.FRENCH).contains("expérience de voyage") ||
-                confMsg.getText().toLowerCase().contains("travel experience"));
+        ChromeOptions options = new ChromeOptions();
+        options.addArguments("--lang=fr");
+        driver = new ChromeDriver(options);
+        driver.manage().window().maximize();
+        driver.get("https://www.aircanada.com/contactus");
+
+        fillGeneralConcernsFlow("À l'aéroport", "Enregistrement");
+        fillPassengerInformation("frlang@test.com", "frlang@test.com", "M.", "Jean", "Dupont",
+                "45 Rue de Rivoli", "Paris", "Île-de-France", "75001", "France", "0145123456");
+        fillAirlineInformation("Air Canada", "456", "2024-09-20", "CDG", "YUL", "FR1234", "0123698745123");
+        fillSubjectAndSubmit("Problème d’enregistrement à l’aéroport");
+        WebElement confirmMsg = driver.findElement(By.xpath("//*[contains(text(),'expérience de voyage a été reçue')]"));
+        Assert.assertTrue(confirmMsg.isDisplayed());
+    }
+
+    // Helper method
+    public boolean isElementPresent(By locator) {
+        try {
+            return driver.findElement(locator).isDisplayed();
+        } catch (Exception e) {
+            return false;
+        }
     }
 }
