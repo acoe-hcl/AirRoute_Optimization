@@ -4,35 +4,46 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.test</groupId>
-    <artifactId>OrangeHRM-Automation</artifactId>
+    <artifactId>orangehrm-automation</artifactId>
     <version>1.0-SNAPSHOT</version>
     <properties>
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
     <dependencies>
         <!-- Selenium WebDriver -->
         <dependency>
             <groupId>org.seleniumhq.selenium</groupId>
             <artifactId>selenium-java</artifactId>
-            <version>4.12.1</version>
+            <version>4.14.0</version>
         </dependency>
         <!-- TestNG -->
         <dependency>
             <groupId>org.testng</groupId>
             <artifactId>testng</artifactId>
-            <version>7.9.0</version>
+            <version>7.8.0</version>
             <scope>test</scope>
         </dependency>
         <!-- WebDriverManager -->
         <dependency>
             <groupId>io.github.bonigarcia</groupId>
             <artifactId>webdrivermanager</artifactId>
-            <version>5.6.3</version>
+            <version>5.4.0</version>
+        </dependency>
+        <!-- SLF4J Logging -->
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>2.0.9</version>
+        </dependency>
+        <!-- SLF4J Simple Binder -->
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-simple</artifactId>
+            <version>2.0.9</version>
         </dependency>
         <!-- ExtentReports -->
         <dependency>
@@ -40,158 +51,112 @@
             <artifactId>extentreports</artifactId>
             <version>5.1.1</version>
         </dependency>
-        <!-- Log4j2 API -->
-        <dependency>
-            <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-api</artifactId>
-            <version>2.20.0</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-core</artifactId>
-            <version>2.20.0</version>
-        </dependency>
     </dependencies>
-    <build>
-        <plugins>
-            <!-- Compiler Plugin -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.10.0</version>
-                <configuration>
-                    <source>17</source>
-                    <target>17</target>
-                </configuration>
-            </plugin>
-            <!-- Surefire Plugin for TestNG -->
-            <plugin>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <version>3.1.2</version>
-                <configuration>
-                    <suiteXmlFiles>
-                        <suiteXmlFile>testng.xml</suiteXmlFile>
-                    </suiteXmlFiles>
-                    <testFailureIgnore>false</testFailureIgnore>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
 </project>
 ```
-
 ## 2. `testng.xml` (TestNG Suite Configuration)
 **Location:** `testng.xml`
 ```xml
+<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd" >
 <suite name="OrangeHRM Automation Suite" parallel="methods" thread-count="3">
-    <listeners>
-        <listener class-name="com.aventstack.extentreports.testng.listener.ExtentITestListenerAdapter"/>
-    </listeners>
-    <test name="Employee Management Tests">
+    <test name="EmployeeManagementTests">
         <classes>
-            <class name="com.test.tests.EmployeeManagementTests"/>
+            <class name="com.test.tests.EmployeeManagementTest"/>
         </classes>
     </test>
 </suite>
 ```
-
 ## 3. `config.properties` (Test Configuration)
 **Location:** `config.properties`
 ```properties
-# Application URL
-base.url=https://opensource-demo.orangehrmlive.com/
+# OrangeHRM Application Configuration
+base.url=https://opensource-demo.orangehrmlive.com
 
-# Browser type: chrome, firefox, edge
+# Browser configuration: chrome, firefox, edge
 browser=chrome
 
-# Timeouts (in seconds)
-explicit.wait=15
-
-# Admin Credentials
+# Administrator Credentials
 admin.username=admin_user
 admin.password=admin_pass
 
-# Employee Details
-employee.firstName=John
-employee.lastName=Doe
+# Employee Test Data
+employee.firstname=John
+employee.lastname=Doe
 employee.id=12345
 employee.username=johndoe
 employee.password=Emp@1234
 
-# Invalid Login Data
+# Invalid Login Credentials
 invalid.username=invalid_user
 invalid.password=invalid_pass
-```
 
+# Timeout Settings (in seconds)
+explicit.wait.timeout=20
+
+# Verification Messages
+login.error.message=Invalid credentials
+employee.no.records.found=No Records Found
+```
 ## 4. `BasePage.java` (Base Page Object)
 **Location:** `src/test/java/com/test/pages/BasePage.java`
 ```java
 package com.test.pages;
 
-import com.test.utils.ConfigReader;
-import com.test.utils.Log;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.support.PageFactory;
-import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+
 import java.time.Duration;
 
 /**
- * BasePage serves as the base class for all Page Objects.
- * Encapsulates common page object utilities such as wait methods.
+ * Abstract base class for all page objects.
+ * Provides common WebDriver methods and explicit waits.
  */
 public abstract class BasePage {
+
     protected WebDriver driver;
     protected WebDriverWait wait;
 
-    private static final long DEFAULT_TIMEOUT = ConfigReader.getLongProperty("explicit.wait", 15);
-
     /**
-     * Constructor to initialize driver and page factory elements.
+     * Constructor for BasePage.
      * @param driver WebDriver instance.
+     * @param timeoutSeconds Timeout in seconds for explicit waits.
      */
-    public BasePage(WebDriver driver) {
+    public BasePage(WebDriver driver, int timeoutSeconds) {
         this.driver = driver;
-        this.wait = new WebDriverWait(driver, Duration.ofSeconds(DEFAULT_TIMEOUT));
-        PageFactory.initElements(driver, this);
+        this.wait = new WebDriverWait(driver, Duration.ofSeconds(timeoutSeconds));
     }
 
     /**
-     * Waits for an element to be visible on the page.
+     * Waits for the given element to be visible.
      * @param element WebElement to wait for.
+     * @return Visible WebElement.
      */
-    protected void waitForElementVisible(WebElement element) {
-        wait.until(ExpectedConditions.visibilityOf(element));
+    protected WebElement waitForElementVisible(WebElement element) {
+        return wait.until(ExpectedConditions.visibilityOf(element));
     }
 
     /**
-     * Waits for an element to be clickable.
+     * Waits for the given element to be clickable.
      * @param element WebElement to wait for.
+     * @return Clickable WebElement.
      */
-    protected void waitForElementClickable(WebElement element) {
-        wait.until(ExpectedConditions.elementToBeClickable(element));
+    protected WebElement waitForElementClickable(WebElement element) {
+        return wait.until(ExpectedConditions.elementToBeClickable(element));
     }
 
     /**
-     * Waits for a WebElement to disappear.
-     * @param element WebElement to wait for disappearance.
+     * Waits for the page title to match the expected value.
+     * @param expectedTitle Expected page title.
+     * @return True if title matches, false otherwise.
      */
-    protected void waitForElementInvisible(WebElement element) {
-        wait.until(ExpectedConditions.invisibilityOf(element));
-    }
-
-    /**
-     * Logs navigation to a page.
-     * @param pageName Name of the page navigated to.
-     */
-    protected void logPageNavigation(String pageName) {
-        Log.info("Navigated to page: " + pageName);
+    protected boolean waitForPageTitle(String expectedTitle) {
+        return wait.until(ExpectedConditions.titleIs(expectedTitle));
     }
 }
 ```
-
 ## 5. `LoginPage.java` (Login Page Object)
 **Location:** `src/test/java/com/test/pages/LoginPage.java`
 ```java
@@ -200,100 +165,69 @@ package com.test.pages;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
+import org.openqa.selenium.support.PageFactory;
 
 /**
- * Page object representing the OrangeHRM Login Page.
+ * Page Object for the OrangeHRM Login Page.
  */
 public class LoginPage extends BasePage {
 
-    // Page locators
     @FindBy(name = "username")
-    private WebElement usernameInput;
+    private WebElement usernameField;
 
     @FindBy(name = "password")
-    private WebElement passwordInput;
+    private WebElement passwordField;
 
-    @FindBy(css = "button[type='submit']")
+    @FindBy(xpath = "//button[@type='submit']")
     private WebElement loginButton;
 
-    @FindBy(css = ".oxd-alert-content-text")
-    private WebElement loginErrorMessage;
+    @FindBy(xpath = "//p[contains(@class,'oxd-text') and contains(text(),'Invalid')]")
+    private WebElement invalidCredsMessage;
 
     /**
-     * Constructor for LoginPage.
+     * Initializes the LoginPage elements.
      * @param driver WebDriver instance.
+     * @param timeoutSeconds Explicit wait timeout in seconds.
      */
-    public LoginPage(WebDriver driver) {
-        super(driver);
+    public LoginPage(WebDriver driver, int timeoutSeconds) {
+        super(driver, timeoutSeconds);
+        PageFactory.initElements(driver, this);
     }
 
     /**
-     * Enters the username into the username field.
-     * @param username String admin or employee username.
-     */
-    public void enterUsername(String username) {
-        waitForElementVisible(usernameInput);
-        usernameInput.clear();
-        usernameInput.sendKeys(username);
-    }
-
-    /**
-     * Enters the password into the password field.
-     * @param password String user password.
-     */
-    public void enterPassword(String password) {
-        waitForElementVisible(passwordInput);
-        passwordInput.clear();
-        passwordInput.sendKeys(password);
-    }
-
-    /**
-     * Clicks the login button.
-     */
-    public void clickLogin() {
-        waitForElementClickable(loginButton);
-        loginButton.click();
-    }
-
-    /**
-     * Logs in with specified credentials.
-     * @param username Username to log in.
-     * @param password Password for the user.
+     * Performs login action with specified username and password.
+     * @param username Username input.
+     * @param password Password input.
      */
     public void login(String username, String password) {
-        enterUsername(username);
-        enterPassword(password);
-        clickLogin();
+        waitForElementVisible(usernameField).clear();
+        usernameField.sendKeys(username);
+        waitForElementVisible(passwordField).clear();
+        passwordField.sendKeys(password);
+        waitForElementClickable(loginButton).click();
     }
 
     /**
-     * Checks if the login error message is displayed.
-     * @return true if error message is displayed.
+     * Gets invalid credentials error message.
+     * @return The invalid credentials error message string.
      */
-    public boolean isLoginErrorVisible() {
+    public String getInvalidCredentialsMessage() {
+        return waitForElementVisible(invalidCredsMessage).getText().trim();
+    }
+
+    /**
+     * Checks if invalid credentials message is displayed.
+     * @return True if invalid credentials message is visible.
+     */
+    public boolean isLoginErrorDisplayed() {
         try {
-            waitForElementVisible(loginErrorMessage);
-            return loginErrorMessage.isDisplayed();
+            return invalidCredsMessage.isDisplayed();
         } catch (Exception e) {
             return false;
         }
     }
-
-    /**
-     * Gets the text of the login error message.
-     * @return The message string.
-     */
-    public String getLoginErrorMessage() {
-        try {
-            waitForElementVisible(loginErrorMessage);
-            return loginErrorMessage.getText();
-        } catch (Exception e) {
-            return "";
-        }
-    }
 }
 ```
-
 ## 6. `DashboardPage.java` (Dashboard Page Object)
 **Location:** `src/test/java/com/test/pages/DashboardPage.java`
 ```java
@@ -302,326 +236,385 @@ package com.test.pages;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
+import org.openqa.selenium.support.PageFactory;
 
 /**
- * Page object representing the OrangeHRM Dashboard.
+ * Page Object for the OrangeHRM Dashboard after login.
  */
 public class DashboardPage extends BasePage {
-
-    @FindBy(css = "h6.oxd-topbar-header-breadcrumb-module")
-    private WebElement dashboardHeader;
 
     @FindBy(xpath = "//span[text()='PIM']")
     private WebElement pimMenu;
 
-    @FindBy(css = ".oxd-userdropdown-tab")
-    private WebElement userDropdown;
+    @FindBy(xpath = "//header//span[contains(text(),'Dashboard')]")
+    private WebElement dashboardTitle;
+
+    @FindBy(xpath = "//i[@class='oxd-icon bi-chevron-down']")
+    private WebElement userDropdownIcon;
 
     @FindBy(xpath = "//a[text()='Logout']")
-    private WebElement logoutButton;
+    private WebElement logoutOption;
 
     /**
-     * Constructor for DashboardPage.
+     * Initializes the DashboardPage elements.
      * @param driver WebDriver instance.
+     * @param timeoutSeconds Explicit wait timeout in seconds.
      */
-    public DashboardPage(WebDriver driver) {
-        super(driver);
+    public DashboardPage(WebDriver driver, int timeoutSeconds) {
+        super(driver, timeoutSeconds);
+        PageFactory.initElements(driver, this);
     }
 
     /**
-     * Verifies dashboard is loaded.
-     * @return true if dashboard is loaded.
+     * Checks if Dashboard page is displayed.
+     * @return True if dashboard title is present.
      */
-    public boolean isDashboardLoaded() {
+    public boolean isDashboardDisplayed() {
         try {
-            waitForElementVisible(dashboardHeader);
-            return dashboardHeader.isDisplayed();
+            return waitForElementVisible(dashboardTitle).isDisplayed();
         } catch (Exception e) {
             return false;
         }
     }
 
     /**
-     * Clicks the PIM menu in the top navigation.
+     * Navigates to the PIM section.
      */
-    public void clickPimMenu() {
-        waitForElementClickable(pimMenu);
-        pimMenu.click();
+    public void navigateToPIM() {
+        waitForElementClickable(pimMenu).click();
     }
 
     /**
-     * Performs user logout action.
+     * Logs out from the application.
      */
     public void logout() {
-        waitForElementClickable(userDropdown);
-        userDropdown.click();
-        waitForElementClickable(logoutButton);
-        logoutButton.click();
+        waitForElementClickable(userDropdownIcon).click();
+        waitForElementClickable(logoutOption).click();
     }
 }
 ```
-
-## 7. `PIMPage.java` (PIM/Employee Management Page Object)
+## 7. `PIMPage.java` (PIM/Main Employee Page Object)
 **Location:** `src/test/java/com/test/pages/PIMPage.java`
 ```java
 package com.test.pages;
 
-import org.openqa.selenium.*;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
-import org.openqa.selenium.support.ui.Select;
-
-import java.util.List;
+import org.openqa.selenium.support.PageFactory;
 
 /**
- * Page object for the PIM module in OrangeHRM, handling Employee actions.
+ * Page Object for PIM navigation and Employee List.
  */
 public class PIMPage extends BasePage {
 
-    // -- Add Employee
-    @FindBy(xpath = "//a[text()='Add Employee']")
-    private WebElement addEmployeeTab;
+    @FindBy(xpath = "//button[text()='Add']")
+    private WebElement addEmployeeButton;
 
-    @FindBy(name = "firstName")
-    private WebElement firstNameInput;
-
-    @FindBy(name = "lastName")
-    private WebElement lastNameInput;
-
-    @FindBy(xpath = "//label[text()='Employee Id']/following::input[1]")
-    private WebElement employeeIdInput;
-
-    @FindBy(css = ".oxd-switch-input")
-    private WebElement createLoginDetailsSwitch;
-
-    @FindBy(xpath = "//label[text()='Username']/following::input[1]")
-    private WebElement employeeUsernameInput;
-
-    @FindBy(xpath = "//label[text()='Password']/following::input[1]")
-    private WebElement employeePasswordInput;
-
-    @FindBy(xpath = "//label[text()='Confirm Password']/following::input[1]")
-    private WebElement employeeConfirmPasswordInput;
-
-    @FindBy(xpath = "//button[@type='submit']")
-    private WebElement saveButton;
-
-    // -- Add Success, Personal Details
-    @FindBy(css = ".orangehrm-edit-employee-name")
-    private WebElement personalDetailsHeader;
-
-    // -- Employee List
     @FindBy(xpath = "//a[text()='Employee List']")
     private WebElement employeeListTab;
 
-    @FindBy(xpath = "//label[text()='Employee Id']/following::input[1]")
-    private WebElement searchEmployeeIdInput;
+    @FindBy(xpath = "//input[@placeholder='Type for hints...']")
+    private WebElement employeeIdSearchField;
 
     @FindBy(xpath = "//button[@type='submit']")
     private WebElement searchButton;
 
-    @FindBy(css = ".oxd-table-body .oxd-table-card")
-    private List<WebElement> employeeRows;
-
-    @FindBy(xpath = "//span[text()='No Records Found']")
+    @FindBy(xpath = "//div[@class='oxd-table-card']//span[contains(text(),'No Records Found')]")
     private WebElement noRecordsFoundLabel;
 
-    @FindBy(css = ".oxd-table-card .oxd-table-cell-actions > button[title='Delete']")
-    private WebElement firstDeleteButton;
+    @FindBy(xpath = "//div[@class='oxd-table-card']//div[contains(@class,'oxd-table-cell')][2]")
+    private WebElement employeeNameResultCell;
 
-    @FindBy(css = ".oxd-dialog")
-    private WebElement confirmDeleteDialog;
+    @FindBy(xpath = "//div[@class='oxd-table-card']//div[contains(@class,'oxd-table-cell')][3]")
+    private WebElement employeeIdResultCell;
 
-    @FindBy(css = ".oxd-dialog .oxd-button--label-danger")
+    @FindBy(xpath = "//div[@class='oxd-table-card']//button[1]")
+    private WebElement employeeDeleteIcon;
+
+    @FindBy(xpath = "//button[text()='Yes, Delete']")
     private WebElement confirmDeleteButton;
 
     /**
-     * Constructor for PIMPage.
+     * Initializes the PIMPage elements.
      * @param driver WebDriver instance.
+     * @param timeoutSeconds Explicit wait timeout in seconds.
      */
-    public PIMPage(WebDriver driver) {
-        super(driver);
+    public PIMPage(WebDriver driver, int timeoutSeconds) {
+        super(driver, timeoutSeconds);
+        PageFactory.initElements(driver, this);
     }
 
     /**
-     * Navigates to the Add Employee tab under PIM.
+     * Navigates to Add Employee page.
      */
-    public void goToAddEmployee() {
-        waitForElementClickable(addEmployeeTab);
-        addEmployeeTab.click();
+    public void clickAddEmployee() {
+        waitForElementClickable(addEmployeeButton).click();
     }
 
     /**
-     * Fills the add employee form and enables "Create login details".
+     * Navigates to Employee List tab.
      */
-    public void addNewEmployee(String firstName, String lastName, String empId, String username, String password) {
-        waitForElementVisible(firstNameInput);
-        firstNameInput.clear();
-        firstNameInput.sendKeys(firstName);
+    public void openEmployeeListTab() {
+        waitForElementClickable(employeeListTab).click();
+    }
 
-        lastNameInput.clear();
-        lastNameInput.sendKeys(lastName);
+    /**
+     * Searches for an employee by ID.
+     * @param employeeId Employee ID string.
+     */
+    public void searchEmployeeById(String employeeId) {
+        waitForElementVisible(employeeIdSearchField).clear();
+        employeeIdSearchField.sendKeys(employeeId);
+        waitForElementClickable(searchButton).click();
+    }
 
-        employeeIdInput.clear();
-        employeeIdInput.sendKeys(empId);
-
-        if (!createLoginDetailsSwitch.isSelected()) {
-            createLoginDetailsSwitch.click();
+    /**
+     * Returns true if employee search result is "No Records Found".
+     * @return True if no records found.
+     */
+    public boolean isNoRecordsFoundDisplayed() {
+        try {
+            return waitForElementVisible(noRecordsFoundLabel).isDisplayed();
+        } catch (Exception e) {
+            return false;
         }
-        waitForElementVisible(employeeUsernameInput);
-        employeeUsernameInput.clear();
-        employeeUsernameInput.sendKeys(username);
+    }
 
-        employeePasswordInput.clear();
-        employeePasswordInput.sendKeys(password);
+    /**
+     * Returns employee name in search result.
+     * @return Employee name string.
+     */
+    public String getResultEmployeeName() {
+        try {
+            return waitForElementVisible(employeeNameResultCell).getText().trim();
+        } catch (Exception e) {
+            return null;
+        }
+    }
 
-        employeeConfirmPasswordInput.clear();
-        employeeConfirmPasswordInput.sendKeys(password);
+    /**
+     * Returns employee ID in search result.
+     * @return Employee ID string.
+     */
+    public String getResultEmployeeId() {
+        try {
+            return waitForElementVisible(employeeIdResultCell).getText().trim();
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    /**
+     * Deletes employee in search result.
+     */
+    public void deleteEmployee() {
+        waitForElementClickable(employeeDeleteIcon).click();
+        waitForElementClickable(confirmDeleteButton).click();
+    }
+}
+```
+## 8. `AddEmployeePage.java` (Add Employee Page Object)
+**Location:** `src/test/java/com/test/pages/AddEmployeePage.java`
+```java
+package com.test.pages;
+
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.FindBy;
+import org.openqa.selenium.support.PageFactory;
+
+/**
+ * Page Object for Add Employee functionality.
+ */
+public class AddEmployeePage extends BasePage {
+
+    @FindBy(name = "firstName")
+    private WebElement firstNameField;
+
+    @FindBy(name = "lastName")
+    private WebElement lastNameField;
+
+    @FindBy(xpath = "//label[text()='Employee Id']/following::input[1]")
+    private WebElement employeeIdField;
+
+    @FindBy(xpath = "//span[@class='oxd-switch-input']")
+    private WebElement createLoginDetailsToggle;
+
+    @FindBy(xpath = "//label[text()='Username']/following::input[1]")
+    private WebElement employeeUsernameField;
+
+    @FindBy(xpath = "//label[text()='Password']/following::input[1]")
+    private WebElement employeePasswordField;
+
+    @FindBy(xpath = "//label[text()='Confirm Password']/following::input[1]")
+    private WebElement employeeConfirmPasswordField;
+
+    @FindBy(xpath = "//button[@type='submit']")
+    private WebElement saveButton;
+
+    /**
+     * Initializes AddEmployeePage elements.
+     * @param driver WebDriver instance.
+     * @param timeoutSeconds Explicit wait timeout in seconds.
+     */
+    public AddEmployeePage(WebDriver driver, int timeoutSeconds) {
+        super(driver, timeoutSeconds);
+        PageFactory.initElements(driver, this);
+    }
+
+    /**
+     * Enters new employee information & creates login details.
+     * @param firstName Employee first name.
+     * @param lastName Employee last name.
+     * @param empId Employee ID.
+     * @param username Login username.
+     * @param password Login password.
+     */
+    public void fillEmployeeDetails(String firstName, String lastName, String empId,
+                                    String username, String password) {
+        waitForElementVisible(firstNameField).clear();
+        firstNameField.sendKeys(firstName);
+        waitForElementVisible(lastNameField).clear();
+        lastNameField.sendKeys(lastName);
+        waitForElementVisible(employeeIdField).clear();
+        employeeIdField.sendKeys(empId);
+
+        waitForElementClickable(createLoginDetailsToggle).click();
+        waitForElementVisible(employeeUsernameField).clear();
+        employeeUsernameField.sendKeys(username);
+        waitForElementVisible(employeePasswordField).clear();
+        employeePasswordField.sendKeys(password);
+        waitForElementVisible(employeeConfirmPasswordField).clear();
+        employeeConfirmPasswordField.sendKeys(password);
     }
 
     /**
      * Saves the new employee.
      */
     public void saveEmployee() {
-        waitForElementClickable(saveButton);
-        saveButton.click();
-        // Wait for personal details header to assert success
-        waitForElementVisible(personalDetailsHeader);
-    }
-
-    /**
-     * Confirms that the employee personal details page is loaded.
-     * @return true if present.
-     */
-    public boolean isOnPersonalDetailsPage() {
-        try {
-            return personalDetailsHeader.isDisplayed();
-        } catch (Exception e) {
-            return false;
-        }
-    }
-
-    /**
-     * Navigates to Employee List.
-     */
-    public void goToEmployeeList() {
-        waitForElementClickable(employeeListTab);
-        employeeListTab.click();
-    }
-
-    /**
-     * Searches for an employee by ID.
-     */
-    public void searchEmployeeById(String empId) {
-        waitForElementVisible(searchEmployeeIdInput);
-        searchEmployeeIdInput.clear();
-        searchEmployeeIdInput.sendKeys(empId);
-
-        waitForElementClickable(searchButton);
-        searchButton.click();
-    }
-
-    /**
-     * Checks if the employee with given details is present in the table.
-     */
-    public boolean isEmployeePresent(String firstName, String lastName, String empId) {
-        try {
-            wait.until(driver ->
-                employeeRows.stream().anyMatch(row -> row.getText().contains(empId) && row.getText().contains(firstName) && row.getText().contains(lastName))
-            );
-            for (WebElement row : employeeRows) {
-                if (row.getText().contains(empId) && row.getText().contains(firstName) && row.getText().contains(lastName)) {
-                    return true;
-                }
-            }
-            return false;
-        } catch (TimeoutException e) {
-            return false;
-        }
-    }
-
-    /**
-     * Deletes the first employee found in search result.
-     */
-    public void deleteFirstEmployee() {
-        waitForElementClickable(firstDeleteButton);
-        firstDeleteButton.click();
-        waitForElementVisible(confirmDeleteDialog);
-        waitForElementClickable(confirmDeleteButton);
-        confirmDeleteButton.click();
-        // Wait for dialog to disappear or No Records Found
-        try {
-            waitForElementVisible(noRecordsFoundLabel);
-        } catch (Exception ignored) {
-        }
-    }
-
-    /**
-     * Checks if "No Records Found" is displayed.
-     */
-    public boolean isNoRecordsFoundDisplayed() {
-        try {
-            waitForElementVisible(noRecordsFoundLabel);
-            return noRecordsFoundLabel.isDisplayed();
-        } catch (Exception e) {
-            return false;
-        }
+        waitForElementClickable(saveButton).click();
     }
 }
 ```
+## 9. `PersonalDetailsPage.java` (Personal Details Page Object)
+**Location:** `src/test/java/com/test/pages/PersonalDetailsPage.java`
+```java
+package com.test.pages;
 
-## 8. `ConfigReader.java` (Configuration Utility)
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.FindBy;
+import org.openqa.selenium.support.PageFactory;
+
+/**
+ * Page Object for Employee Personal Details page after creation.
+ */
+public class PersonalDetailsPage extends BasePage {
+
+    @FindBy(xpath = "//h6[contains(text(),'Personal Details')]")
+    private WebElement personalDetailsHeader;
+
+    @FindBy(xpath = "//input[@name='firstName']")
+    private WebElement firstNameField;
+
+    @FindBy(xpath = "//input[@name='lastName']")
+    private WebElement lastNameField;
+
+    @FindBy(xpath = "//label[text()='Employee Id']/following::input[1]")
+    private WebElement employeeIdField;
+
+    /**
+     * Initializes PersonalDetailsPage elements.
+     * @param driver WebDriver instance.
+     * @param timeoutSeconds Explicit wait timeout in seconds.
+     */
+    public PersonalDetailsPage(WebDriver driver, int timeoutSeconds) {
+        super(driver, timeoutSeconds);
+        PageFactory.initElements(driver, this);
+    }
+
+    /**
+     * Verifies that personal details page is displayed.
+     * @return True if personal details header is displayed.
+     */
+    public boolean isPersonalDetailsPageDisplayed() {
+        try {
+            return waitForElementVisible(personalDetailsHeader).isDisplayed();
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    /**
+     * Returns employee first name displayed.
+     * @return First name string.
+     */
+    public String getFirstName() {
+        return waitForElementVisible(firstNameField).getAttribute("value");
+    }
+
+    /**
+     * Returns employee last name displayed.
+     * @return Last name string.
+     */
+    public String getLastName() {
+        return waitForElementVisible(lastNameField).getAttribute("value");
+    }
+
+    /**
+     * Returns employee ID displayed.
+     * @return Employee ID string.
+     */
+    public String getEmployeeId() {
+        return waitForElementVisible(employeeIdField).getAttribute("value");
+    }
+}
+```
+## 10. `ConfigReader.java` (Configuration Utility)
 **Location:** `src/test/java/com/test/utils/ConfigReader.java`
 ```java
 package com.test.utils;
 
-import java.io.FileInputStream;
+import java.io.InputStream;
 import java.util.Properties;
 
 /**
- * ConfigReader loads properties from config.properties for test configuration.
+ * Utility class for reading configuration data from properties file.
  */
 public class ConfigReader {
-    private static Properties properties;
-    private static final String CONFIG_FILE_PATH = "config.properties";
+
+    private static Properties properties = new Properties();
 
     static {
-        try (FileInputStream fis = new FileInputStream(CONFIG_FILE_PATH)) {
-            properties = new Properties();
-            properties.load(fis);
+        try (InputStream input = ConfigReader.class.getClassLoader()
+                .getResourceAsStream("config.properties")) {
+            properties.load(input);
         } catch (Exception e) {
-            throw new RuntimeException("Failed to load config.properties: " + e.getMessage(), e);
+            throw new RuntimeException("Unable to load config.properties", e);
         }
     }
 
     /**
-     * Gets a property value by key.
-     * @param key Property name.
-     * @return Property value as String, or null.
+     * Gets property value by key.
+     * @param key Property key.
+     * @return Property value.
      */
     public static String getProperty(String key) {
         return properties.getProperty(key);
     }
 
     /**
-     * Gets a property as long or returns default if not found or invalid.
-     * @param key  Property name.
-     * @param defaultValue Default value.
-     * @return Long value.
+     * Gets explicit wait timeout from config.
+     * @return Timeout in seconds as integer.
      */
-    public static long getLongProperty(String key, long defaultValue) {
-        String value = getProperty(key);
-        if (value != null) {
-            try {
-                return Long.parseLong(value.trim());
-            } catch (NumberFormatException ignored) {
-            }
-        }
-        return defaultValue;
+    public static int getExplicitWaitTimeout() {
+        String timeout = properties.getProperty("explicit.wait.timeout");
+        return Integer.parseInt(timeout);
     }
 }
 ```
-
-## 9. `WebDriverManager.java` (Driver Factory Utility)
+## 11. `WebDriverManager.java` (WebDriver Factory Utility)
 **Location:** `src/test/java/com/test/utils/WebDriverManager.java`
 ```java
 package com.test.utils;
@@ -629,24 +622,26 @@ package com.test.utils;
 import io.github.bonigarcia.wdm.WebDriverManager;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
-import org.openqa.selenium.edge.EdgeDriver;
 import org.openqa.selenium.firefox.FirefoxDriver;
+import org.openqa.selenium.edge.EdgeDriver;
 
 /**
- * Factory class for WebDriver creation. Thread-safe for parallel execution.
+ * Utility class for WebDriver setup based on config.
  */
-public class WebDriverManager {
-    private static final ThreadLocal<WebDriver> driverThreadLocal = new ThreadLocal<>();
-
-    private WebDriverManager() { }
+public class WebDriverManagerUtil {
 
     /**
-     * Initialize the WebDriver based on browser in config.
+     * Initializes WebDriver based on config 'browser' property.
+     * @return WebDriver instance.
      */
-    public static void initDriver() {
-        String browser = ConfigReader.getProperty("browser").toLowerCase();
+    public static WebDriver getDriver() {
+        String browser = ConfigReader.getProperty("browser");
         WebDriver driver;
-        switch (browser) {
+        switch (browser.toLowerCase()) {
+            case "chrome":
+                WebDriverManager.chromedriver().setup();
+                driver = new ChromeDriver();
+                break;
             case "firefox":
                 WebDriverManager.firefoxdriver().setup();
                 driver = new FirefoxDriver();
@@ -655,313 +650,252 @@ public class WebDriverManager {
                 WebDriverManager.edgedriver().setup();
                 driver = new EdgeDriver();
                 break;
-            case "chrome":
             default:
-                WebDriverManager.chromedriver().setup();
-                driver = new ChromeDriver();
-                break;
+                throw new IllegalArgumentException("Unsupported browser: " + browser);
         }
-        driverThreadLocal.set(driver);
-    }
-
-    /**
-     * Returns the current WebDriver instance.
-     * @return WebDriver instance.
-     */
-    public static WebDriver getDriver() {
-        return driverThreadLocal.get();
-    }
-
-    /**
-     * Quits the WebDriver and removes from thread local.
-     */
-    public static void quitDriver() {
-        if (driverThreadLocal.get() != null) {
-            driverThreadLocal.get().quit();
-            driverThreadLocal.remove();
-        }
+        driver.manage().window().maximize();
+        return driver;
     }
 }
 ```
-
-## 10. `Log.java` (Logging Utility)
-**Location:** `src/test/java/com/test/utils/Log.java`
-```java
-package com.test.utils;
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
-/**
- * Centralized Log4j logger for the framework.
- */
-public class Log {
-    private static final Logger logger = LogManager.getLogger(Log.class);
-
-    public static void info(String message) {
-        logger.info(message);
-    }
-
-    public static void warn(String message) {
-        logger.warn(message);
-    }
-
-    public static void error(String message) {
-        logger.error(message);
-    }
-
-    public static void debug(String message) {
-        logger.debug(message);
-    }
-}
-```
-
-## 11. `BaseTest.java` (Test Base Setup)
+## 12. `BaseTest.java` (Test Base Class)
 **Location:** `src/test/java/com/test/tests/BaseTest.java`
 ```java
 package com.test.tests;
 
 import com.test.utils.ConfigReader;
-import com.test.utils.Log;
-import com.test.utils.WebDriverManager;
+import com.test.utils.WebDriverManagerUtil;
 import org.openqa.selenium.WebDriver;
+import org.testng.ITestResult;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
- * BaseTest provides test setup and teardown for all test classes.
+ * Base class for all OrangeHRM tests.
+ * Handles WebDriver setup/teardown.
  */
 public abstract class BaseTest {
-    protected WebDriver driver;
-    protected String baseUrl;
+
+    protected ThreadLocal<WebDriver> driver = new ThreadLocal<>();
+    protected Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @BeforeMethod(alwaysRun = true)
     public void setUp() {
-        WebDriverManager.initDriver();
-        driver = WebDriverManager.getDriver();
-        driver.manage().window().maximize();
-        baseUrl = ConfigReader.getProperty("base.url");
-        driver.get(baseUrl);
-        Log.info("Browser session started for: " + baseUrl);
+        logger.info("Initializing WebDriver for test thread.");
+        driver.set(WebDriverManagerUtil.getDriver());
+        driver.get().get(ConfigReader.getProperty("base.url"));
     }
 
     @AfterMethod(alwaysRun = true)
-    public void tearDown() {
-        if (driver != null) {
-            driver.manage().deleteAllCookies();
-            driver.quit();
-            Log.info("Browser session ended.");
+    public void tearDown(ITestResult result) {
+        logger.info("Quitting WebDriver for test thread.");
+        if (driver.get() != null) {
+            driver.get().quit();
+            driver.remove();
         }
-        WebDriverManager.quitDriver();
+    }
+
+    /**
+     * Returns the driver instance (thread-safe).
+     * @return WebDriver instance.
+     */
+    public WebDriver getDriver() {
+        return driver.get();
     }
 }
 ```
-
-## 12. `EmployeeManagementTests.java` (Test Scenarios)
-**Location:** `src/test/java/com/test/tests/EmployeeManagementTests.java`
+## 13. `EmployeeManagementTest.java` (Employee Management Test Cases)
+**Location:** `src/test/java/com/test/tests/EmployeeManagementTest.java`
 ```java
 package com.test.tests;
 
-import com.test.pages.DashboardPage;
-import com.test.pages.LoginPage;
-import com.test.pages.PIMPage;
+import com.test.pages.*;
 import com.test.utils.ConfigReader;
-import com.test.utils.Log;
-import org.openqa.selenium.WebDriver;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
 /**
- * Automated test cases for comprehensive Employee Management in OrangeHRM.
+ * Comprehensive Employee Management tests for OrangeHRM.
  */
-public class EmployeeManagementTests extends BaseTest {
+public class EmployeeManagementTest extends BaseTest {
+
     /**
-     * 1. Test: Valid Admin Login
-     * Verifies successful login to dashboard.
+     * Test: Administrator login with valid credentials.
      */
-    @Test(priority = 1)
-    public void testAdminValidLogin() {
-        LoginPage loginPage = new LoginPage(driver);
-        String adminUser = ConfigReader.getProperty("admin.username");
-        String adminPass = ConfigReader.getProperty("admin.password");
-
-        loginPage.login(adminUser, adminPass);
-        DashboardPage dashboard = new DashboardPage(driver);
-        boolean isDashboardLoaded = dashboard.isDashboardLoaded();
-
-        Log.info("Admin login: " + isDashboardLoaded);
-        Assert.assertTrue(isDashboardLoaded, "Admin should successfully log in and see dashboard.");
+    @Test(description = "Administrator successfully logs in with valid credentials.")
+    public void testValidAdminLogin() {
+        LoginPage loginPage = new LoginPage(getDriver(), ConfigReader.getExplicitWaitTimeout());
+        loginPage.login(ConfigReader.getProperty("admin.username"), ConfigReader.getProperty("admin.password"));
+        DashboardPage dashboardPage = new DashboardPage(getDriver(), ConfigReader.getExplicitWaitTimeout());
+        Assert.assertTrue(dashboardPage.isDashboardDisplayed(), "Dashboard should be visible after valid login.");
     }
 
     /**
-     * 2. Test: Add New Employee with Login Details.
-     * Verifies employee creation and redirection to personal details page.
+     * Test: Administrator adds a new employee with login details.
      */
-    @Test(priority = 2)
+    @Test(description = "Administrator can add new employee and login details.")
     public void testAddNewEmployee() {
-        // Login first
-        LoginPage loginPage = new LoginPage(driver);
-        String adminUser = ConfigReader.getProperty("admin.username");
-        String adminPass = ConfigReader.getProperty("admin.password");
-        loginPage.login(adminUser, adminPass);
+        LoginPage loginPage = new LoginPage(getDriver(), ConfigReader.getExplicitWaitTimeout());
+        loginPage.login(ConfigReader.getProperty("admin.username"), ConfigReader.getProperty("admin.password"));
+        DashboardPage dashboardPage = new DashboardPage(getDriver(), ConfigReader.getExplicitWaitTimeout());
+        Assert.assertTrue(dashboardPage.isDashboardDisplayed(), "Dashboard should be visible after valid login.");
+        dashboardPage.navigateToPIM();
 
-        DashboardPage dashboard = new DashboardPage(driver);
-        Assert.assertTrue(dashboard.isDashboardLoaded(), "Dashboard must be loaded after login.");
+        PIMPage pimPage = new PIMPage(getDriver(), ConfigReader.getExplicitWaitTimeout());
+        pimPage.clickAddEmployee();
 
-        dashboard.clickPimMenu();
-        PIMPage pimPage = new PIMPage(driver);
-        pimPage.goToAddEmployee();
+        AddEmployeePage addEmployeePage = new AddEmployeePage(getDriver(), ConfigReader.getExplicitWaitTimeout());
+        addEmployeePage.fillEmployeeDetails(
+                ConfigReader.getProperty("employee.firstname"),
+                ConfigReader.getProperty("employee.lastname"),
+                ConfigReader.getProperty("employee.id"),
+                ConfigReader.getProperty("employee.username"),
+                ConfigReader.getProperty("employee.password")
+        );
+        addEmployeePage.saveEmployee();
 
-        String firstName = ConfigReader.getProperty("employee.firstName");
-        String lastName = ConfigReader.getProperty("employee.lastName");
-        String empId = ConfigReader.getProperty("employee.id");
-        String empUser = ConfigReader.getProperty("employee.username");
-        String empPass = ConfigReader.getProperty("employee.password");
-
-        pimPage.addNewEmployee(firstName, lastName, empId, empUser, empPass);
-        pimPage.saveEmployee();
-
-        Assert.assertTrue(pimPage.isOnPersonalDetailsPage(), "Employee should be created and navigated to Personal Details page.");
+        PersonalDetailsPage personalDetailsPage = new PersonalDetailsPage(getDriver(), ConfigReader.getExplicitWaitTimeout());
+        Assert.assertTrue(personalDetailsPage.isPersonalDetailsPageDisplayed(),
+                "Should be redirected to Personal Details page after adding employee.");
+        Assert.assertEquals(personalDetailsPage.getFirstName(), ConfigReader.getProperty("employee.firstname"),
+                "First name should match input data.");
+        Assert.assertEquals(personalDetailsPage.getLastName(), ConfigReader.getProperty("employee.lastname"),
+                "Last name should match input data.");
+        Assert.assertEquals(personalDetailsPage.getEmployeeId(), ConfigReader.getProperty("employee.id"),
+                "Employee ID should match input data.");
     }
 
     /**
-     * 3. Test: Verify Employee Creation in Employee List.
+     * Test: Verifies that newly added employee appears in the employee list.
      */
-    @Test(priority = 3)
-    public void testVerifyEmployeeCreationInList() {
-        // Login first
-        LoginPage loginPage = new LoginPage(driver);
-        String adminUser = ConfigReader.getProperty("admin.username");
-        String adminPass = ConfigReader.getProperty("admin.password");
-        loginPage.login(adminUser, adminPass);
+    @Test(description = "Newly added employee appears in the employee list.")
+    public void testVerifyEmployeeCreation() {
+        LoginPage loginPage = new LoginPage(getDriver(), ConfigReader.getExplicitWaitTimeout());
+        loginPage.login(ConfigReader.getProperty("admin.username"), ConfigReader.getProperty("admin.password"));
+        DashboardPage dashboardPage = new DashboardPage(getDriver(), ConfigReader.getExplicitWaitTimeout());
+        dashboardPage.navigateToPIM();
 
-        DashboardPage dashboard = new DashboardPage(driver);
-        Assert.assertTrue(dashboard.isDashboardLoaded(), "Dashboard must be loaded after login.");
-        dashboard.clickPimMenu();
+        PIMPage pimPage = new PIMPage(getDriver(), ConfigReader.getExplicitWaitTimeout());
+        pimPage.openEmployeeListTab();
+        pimPage.searchEmployeeById(ConfigReader.getProperty("employee.id"));
 
-        PIMPage pimPage = new PIMPage(driver);
-        pimPage.goToEmployeeList();
-
-        String empId = ConfigReader.getProperty("employee.id");
-        String firstName = ConfigReader.getProperty("employee.firstName");
-        String lastName = ConfigReader.getProperty("employee.lastName");
-
-        pimPage.searchEmployeeById(empId);
-        boolean isPresent = pimPage.isEmployeePresent(firstName, lastName, empId);
-
-        Assert.assertTrue(isPresent, "Newly added employee (ID: " + empId + ") should appear in the employee list.");
+        String actualName = pimPage.getResultEmployeeName();
+        String expectedName = ConfigReader.getProperty("employee.firstname") + " " + ConfigReader.getProperty("employee.lastname");
+        String actualId = pimPage.getResultEmployeeId();
+        Assert.assertEquals(actualName, expectedName, "Employee name should match newly created employee.");
+        Assert.assertEquals(actualId, ConfigReader.getProperty("employee.id"), "Employee ID should match search criteria.");
     }
 
     /**
-     * 4. Test: Delete Employee by Employee ID.
+     * Test: Deletes selected employee and verifies removal.
      */
-    @Test(priority = 4)
+    @Test(description = "Selected employee can be deleted and is removed from the system.")
     public void testDeleteEmployee() {
-        // Login first
-        LoginPage loginPage = new LoginPage(driver);
-        String adminUser = ConfigReader.getProperty("admin.username");
-        String adminPass = ConfigReader.getProperty("admin.password");
-        loginPage.login(adminUser, adminPass);
+        LoginPage loginPage = new LoginPage(getDriver(), ConfigReader.getExplicitWaitTimeout());
+        loginPage.login(ConfigReader.getProperty("admin.username"), ConfigReader.getProperty("admin.password"));
+        DashboardPage dashboardPage = new DashboardPage(getDriver(), ConfigReader.getExplicitWaitTimeout());
+        dashboardPage.navigateToPIM();
 
-        DashboardPage dashboard = new DashboardPage(driver);
-        Assert.assertTrue(dashboard.isDashboardLoaded(), "Dashboard must be loaded after login.");
-        dashboard.clickPimMenu();
+        PIMPage pimPage = new PIMPage(getDriver(), ConfigReader.getExplicitWaitTimeout());
+        pimPage.openEmployeeListTab();
+        pimPage.searchEmployeeById(ConfigReader.getProperty("employee.id"));
 
-        PIMPage pimPage = new PIMPage(driver);
-        pimPage.goToEmployeeList();
+        String actualId = pimPage.getResultEmployeeId();
+        Assert.assertEquals(actualId, ConfigReader.getProperty("employee.id"), "Employee ID to delete should match.");
 
-        String empId = ConfigReader.getProperty("employee.id");
-        String firstName = ConfigReader.getProperty("employee.firstName");
-        String lastName = ConfigReader.getProperty("employee.lastName");
+        pimPage.deleteEmployee();
 
-        pimPage.searchEmployeeById(empId);
-        boolean isPresent = pimPage.isEmployeePresent(firstName, lastName, empId);
-        Assert.assertTrue(isPresent, "Employee with ID " + empId + " must be present before deletion.");
-
-        pimPage.deleteFirstEmployee();
-
-        // Confirm deletion in UI
-        boolean noRecords = pimPage.isNoRecordsFoundDisplayed();
-        Assert.assertTrue(noRecords, "After deletion, 'No Records Found' should be displayed.");
+        // Re-search to confirm deletion
+        pimPage.searchEmployeeById(ConfigReader.getProperty("employee.id"));
+        Assert.assertTrue(pimPage.isNoRecordsFoundDisplayed(),
+                "After deletion, 'No Records Found' should be shown for employee search.");
     }
 
     /**
-     * 5. Test: Verify Deleted Employee is Not Found after Re-login.
+     * Test: Deleted employee record is not found upon search post-deletion.
      */
-    @Test(priority = 5)
-    public void testDeletedEmployeeNotFoundAfterLogoutLogin() {
-        // First: Login and delete employee if present
-        LoginPage loginPage = new LoginPage(driver);
-        String adminUser = ConfigReader.getProperty("admin.username");
-        String adminPass = ConfigReader.getProperty("admin.password");
-        loginPage.login(adminUser, adminPass);
+    @Test(description = "Deleted employee record is not found upon search post-deletion.")
+    public void testVerifyEmployeeDeletion() {
+        LoginPage loginPage = new LoginPage(getDriver(), ConfigReader.getExplicitWaitTimeout());
+        loginPage.login(ConfigReader.getProperty("admin.username"), ConfigReader.getProperty("admin.password"));
+        DashboardPage dashboardPage = new DashboardPage(getDriver(), ConfigReader.getExplicitWaitTimeout());
+        dashboardPage.navigateToPIM();
 
-        DashboardPage dashboard = new DashboardPage(driver);
-        Assert.assertTrue(dashboard.isDashboardLoaded(), "Dashboard must be loaded after login.");
+        PIMPage pimPage = new PIMPage(getDriver(), ConfigReader.getExplicitWaitTimeout());
+        pimPage.openEmployeeListTab();
+        pimPage.searchEmployeeById(ConfigReader.getProperty("employee.id"));
 
-        dashboard.clickPimMenu();
-        PIMPage pimPage = new PIMPage(driver);
-        pimPage.goToEmployeeList();
-
-        String empId = ConfigReader.getProperty("employee.id");
-        pimPage.searchEmployeeById(empId);
-
-        if (!pimPage.isNoRecordsFoundDisplayed()) {
-            // Employee still present, delete
-            pimPage.deleteFirstEmployee();
-        }
-        // Logout
-        dashboard.logout();
-
-        // Login again
-        loginPage = new LoginPage(driver);
-        loginPage.login(adminUser, adminPass);
-
-        dashboard = new DashboardPage(driver);
-        Assert.assertTrue(dashboard.isDashboardLoaded(), "Dashboard must be loaded after re-login.");
-
-        dashboard.clickPimMenu();
-        pimPage = new PIMPage(driver);
-        pimPage.goToEmployeeList();
-        pimPage.searchEmployeeById(empId);
-
-        boolean noRecords = pimPage.isNoRecordsFoundDisplayed();
-        Assert.assertTrue(noRecords, "Deleted employee with ID " + empId + " should NOT be found after logout/login.");
+        Assert.assertTrue(pimPage.isNoRecordsFoundDisplayed(),
+                "Deleted employee should not be found; 'No Records Found' expected.");
     }
 
     /**
-     * 6. Test: Invalid Login Scenario.
-     * Verifies that login with invalid credentials fails.
+     * Test: Invalid login attempts are blocked with appropriate error message.
      */
-    @Test(priority = 6)
+    @Test(description = "Invalid login attempts are blocked with appropriate error message.")
     public void testInvalidLoginAttempt() {
-        // Logout if logged in
-        LoginPage loginPage = new LoginPage(driver);
+        LoginPage loginPage = new LoginPage(getDriver(), ConfigReader.getExplicitWaitTimeout());
+        loginPage.login(ConfigReader.getProperty("invalid.username"), ConfigReader.getProperty("invalid.password"));
 
-        String invalidUser = ConfigReader.getProperty("invalid.username");
-        String invalidPass = ConfigReader.getProperty("invalid.password");
-
-        loginPage.enterUsername(invalidUser);
-        loginPage.enterPassword(invalidPass);
-        loginPage.clickLogin();
-
-        boolean isErrorVisible = loginPage.isLoginErrorVisible();
-        String actualError = loginPage.getLoginErrorMessage();
-
-        Assert.assertTrue(isErrorVisible, "Login error message for invalid credentials should be visible.");
-        Assert.assertTrue(actualError.contains("Invalid credentials"), "Error message should indicate invalid credentials. Found: " + actualError);
+        Assert.assertTrue(loginPage.isLoginErrorDisplayed(), "Login error should be displayed for invalid credentials.");
+        Assert.assertEquals(loginPage.getInvalidCredentialsMessage(),
+                ConfigReader.getProperty("login.error.message"),
+                "Error message should match expected invalid credentials message.");
     }
 }
 ```
-
-## 13. `README.md` (Project Documentation)
+## 14. `README.md` (Project Documentation)
 **Location:** `README.md`
 ```markdown
-# OrangeHRM Test Automation Framework
+# OrangeHRM Employee Management Automation
 
-A production-ready Selenium TestNG automation framework for comprehensive Employee Management in OrangeHRM.
+## Overview
+This project automates comprehensive employee management scenarios in the OrangeHRM web application using Java, Selenium WebDriver, and TestNG. The framework follows industry-standard Page Object Model (POM) design principles for robust, scalable test automation.
 
-## Project Structure
+## Features
+- Advanced browser automation (multi-browser support)
+- Thread-safe parallel execution
+- Explicit waits for synchronization (no Thread.sleep)
+- Test data managed via external config.properties
+- Detailed logging and reporting (SLF4J, ExtentReports)
+- Page Object Model (POM) structure
+- Complete coverage of login, employee creation, deletion, negative scenarios
+
+## Prerequisites
+- Java (JDK 17+)
+- Maven (for dependency management and execution)
+- Chrome, Firefox, or Edge browser installed
+- OrangeHRM web application accessible
+
+## Setup Instructions
+1. **Clone the Repository**
+   ```
+   git clone <your-repo-url>
+   cd orangehrm-automation
+   ```
+
+2. **Configure Test Data**
+   - Update `config.properties` as per your environment:
+     ```
+     base.url=https://opensource-demo.orangehrmlive.com
+     browser=chrome
+     admin.username=admin_user
+     admin.password=admin_pass
+     ...
+     ```
+3. **Run Tests**
+   - Use Maven to execute the suite:
+     ```
+     mvn clean test
+     ```
+   - Test results will be available in the Maven console and ExtentReports output (if enabled).
+
+4. **Parallel Execution**
+   - Tests run in parallel as configured in `testng.xml`. Adjust `thread-count` as needed.
+
+## Structure
 
 ```
 project-root/
@@ -973,68 +907,29 @@ project-root/
     ??? test/
         ??? java/
             ??? com/
-                ??? test/
-                    ??? pages/
-                    ??? tests/
-                    ??? utils/
+            ?   ??? test/
+            ?       ??? pages/
+            ?       ?   ??? BasePage.java
+            ?       ?   ??? LoginPage.java
+            ?       ?   ??? DashboardPage.java
+            ?       ?   ??? PIMPage.java
+            ?       ?   ??? AddEmployeePage.java
+            ?       ?   ??? PersonalDetailsPage.java
+            ?       ??? tests/
+            ?       ?   ??? BaseTest.java
+            ?       ?   ??? EmployeeManagementTest.java
+            ?       ??? utils/
+            ?           ??? ConfigReader.java
+            ?           ??? WebDriverManager.java
 ```
 
-## Features
+## Extending & Customization
 
-- Page Object Model (POM)
-- Data-driven tests from `config.properties`
-- Cross-browser support: Chrome, Firefox, Edge
-- Parallel test execution
-- ExtentReports for detailed reporting
-- Log4j2 logging and debugging
-- Proper explicit waits (WebDriverWait)
-- Robust error handling and assertions
+- Add new page objects for OrangeHRM functionalities under `pages/`
+- Add new test cases in `tests/` folder
+- Use `ConfigReader` utility to manage all test data centrally
 
-## Prerequisites
+## License
 
-- JDK 17+
-- Maven 3.6+
-- Chrome/Firefox/Edge browsers installed
-- Internet connection (for WebDriver binaries)
-
-## Setup
-
-1. **Clone the repository:**
-   ```
-   git clone https://github.com/your-org/orangehrm-automation.git
-   cd orangehrm-automation
-   ```
-
-2. **Configure properties:**
-   Edit `config.properties` (URL, credentials, browsers, test data).
-
-3. **Run tests via Maven:**
-   ```
-   mvn clean test
-   ```
-
-4. **View Reports:**
-   Reports generated in `/test-output` or `/reports` folder.
-
-## Usage
-
-- To run on a different browser, change `browser` in `config.properties`.
-- Tests and data are managed independently. Add/modify data in properties for flexibility.
-
-## Test Cases Automated
-
-1. Login as Admin
-2. Add New Employee (with login credentials)
-3. Verify Employee Creation in List
-4. Delete Employee by Employee ID
-5. Verify Employee Deletion After Logout/Login
-6. Invalid Login Attempt
-
-## Contribution
-
-PRs are welcome! Please follow Java conventions, POM, and TestNG best practices.
-
----
-
-© 2024 YourOrg. All rights reserved.
+This project is open source and free to use for educational and non-commercial purposes.
 ```
