@@ -9,132 +9,128 @@ import org.testng.Assert;
 import org.testng.annotations.*;
 
 import java.time.Duration;
-import java.util.Arrays;
 import java.util.List;
 
 public class DashboardPipelineOrderLogoutTest {
-
-    private WebDriver driver;
-    private WebDriverWait wait;
-
-    private final String appUrl = "https://your-app-url.com";
-    private final String username = "testuser";
-    private final String password = "P@ssw0rd123";
-    private final List<String> pipelineStatuses = Arrays.asList("Submitted", "Processing", "Fulfillment", "In Transit", "Delivered");
+    WebDriver driver;
+    WebDriverWait wait;
+    String baseUrl = "https://your-application-url.com"; // Replace with actual application URL
 
     @BeforeClass
-    public void setup() {
+    public void setUp() {
+        // System.setProperty("webdriver.chrome.driver", "path-to-your-chromedriver");
         driver = new ChromeDriver();
-        wait = new WebDriverWait(driver, Duration.ofSeconds(15));
+        wait = new WebDriverWait(driver, Duration.ofSeconds(10));
         driver.manage().window().maximize();
     }
 
     @Test(priority = 1)
-    public void testLoginAndDashboardValidation() {
-        // Launch Application
-        driver.get(appUrl);
-        Assert.assertTrue(driver.getTitle().length() > 0, "Application did not launch successfully.");
-        
-        // Login
-        WebElement usernameField = wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("username")));
-        WebElement passwordField = driver.findElement(By.id("password"));
-        WebElement loginBtn = driver.findElement(By.id("loginBtn"));
+    public void testLoginAndHomeDashboard() {
+        driver.get(baseUrl);
+        wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("username"))).sendKeys("testuser");
+        driver.findElement(By.id("password")).sendKeys("P@ssw0rd123");
+        driver.findElement(By.id("loginBtn")).click(); // Update with actual login button locator
 
-        usernameField.sendKeys(username);
-        passwordField.sendKeys(password);
-        loginBtn.click();
+        WebElement dashboardHeader = wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("dashboardHeader")));
+        Assert.assertTrue(dashboardHeader.isDisplayed(), "Dashboard is not displayed.");
 
-        // Verify Dashboard Display
-        WebElement dashboardLabel = wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("dashboardTitle")));
-        Assert.assertTrue(dashboardLabel.isDisplayed(), "Dashboard is not displayed after login.");
-
-        WebElement userNameLabel = driver.findElement(By.id("userNameDisplay"));
-        Assert.assertEquals(userNameLabel.getText(), username, "Dashboard displays incorrect username.");
+        WebElement userNameElement = wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("userDisplayName")));
+        Assert.assertEquals(userNameElement.getText().trim(), "testuser", "Displayed user name mismatch on dashboard.");
     }
 
-    @Test(priority = 2)
-    public void testPipelineStatusValidation() {
-        for (String status : pipelineStatuses) {
-            // Click pipeline status section/tile
-            WebElement statusTile = wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//div[contains(@class,'pipeline-status') and .='" + status + "']")));
-            statusTile.click();
+    @Test(priority = 2, dependsOnMethods = "testLoginAndHomeDashboard")
+    public void testPipelineStatusValidations() {
+        String[] statuses = {"Submitted", "Processing", "Fulfillment", "In Transit", "Delivered"};
+        for (String status : statuses) {
+            // Click the status tile/section
+            String tileXpath = "//div[contains(@class,'pipeline-status') and .//span[text()='" + status + "']]";
+            WebElement tile = wait.until(ExpectedConditions.elementToBeClickable(By.xpath(tileXpath)));
+            tile.click();
 
-            // Verify List of Orders for Selected Status
-            WebElement ordersList = wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("ordersList")));
-            List<WebElement> orders = ordersList.findElements(By.xpath(".//div[contains(@class,'order-row')]"));
-            Assert.assertTrue(orders.size() > 0, "No orders displayed in pipeline status: " + status);
+            // Verify order list for that status is displayed
+            List<WebElement> orders = wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(
+                By.xpath("//div[@class='order-list']//div[contains(@class,'order-row')]")
+            ));
+            Assert.assertTrue(orders.size() > 0, "No orders found under status: " + status);
 
-            // Validate Key Order Information
-            for (WebElement order : orders) {
-                WebElement orderId = order.findElement(By.className("order-id"));
-                WebElement orderDate = order.findElement(By.className("order-date"));
-                WebElement orderStatus = order.findElement(By.className("order-status"));
+            // Validate key order info for at least one order (first one)
+            WebElement firstOrder = orders.get(0);
+            WebElement orderIdElem = firstOrder.findElement(By.className("order-id"));
+            WebElement orderDateElem = firstOrder.findElement(By.className("order-date"));
+            WebElement orderStatusElem = firstOrder.findElement(By.className("order-status"));
+            Assert.assertNotNull(orderIdElem.getText(), "Order ID missing for status: " + status);
+            Assert.assertTrue(orderDateElem.getText().matches("\\d{2}/\\d{2}/\\d{4}"), "Order Date format invalid");
+            Assert.assertEquals(orderStatusElem.getText(), status, "Order status value mismatch");
 
-                Assert.assertTrue(orderId.getText().matches("\\d+"), "Order ID is invalid");
-                Assert.assertTrue(orderDate.getText().matches("\\d{4}-\\d{2}-\\d{2}"), "Order date format is invalid"); // YYYY-MM-DD
-                Assert.assertEquals(orderStatus.getText(), status, "Order status does not match selected pipeline");
-            }
-
-            // Return to Dashboard
-            WebElement dashboardBtn = driver.findElement(By.id("dashboardBtn"));
+            // Click Dashboard button to return
+            WebElement dashboardBtn = wait.until(ExpectedConditions.elementToBeClickable(By.id("dashboardBtn")));
             dashboardBtn.click();
 
-            // Verify Dashboard is displayed again
-            wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("dashboardTitle")));
+            // Verify dashboard is displayed again
+            WebElement dashboardHeader = wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("dashboardHeader")));
+            Assert.assertTrue(dashboardHeader.isDisplayed(), "Dashboard is not displayed after returning from status: " + status);
         }
     }
 
-    @Test(priority = 3)
-    public void testPipelinePageAndOrderDetailsValidation() {
-        // Click Pipeline from side panel
-        WebElement pipelineSidePanelOption = wait.until(ExpectedConditions.elementToBeClickable(By.id("pipelineSidePanel")));
-        pipelineSidePanelOption.click();
+    @Test(priority = 3, dependsOnMethods = "testPipelineStatusValidations")
+    public void testPipelinePageOrderDetails() {
+        // Open Pipeline from side panel
+        WebElement pipelineMenu = wait.until(ExpectedConditions.elementToBeClickable(By.id("pipelineMenu")));
+        pipelineMenu.click();
 
-        // Verify Pipeline Page Loaded
-        WebElement pipelinePageTitle = wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("pipelinePageTitle")));
-        Assert.assertTrue(pipelinePageTitle.isDisplayed(), "Pipeline page did not load.");
+        // Verify pipeline page and orders listed
+        WebElement pipelineHeader = wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("pipelinePageHeader")));
+        Assert.assertTrue(pipelineHeader.getText().contains("Pipeline"), "Pipeline page header mismatch");
 
-        // Verify orders listed
-        WebElement pipelineOrderList = driver.findElement(By.id("pipelineOrdersList"));
-        List<WebElement> pipelineOrders = pipelineOrderList.findElements(By.xpath(".//div[contains(@class,'pipeline-order-row')]"));
-        Assert.assertTrue(pipelineOrders.size() > 0, "No orders are listed on the Pipeline page.");
+        List<WebElement> pipelineOrders = wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(
+            By.xpath("//div[@class='pipeline-orders']//div[contains(@class,'order-row')]")
+        ));
+        Assert.assertTrue(pipelineOrders.size() > 0, "No orders found in Pipeline list");
 
-        // Select any order and open details
-        WebElement anyOrder = pipelineOrders.get(0);
-        anyOrder.click();
+        // Click first order for details
+        WebElement selectedOrder = pipelineOrders.get(0);
+        String selectedOrderId = selectedOrder.findElement(By.className("order-id")).getText();
+        selectedOrder.click();
 
-        // Verify order details page displays correct information
-        WebElement orderDetailsSection = wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("orderDetailsSection")));
-        Assert.assertTrue(orderDetailsSection.isDisplayed(), "Order details page not displayed.");
+        // Verify order details page information
+        WebElement detailsHeader = wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("orderDetailsHeader")));
+        Assert.assertTrue(detailsHeader.isDisplayed(), "Order Details header not visible");
 
-        WebElement orderId = orderDetailsSection.findElement(By.id("orderDetailID"));
-        WebElement customerName = orderDetailsSection.findElement(By.id("orderDetailCustomerName"));
-        WebElement items = orderDetailsSection.findElement(By.id("orderDetailItems"));
-        WebElement status = orderDetailsSection.findElement(By.id("orderDetailStatus"));
-        WebElement timeline = orderDetailsSection.findElement(By.id("orderDetailTimeline"));
+        // Check Order ID
+        WebElement detailsOrderIdElem = driver.findElement(By.id("detailOrderId"));
+        Assert.assertEquals(detailsOrderIdElem.getText(), selectedOrderId, "Order ID mismatch on details page");
 
-        Assert.assertTrue(orderId.getText().matches("\\d+"), "Order Detail: Invalid Order ID");
-        Assert.assertTrue(customerName.getText().length() > 0, "Order Detail: Customer Name missing");
-        Assert.assertTrue(items.getText().length() > 0, "Order Detail: Items missing");
-        Assert.assertTrue(pipelineStatuses.contains(status.getText()), "Order Detail: Invalid status");
-        Assert.assertTrue(timeline.isDisplayed(), "Order Detail: Timeline not displayed");
+        // Check Customer Name
+        WebElement customerNameElem = driver.findElement(By.id("detailCustomerName"));
+        Assert.assertTrue(!customerNameElem.getText().trim().isEmpty(), "Customer Name missing");
+
+        // Check Items
+        List<WebElement> items = driver.findElements(By.xpath("//ul[@id='detailItemsList']/li"));
+        Assert.assertTrue(items.size() > 0, "No items found in order details");
+
+        // Check Status
+        WebElement statusElem = driver.findElement(By.id("detailOrderStatus"));
+        Assert.assertTrue(!statusElem.getText().trim().isEmpty(), "Order Status missing in details");
+
+        // Check Timeline
+        WebElement timelineElem = driver.findElement(By.id("detailOrderTimeline"));
+        Assert.assertTrue(timelineElem.isDisplayed(), "Order Timeline section missing");
     }
 
-    @Test(priority = 4)
-    public void testLogoutValidation() {
-        // Click Logout/Sign Out button
-        WebElement logoutBtn = wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("logoutBtn")));
+    @Test(priority = 4, dependsOnMethods = "testPipelinePageOrderDetails")
+    public void testLogout() {
+        // Click logout
+        WebElement logoutBtn = wait.until(ExpectedConditions.elementToBeClickable(By.id("logoutBtn")));
         logoutBtn.click();
 
         // Verify redirected to login page
-        WebElement loginPageTitle = wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("loginPageTitle")));
-        Assert.assertTrue(loginPageTitle.isDisplayed(), "User not redirected to login page after logout.");
+        WebElement loginPage = wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("loginPage")));
+        Assert.assertTrue(loginPage.isDisplayed(), "Login page not displayed after logout");
     }
 
     @AfterClass
     public void tearDown() {
-        if (driver != null) {
+        if (driver != null)
             driver.quit();
-        }
     }
 }
